@@ -1,5 +1,20 @@
 #include <iostream>
 #include <string>
+#include <vector>
+
+// Mockup functions
+void handleSetOption(const std::string& optionName, const std::string& optionValue) {
+    // Implement setting options
+}
+
+void handlePosition(const std::string& positionData) {
+    // Implement setting up the board position
+}
+
+void handleGo(const std::string& goData) {
+    // Implement move calculation logic
+    std::cout << "info currmove e2e4 currmovenumber 1\n";
+}
 
 void uciloop() {
     std::string input;
@@ -11,8 +26,23 @@ void uciloop() {
             std::cout << "uciok\n";
         } else if (input == "isready") {
             std::cout << "readyok\n";
+        } else if (input.rfind("setoption", 0) == 0) {
+            // Parse setoption command
+            std::string optionName = "someOption"; // Extract from input
+            std::string optionValue = "someValue"; // Extract from input
+            handleSetOption(optionName, optionValue);
+        } else if (input.rfind("position", 0) == 0) {
+            // Parse position command
+            std::string positionData = input.substr(9); // Extract position data
+            handlePosition(positionData);
+        } else if (input.rfind("go", 0) == 0) {
+            // Parse go command
+            std::string goData = input.substr(3); // Extract go parameters
+            handleGo(goData);
         } else if (input == "quit") {
             break;
+        } else {
+            std::cerr << "Unknown command: " << input << std::endl;
         }
     }
 }
