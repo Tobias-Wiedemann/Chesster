@@ -13,7 +13,8 @@ void handlePosition(const std::string& positionData) {
 
 void handleGo(const std::string& goData) {
     // Implement move calculation logic
-    std::cout << "info currmove e2e4 currmovenumber 1\n";
+//    std::cout << "info currmove e2e4 currmovenumber 1\n";
+    std::cout << "info depth 1 seldepth 0\ninfo score cp 63  depth 1 nodes 13 time 15 pv b2b4\n";
 }
 
 void uciloop() {
