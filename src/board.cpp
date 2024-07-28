@@ -140,11 +140,12 @@ struct position {
         }
     }
 
-    void move_piece(Piece piece, char from_file, int from_rank, char to_file, int to_rank) {
+    void move_piece(char from_file, int from_rank, char to_file, int to_rank) {
         int from_index = get_index(from_file, from_rank);
         int to_index = get_index(to_file, to_rank);
 
         // 8x8 Board Move
+        Piece piece = piece_table[from_index];
         Color moving_color = color_table[from_index];
         Piece moving_piece = piece_table[from_index];
         piece_table[from_index] = Piece::Empty;
@@ -404,7 +405,7 @@ position starting_bitboards() {
     return p;
 }
 
-position &starting_position(position& p) {
+void starting_position(position& p) {
 
     p.set_piece(Piece::Pawn, 'a', 2, Color::White);
     p.set_piece(Piece::Pawn, 'b', 2, Color::White);
@@ -450,16 +451,45 @@ position &starting_position(position& p) {
     p.set_piece(Piece::Queen, 'd', 8, Color::Black);
 
     p.set_piece(Piece::King, 'e', 8, Color::Black);
+}
 
-    return p;
+void cmdl_game_loop() {
+
+    position p;
+    starting_position(p);
+
+    print_full_board(p);
+
+    char from;
+    int from_row;
+    char to;
+    int to_row;
+
+    for (;;) {
+        std::cin >> from >> from_row >> to >> to_row;
+        if (from < 'a' || from > 'h')
+            continue;
+        if (to < 'a' || to > 'h')
+            continue;
+        if (from_row < 1 || from_row > 8)
+            continue;
+        if (to_row < 1 || to_row > 8)
+            continue;
+
+
+        p.move_piece(from, from_row, to, to_row);
+        print_full_board(p);
+    }
+
 }
 
 int main() {
+    cmdl_game_loop();
     position p;
-    position s = starting_position(p);
-    print_full_board(s);
-    s.move_piece(Piece::Pawn, 'e', 2, 'e', 4);
-    print_full_board(s);
+    starting_position(p);
+    print_full_board(p);
+    p.move_piece('e', 2, 'e', 4);
+    print_full_board(p);
 
 
 
