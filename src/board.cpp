@@ -17,6 +17,12 @@ enum class Color{
     Empty
 };
 
+int get_index(char file, int rank) {
+    int index = file - 'a' + 8 * (rank - 1);
+    assert(index >= 0);
+    assert(index < 64);
+    return index;
+}
 
 struct position {
     position() {
@@ -46,9 +52,8 @@ struct position {
     std::vector<Color> color_table;
 
     void set_piece(Piece piece, char file, int rank, Color col) {
-        int index = file - 'a' + 8 * (rank - 1);
-        assert(index >= 0);
-        assert(index < 64);
+        //int index = file - 'a' + 8 * (rank - 1);
+        int index = get_index(file, rank);
         color_table[index] = col;
 
         // Bitboard
@@ -209,11 +214,9 @@ void print_full_board(position &p) {
         std::cout << std::endl;
     }
     std::cout << "\n8x8-based\n";
-    for (int rank = 7; rank >= 0; --rank) {
-        for (int file = 0; file < 8; ++file) {
-            int index = rank * 8 + file;
-            assert(index >= 0);
-            assert(index < 64);
+    for (int rank = 8; rank >= 1; --rank) {
+        for (char file = 'a'; file <= 'h'; ++file) {
+            int index = get_index(file, rank);
             auto piece = p.piece_table[index];
             char res;
             switch (piece) {
