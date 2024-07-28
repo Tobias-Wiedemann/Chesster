@@ -139,6 +139,128 @@ struct position {
                 return;
         }
     }
+
+    void move_piece(Piece piece, char from_file, int from_rank, char to_file, int to_rank) {
+        int from_index = get_index(from_file, from_rank);
+        int to_index = get_index(to_file, to_rank);
+
+        // 8x8 Board Move
+        Color moving_color = color_table[from_index];
+        Piece moving_piece = piece_table[from_index];
+        piece_table[from_index] = Piece::Empty;
+
+        Color captured_color = color_table[to_index];
+        Piece captured_piece = piece_table[to_index];
+        piece_table[to_index] = moving_piece;
+
+        color_table[from_index] = Color::Empty;
+        color_table[to_index] = moving_color;
+
+        uint64_t from_bit = get_bitboard_bit(from_file, from_rank);
+        uint64_t to_bit = get_bitboard_bit(to_file, to_rank);
+        // Bitboard Move
+        // Delete old piece
+        if (moving_color == Color::White) {
+            switch (piece) {
+                case Piece::Pawn:
+                    white_pawns ^= from_bit;
+                    break;
+                case Piece::Rook:
+                    white_rooks ^= from_bit;
+                    break;
+                case Piece::Knight:
+                    white_knights ^= from_bit;
+                    break;
+                case Piece::Bishop:
+                    white_bishops ^= from_bit;
+                    break;
+                case Piece::Queen:
+                    white_queens ^= from_bit;
+                    break;
+                case Piece::King:
+                    white_kings ^= from_bit;
+                    break;
+                default:
+                    std::cout << "PIECE NOT FOUND";
+                    return;
+            }
+        } else {
+            switch (piece) {
+                case Piece::Pawn:
+                    black_pawns ^= from_bit;
+                    break;
+                case Piece::Rook:
+                    black_rooks ^= from_bit;
+                    break;
+                case Piece::Knight:
+                    black_knights ^= from_bit;
+                    break;
+                case Piece::Bishop:
+                    black_bishops ^= from_bit;
+                    break;
+                case Piece::Queen:
+                    black_queens ^= from_bit;
+                    break;
+                case Piece::King:
+                    black_kings ^= from_bit;
+                    break;
+                default:
+                    std::cout << "PIECE NOT FOUND";
+                    return;
+            }
+        }
+
+        // Insert new piece
+        if (moving_color == Color::White) {
+            switch (piece) {
+                case Piece::Pawn:
+                    white_pawns |= to_bit;
+                    break;
+                case Piece::Rook:
+                    white_rooks |= to_bit;
+                    break;
+                case Piece::Knight:
+                    white_knights |= to_bit;
+                    break;
+                case Piece::Bishop:
+                    white_bishops |= to_bit;
+                    break;
+                case Piece::Queen:
+                    white_queens |= to_bit;
+                    break;
+                case Piece::King:
+                    white_kings |= to_bit;
+                    break;
+                default:
+                    std::cout << "PIECE NOT FOUND";
+                    return;
+            }
+        } else {
+            switch (piece) {
+                case Piece::Pawn:
+                    black_pawns ^= to_bit;
+                    break;
+                case Piece::Rook:
+                    black_rooks ^= to_bit;
+                    break;
+                case Piece::Knight:
+                    black_knights ^= to_bit;
+                    break;
+                case Piece::Bishop:
+                    black_bishops ^= to_bit;
+                    break;
+                case Piece::Queen:
+                    black_queens ^= to_bit;
+                    break;
+                case Piece::King:
+                    black_kings ^= to_bit;
+                    break;
+                default:
+                    std::cout << "PIECE NOT FOUND";
+                    return;
+            }
+        }
+    }
 };
 
 void print_bitboard(uint64_t bitboard) {
@@ -336,6 +458,9 @@ int main() {
     position p;
     position s = starting_position(p);
     print_full_board(s);
+    s.move_piece(Piece::Pawn, 'e', 2, 'e', 4);
+    print_full_board(s);
+
 
 
     return 0;
