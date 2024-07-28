@@ -24,6 +24,12 @@ int get_index(char file, int rank) {
     return index;
 }
 
+uint64_t get_bitboard_bit(char file, int rank) {
+    int index = get_index(file, rank);
+    uint64_t bit = (uint64_t) std::pow(2, index);
+    return bit;
+}
+
 struct position {
     position() {
         piece_table.assign(64, Piece::Empty);
@@ -54,28 +60,29 @@ struct position {
     void set_piece(Piece piece, char file, int rank, Color col) {
         //int index = file - 'a' + 8 * (rank - 1);
         int index = get_index(file, rank);
+        uint64_t bit = get_bitboard_bit(file, rank);
         color_table[index] = col;
 
         // Bitboard
         if (col == Color::White) {
             switch (piece) {
                 case Piece::Pawn:
-                    white_pawns = white_pawns | (uint64_t) std::pow(2, index);
+                    white_pawns = white_pawns | bit;
                     break;
                 case Piece::Rook:
-                    white_rooks = white_rooks | (uint64_t) std::pow(2, index);
+                    white_rooks = white_rooks | bit;
                     break;
                 case Piece::Knight:
-                    white_knights = white_knights | (uint64_t) std::pow(2, index);
+                    white_knights = white_knights | bit;
                     break;
                 case Piece::Bishop:
-                    white_bishops = white_bishops | (uint64_t) std::pow(2, index);
+                    white_bishops = white_bishops | bit;
                     break;
                 case Piece::Queen:
-                    white_queens = white_queens | (uint64_t) std::pow(2, index);
+                    white_queens = white_queens | bit;
                     break;
                 case Piece::King:
-                    white_kings = white_kings | (uint64_t) std::pow(2, index);
+                    white_kings = white_kings | bit;
                     break;
                 default:
                     std::cout << "PIECE NOT FOUND";
@@ -84,22 +91,22 @@ struct position {
         } else {
             switch (piece) {
                 case Piece::Pawn:
-                    black_pawns = black_pawns | (uint64_t) std::pow(2, index);
+                    black_pawns = black_pawns | bit;
                     break;
                 case Piece::Rook:
-                    black_rooks = black_rooks | (uint64_t) std::pow(2, index);
+                    black_rooks = black_rooks | bit;
                     break;
                 case Piece::Knight:
-                    black_knights = black_knights | (uint64_t) std::pow(2, index);
+                    black_knights = black_knights | bit;
                     break;
                 case Piece::Bishop:
-                    black_bishops = black_bishops | (uint64_t) std::pow(2, index);
+                    black_bishops = black_bishops | bit;
                     break;
                 case Piece::Queen:
-                    black_queens = black_queens | (uint64_t) std::pow(2, index);
+                    black_queens = black_queens | bit;
                     break;
                 case Piece::King:
-                    black_kings = black_kings | (uint64_t) std::pow(2, index);
+                    black_kings = black_kings | bit;
                     break;
                 default:
                     std::cout << "PIECE NOT FOUND";
