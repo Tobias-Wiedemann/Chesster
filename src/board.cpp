@@ -64,25 +64,26 @@ struct position {
         color_table[index] = col;
 
         // Bitboard
+        // Add new position
         if (col == Color::White) {
             switch (piece) {
                 case Piece::Pawn:
-                    white_pawns = white_pawns | bit;
+                    white_pawns |= bit;
                     break;
                 case Piece::Rook:
-                    white_rooks = white_rooks | bit;
+                    white_rooks |= bit;
                     break;
                 case Piece::Knight:
-                    white_knights = white_knights | bit;
+                    white_knights |= bit;
                     break;
                 case Piece::Bishop:
-                    white_bishops = white_bishops | bit;
+                    white_bishops |= bit;
                     break;
                 case Piece::Queen:
-                    white_queens = white_queens | bit;
+                    white_queens |= bit;
                     break;
                 case Piece::King:
-                    white_kings = white_kings | bit;
+                    white_kings |= bit;
                     break;
                 default:
                     std::cout << "PIECE NOT FOUND";
@@ -91,22 +92,22 @@ struct position {
         } else {
             switch (piece) {
                 case Piece::Pawn:
-                    black_pawns = black_pawns | bit;
+                    black_pawns |= bit;
                     break;
                 case Piece::Rook:
-                    black_rooks = black_rooks | bit;
+                    black_rooks |= bit;
                     break;
                 case Piece::Knight:
-                    black_knights = black_knights | bit;
+                    black_knights |= bit;
                     break;
                 case Piece::Bishop:
-                    black_bishops = black_bishops | bit;
+                    black_bishops |= bit;
                     break;
                 case Piece::Queen:
-                    black_queens = black_queens | bit;
+                    black_queens |= bit;
                     break;
                 case Piece::King:
-                    black_kings = black_kings | bit;
+                    black_kings |= bit;
                     break;
                 default:
                     std::cout << "PIECE NOT FOUND";
@@ -484,7 +485,6 @@ void cmdl_game_loop() {
 }
 
 int main() {
-    cmdl_game_loop();
     position p;
     starting_position(p);
     print_full_board(p);
