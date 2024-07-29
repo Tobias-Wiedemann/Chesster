@@ -240,22 +240,22 @@ struct position {
         } else {
             switch (piece) {
                 case Piece::Pawn:
-                    black_pawns ^= to_bit;
+                    black_pawns |= to_bit;
                     break;
                 case Piece::Rook:
-                    black_rooks ^= to_bit;
+                    black_rooks |= to_bit;
                     break;
                 case Piece::Knight:
-                    black_knights ^= to_bit;
+                    black_knights |= to_bit;
                     break;
                 case Piece::Bishop:
-                    black_bishops ^= to_bit;
+                    black_bishops |= to_bit;
                     break;
                 case Piece::Queen:
-                    black_queens ^= to_bit;
+                    black_queens |= to_bit;
                     break;
                 case Piece::King:
-                    black_kings ^= to_bit;
+                    black_kings |= to_bit;
                     break;
                 default:
                     std::cout << "PIECE NOT FOUND";
@@ -485,6 +485,7 @@ void cmdl_game_loop() {
 }
 
 int main() {
+    cmdl_game_loop();
     position p;
     starting_position(p);
     print_full_board(p);
