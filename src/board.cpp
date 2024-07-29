@@ -53,27 +53,14 @@ void print_bitboard(uint64_t bitboard) {
     }
 }
 
-// Yields the most significant one bit
-// assumes bb is greater than 0
-uint64_t ms1b(uint64_t bb) {
-    bb |= bb >> 32;
-    bb |= bb >> 16;
-    bb |= bb >>  8;
-    bb |= bb >>  4;
-    bb |= bb >>  2;
-    bb |= bb >>  1;
-    return (bb >> 1) + 1;
-}
+union long_double {
+    double x;
+    long y;
+};
 
-// Assumes bb is greater than 0
-// maps 0 to 0
-int bit_to_index(uint64_t bb) {
-    int res = 0;
-    while (bb > 1ULL) {
-        bb >>= 1;
-        res++;
-    }
-    return res;
+int fast_log_2(double num) {
+    union long_double x = {num};
+    return ((x.y >> 52) + 1) & 0x3ff;
 }
 
 struct Move {
@@ -351,16 +338,18 @@ struct Position {
 //            print_bitboard(pushed_pawns);
 
             while (pushed_pawns != 0ULL) {
-                uint64_t msb = ms1b(pushed_pawns);
+                // Get the square index of the most significant bit
+                // so of one piece
+                int msb_index_from = fast_log_2(pushable_pawns);
+                int msb_index_to = fast_log_2(pushed_pawns);
 
-                int to_index = bit_to_index(msb);
-                pushed_pawns ^= msb;
+                // remove this bit from the bitboard
+                pushed_pawns ^= 1ULL << msb_index_to;
 
-                msb = ms1b(pushable_pawns);
-                int from_index = bit_to_index(msb);
-                pushable_pawns ^= msb;
+                // same for the starting square
+                pushable_pawns ^= 1ULL << msb_index_from;
 
-                Move m(from_index, to_index);
+                Move m(msb_index_from, msb_index_to);
                 res.push_back(m);
             }
 
@@ -590,6 +579,10 @@ void cmdl_game_loop() {
 }
 
 int main() {
+
+
+    std::cout << fast_log_2(1) << "\n";
+
     Position p;
     p.set_piece(Piece::Pawn, 'e', 2, Color::White);
     p.set_piece(Piece::Pawn, 'd', 3, Color::White);
@@ -609,13 +602,15 @@ int main() {
         print_coords_from_index(it.to);
     }
     std::cout << "\n";
+
     /*
-    uint64_t bb = 0xFFFFFFFFFFFFFFFULL;
+    uint64_t bb = 0xFFFFFFFFFFFFFFFFULL;
     print_bitboard(bb);
     std::cout << "MS1B\n";
     bb = ms1b(bb);
     print_bitboard(bb);
     std::cout << bit_to_index(bb) << "\n";
+    std::cout << ld(bb) << "\n";
 */
 
 
