@@ -30,8 +30,15 @@ uint64_t get_bitboard_bit(char file, int rank) {
     return bit;
 }
 
-struct position {
-    position() {
+struct Move {
+    Move(int f, int t, Piece p = Piece::Empty) : from(f), to(t), promotion(p) {}
+    int from;
+    int to;
+    Piece promotion;
+};
+
+struct Position {
+    Position() {
         piece_table.assign(64, Piece::Empty);
         color_table.assign(64, Color::Empty);
     }
@@ -263,6 +270,15 @@ struct position {
             }
         }
     }
+
+    void generate_pawn_moves() {
+        generate_pseudo_pawn_moves();
+        // clean them up afterwards
+    }
+
+    void generate_pseudo_pawn_moves() {
+
+    }
 };
 
 void print_bitboard(uint64_t bitboard) {
@@ -279,7 +295,7 @@ void print_bitboard(uint64_t bitboard) {
     }
 }
 
-void print_all_bitboards(position &p) {
+void print_all_bitboards(Position &p) {
 
     std::cout << "white pawns\n";
     print_bitboard(p.white_pawns);
@@ -308,7 +324,7 @@ void print_all_bitboards(position &p) {
     print_bitboard(p.black_kings);
 }
 
-void print_full_board(position &p) {
+void print_full_board(Position &p) {
     std::cout << "\nBitboard-based\n";
     for (int rank = 7; rank >= 0; --rank) {
         for (int file = 0; file < 8; ++file) {
@@ -385,8 +401,8 @@ void print_full_board(position &p) {
     }
 }
 
-position starting_bitboards() {
-    position p;
+Position starting_bitboards() {
+    Position p;
     // White pieces
     p.white_pawns = 0x000000000000FF00ULL;
     p.white_knights = 0x0000000000000042ULL;
@@ -406,7 +422,7 @@ position starting_bitboards() {
     return p;
 }
 
-void starting_position(position& p) {
+void starting_position(Position& p) {
 
     p.set_piece(Piece::Pawn, 'a', 2, Color::White);
     p.set_piece(Piece::Pawn, 'b', 2, Color::White);
@@ -456,7 +472,7 @@ void starting_position(position& p) {
 
 void cmdl_game_loop() {
 
-    position p;
+    Position p;
     starting_position(p);
 
     print_full_board(p);
@@ -485,11 +501,8 @@ void cmdl_game_loop() {
 }
 
 int main() {
-    cmdl_game_loop();
-    position p;
-    starting_position(p);
-    print_full_board(p);
-    p.move_piece('e', 2, 'e', 4);
+    Position p;
+    p.set_piece(Piece::Pawn, 'e', 2, Color::White);
     print_full_board(p);
 
 
