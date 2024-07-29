@@ -35,6 +35,43 @@ uint64_t get_bitboard_bit(int index) {
     return bit;
 }
 
+void print_bitboard(uint64_t bitboard) {
+    for (int rank = 7; rank >= 0; --rank) {
+        for (int file = 0; file < 8; ++file) {
+            int square = rank * 8 + file;
+            if (bitboard & (1ULL << square)) {
+                std::cout << "1 ";
+            } else {
+                std::cout << ". ";
+            }
+        }
+        std::cout << std::endl;
+    }
+}
+
+// Yields the most significant one bit
+// assumes bb is greater than 0
+uint64_t ms1b(uint64_t bb) {
+    bb |= bb >> 32;
+    bb |= bb >> 16;
+    bb |= bb >>  8;
+    bb |= bb >>  4;
+    bb |= bb >>  2;
+    bb |= bb >>  1;
+    return (bb >> 1) + 1;
+}
+
+// Assumes bb is greater than 0
+// maps 0 to 0
+int bit_to_index(uint64_t bb) {
+    int res = 0;
+    while (bb > 1ULL) {
+        bb >>= 1;
+        res++;
+    }
+    return res;
+}
+
 struct Move {
     Move(int f, int t, Piece p = Piece::Empty) : from(f), to(t), promotion(p) {}
     int from;
@@ -47,6 +84,9 @@ struct Position {
         piece_table.assign(64, Piece::Empty);
         color_table.assign(64, Color::Empty);
     }
+
+    Color side_to_move = Color::White;
+
     // Bitboards
     // White pieces
     uint64_t white_pawns = 0ULL;
@@ -283,24 +323,46 @@ struct Position {
         // clean them up afterwards
     }
 
-    void generate_pseudo_pawn_moves() {
+    std::list<Move> generate_pseudo_pawn_moves() {
+        std::list<Move> res = {};
+        if (side_to_move == Color::White) {
+            std::cout << "Pawns\n";
+            print_bitboard(white_pawns);
 
+
+            uint64_t pushed_pawns = white_pawns << 8;
+            std::cout << "Pushed_pawns\n";
+            print_bitboard(pushed_pawns);
+
+            //TODO
+            uint64_t empty_squares = ~white_pawns;
+
+            uint64_t pushable_pawns = (empty_squares & pushed_pawns) >> 8;
+            std::cout << "Pushable_pawns\n";
+            print_bitboard(pushable_pawns);
+
+
+            pushed_pawns = pushable_pawns << 8;
+            std::cout << "Pushed_pawns\n";
+            print_bitboard(pushed_pawns);
+
+        return res;
+            uint64_t white_pawns_starting_mask = 0x000000000000FF00ULL;
+
+            uint64_t double_push = (white_pawns_starting_mask & white_pawns) << 16;
+            std::cout << "Double Push\n";
+            print_bitboard(double_push);
+
+            std::cout << "Single and Double Push\n";
+            print_bitboard(pushed_pawns | double_push);
+
+            uint64_t white_pawns_promotion_mask = 0xFF00000000000000ULL;
+            std::cout << "Promotoion mask\n";
+            print_bitboard(white_pawns_promotion_mask);
+        }
+        return res;
     }
 };
-
-void print_bitboard(uint64_t bitboard) {
-    for (int rank = 7; rank >= 0; --rank) {
-        for (int file = 0; file < 8; ++file) {
-            int square = rank * 8 + file;
-            if (bitboard & (1ULL << square)) {
-                std::cout << "1 ";
-            } else {
-                std::cout << ". ";
-            }
-        }
-        std::cout << std::endl;
-    }
-}
 
 void print_all_bitboards(Position &p) {
 
@@ -348,7 +410,7 @@ void print_full_board(Position &p) {
                 std::cout << "q ";
             } else if (p.black_kings & (1ULL << square)) {
                 std::cout << "k ";
- 
+
             } else if (p.white_pawns & (1ULL << square)) {
                 std::cout << "P ";
             } else if (p.white_knights & (1ULL << square)) {
@@ -510,11 +572,24 @@ void cmdl_game_loop() {
 }
 
 int main() {
-    cmdl_game_loop();
+    /*
     Position p;
     p.set_piece(Piece::Pawn, 'e', 2, Color::White);
-    print_full_board(p);
+    p.set_piece(Piece::Pawn, 'd', 3, Color::White);
+    p.set_piece(Piece::Pawn, 'c', 4, Color::White);
+    p.set_piece(Piece::Pawn, 'f', 7, Color::White);
+    p.set_piece(Piece::Pawn, 'g', 7, Color::White);
 
+    p.set_piece(Piece::Pawn, 'c', 5, Color::White);
+    print_full_board(p);
+    p.generate_pawn_moves();
+*/
+    uint64_t bb = 0xFFFFFFFFFFFFFFFULL;
+    print_bitboard(bb);
+    std::cout << "MS1B\n";
+    bb = ms1b(bb);
+    print_bitboard(bb);
+    std::cout << bit_to_index(bb) << "\n";
 
 
     return 0;
