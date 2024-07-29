@@ -30,6 +30,11 @@ uint64_t get_bitboard_bit(char file, int rank) {
     return bit;
 }
 
+uint64_t get_bitboard_bit(int index) {
+    uint64_t bit = (uint64_t) std::pow(2, index);
+    return bit;
+}
+
 struct Move {
     Move(int f, int t, Piece p = Piece::Empty) : from(f), to(t), promotion(p) {}
     int from;
@@ -148,9 +153,11 @@ struct Position {
         }
     }
 
-    void move_piece(char from_file, int from_rank, char to_file, int to_rank) {
-        int from_index = get_index(from_file, from_rank);
-        int to_index = get_index(to_file, to_rank);
+    void move_piece(Move m) {
+        //int from_index = get_index(from_file, from_rank);
+        //int to_index = get_index(to_file, to_rank);
+        int from_index = m.from;
+        int to_index = m.to;
 
         // 8x8 Board Move
         Piece piece = piece_table[from_index];
@@ -165,8 +172,8 @@ struct Position {
         color_table[from_index] = Color::Empty;
         color_table[to_index] = moving_color;
 
-        uint64_t from_bit = get_bitboard_bit(from_file, from_rank);
-        uint64_t to_bit = get_bitboard_bit(to_file, to_rank);
+        uint64_t from_bit = get_bitboard_bit(from_index);
+        uint64_t to_bit = get_bitboard_bit(to_index);
         // Bitboard Move
         // Delete old piece
         if (moving_color == Color::White) {
@@ -493,14 +500,17 @@ void cmdl_game_loop() {
         if (to_row < 1 || to_row > 8)
             continue;
 
-
-        p.move_piece(from, from_row, to, to_row);
+        int from_index = get_index(from, from_row);
+        int to_index = get_index(to, to_row);
+        Move m(from_index, to_index);
+        p.move_piece(m);
         print_full_board(p);
     }
 
 }
 
 int main() {
+    cmdl_game_loop();
     Position p;
     p.set_piece(Piece::Pawn, 'e', 2, Color::White);
     print_full_board(p);
