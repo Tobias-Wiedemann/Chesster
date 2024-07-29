@@ -24,6 +24,10 @@ int get_index(char file, int rank) {
     return index;
 }
 
+void print_coords_from_index(int index) {
+    std::cout << (char)('a' + index % 8) << (index / 8) + 1;
+}
+
 uint64_t get_bitboard_bit(char file, int rank) {
     int index = get_index(file, rank);
     uint64_t bit = (uint64_t) std::pow(2, index);
@@ -318,8 +322,8 @@ struct Position {
         }
     }
 
-    void generate_pawn_moves() {
-        generate_pseudo_pawn_moves();
+    std::list<Move> generate_pawn_moves() {
+        return generate_pseudo_pawn_moves();
         // clean them up afterwards
     }
 
@@ -327,24 +331,38 @@ struct Position {
         std::list<Move> res = {};
         if (side_to_move == Color::White) {
             std::cout << "Pawns\n";
-            print_bitboard(white_pawns);
+//            print_bitboard(white_pawns);
 
 
             uint64_t pushed_pawns = white_pawns << 8;
-            std::cout << "Pushed_pawns\n";
-            print_bitboard(pushed_pawns);
+//            std::cout << "Pushed_pawns\n";
+//            print_bitboard(pushed_pawns);
 
             //TODO
             uint64_t empty_squares = ~white_pawns;
 
             uint64_t pushable_pawns = (empty_squares & pushed_pawns) >> 8;
-            std::cout << "Pushable_pawns\n";
-            print_bitboard(pushable_pawns);
+//            std::cout << "Pushable_pawns\n";
+//            print_bitboard(pushable_pawns);
 
 
             pushed_pawns = pushable_pawns << 8;
-            std::cout << "Pushed_pawns\n";
-            print_bitboard(pushed_pawns);
+//            std::cout << "Pushed_pawns\n";
+//            print_bitboard(pushed_pawns);
+
+            while (pushed_pawns != 0ULL) {
+                uint64_t msb = ms1b(pushed_pawns);
+
+                int to_index = bit_to_index(msb);
+                pushed_pawns ^= msb;
+
+                msb = ms1b(pushable_pawns);
+                int from_index = bit_to_index(msb);
+                pushable_pawns ^= msb;
+
+                Move m(from_index, to_index);
+                res.push_back(m);
+            }
 
         return res;
             uint64_t white_pawns_starting_mask = 0x000000000000FF00ULL;
@@ -572,7 +590,6 @@ void cmdl_game_loop() {
 }
 
 int main() {
-    /*
     Position p;
     p.set_piece(Piece::Pawn, 'e', 2, Color::White);
     p.set_piece(Piece::Pawn, 'd', 3, Color::White);
@@ -582,14 +599,24 @@ int main() {
 
     p.set_piece(Piece::Pawn, 'c', 5, Color::White);
     print_full_board(p);
-    p.generate_pawn_moves();
-*/
+    auto first_moves = p.generate_pawn_moves();
+
+    std::cout << "Number of Moves:" << first_moves.size() << std::endl;
+    for (auto it : first_moves) {
+        std::cout << "\n";
+        print_coords_from_index(it.from);
+        std::cout << " ";
+        print_coords_from_index(it.to);
+    }
+    std::cout << "\n";
+    /*
     uint64_t bb = 0xFFFFFFFFFFFFFFFULL;
     print_bitboard(bb);
     std::cout << "MS1B\n";
     bb = ms1b(bb);
     print_bitboard(bb);
     std::cout << bit_to_index(bb) << "\n";
+*/
 
 
     return 0;
