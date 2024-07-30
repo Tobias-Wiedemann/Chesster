@@ -357,22 +357,12 @@ struct Position {
         std::list<Move> res = {};
         if (side_to_move == Color::White) {
             std::cout << "Pawns\n";
-//            print_bitboard(white_pawns);
-
 
             uint64_t pushed_pawns = white_pawns << 8;
-//            std::cout << "Pushed_pawns\n";
-//            print_bitboard(pushed_pawns);
-
 
             uint64_t pushable_pawns = (empty_squares & pushed_pawns) >> 8;
-//            std::cout << "Pushable_pawns\n";
-//            print_bitboard(pushable_pawns);
-
 
             pushed_pawns = pushable_pawns << 8;
-//            std::cout << "Pushed_pawns\n";
-//            print_bitboard(pushed_pawns);
 
             while (pushed_pawns != 0ULL) {
                 // Get the square index of the most significant bit
@@ -408,16 +398,11 @@ struct Position {
             // Take into account that double pawn pushes do not jump over pieces on the third row
             uint64_t third_row = 0x0000000000FF0000ULL;
             uint64_t third_row_mask = occupied_squares & third_row;
-            uint64_t double_pushed_pawns = (white_pawns_starting_mask & white_pawns) << 16;
+            uint64_t double_pushed_pawns = ((white_pawns_starting_mask & white_pawns) << 16);
             // substract blocked pawns
-            double_pushed_pawns ^= third_row_mask << 8;
-
-            //            std::cout << "Double Push\n";
-//            print_bitboard(double_pushed_pawns);
+            double_pushed_pawns &= ~(third_row_mask << 8);
 
             uint64_t double_pushable_pawns = (empty_squares & double_pushed_pawns) >> 16;
-//            std::cout << "Double Pushable\n";
-//            print_bitboard(double_pushable_pawns);
 
             double_pushed_pawns = double_pushable_pawns << 16;
 
@@ -437,10 +422,6 @@ struct Position {
                 // No promotions with double push possible
                 res.push_back(m);
             }
-
-
-//            std::cout << "Single and Double Push\n";
-//            print_bitboard(pushed_pawns | double_pushed_pawns);
 
             // Captures
             uint64_t pawns_to_check = white_pawns;
@@ -709,10 +690,19 @@ int main() {
     std::cout << fast_log_2(1) << "\n";
 
     Position p;
+    /*
     p.set_piece(Piece::Pawn, 'e', 2, Color::White);
     p.set_piece(Piece::Pawn, 'c', 2, Color::White);
     p.set_piece(Piece::Pawn, 'd', 2, Color::White);
     p.set_piece(Piece::Pawn, 'd', 3, Color::Black);
+*/
+    p.set_piece(Piece::Pawn, 'a', 2, Color::White);
+    p.set_piece(Piece::Pawn, 'b', 2, Color::White);
+    p.set_piece(Piece::Pawn, 'c', 2, Color::White);
+    p.set_piece(Piece::Pawn, 'a', 3, Color::White);
+    p.set_piece(Piece::Pawn, 'b', 3, Color::Black);
+    p.set_piece(Piece::Pawn, 'c', 3, Color::Black);
+    p.set_piece(Piece::Pawn, 'h', 3, Color::Black);
 
 //    p.set_piece(Piece::Pawn, 'd', 3, Color::White);
 //    p.set_piece(Piece::Pawn, 'c', 4, Color::White);
@@ -735,6 +725,7 @@ int main() {
     }
     std::cout << "\n";
 
+    /*
     std::cout << "empty\n";
     print_bitboard(p.empty_squares);
     std::cout << "occupied\n";
@@ -748,6 +739,7 @@ p.move_piece(Move(get_index('c', 2), get_index('c', 3)));
     print_bitboard(p.occupied_squares);
 
     print_full_board(p);
+*/
 
     /*
     uint64_t bb = 0xFFFFFFFFFFFFFFFFULL;
