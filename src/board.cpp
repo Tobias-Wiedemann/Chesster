@@ -17,6 +17,27 @@ enum class Color{
     Empty
 };
 
+std::string to_string(Piece p) {
+    switch (p) {
+        case Piece::Pawn:
+            return "Pawn";
+        case Piece::Rook:
+            return "Rook";
+        case Piece::Knight:
+            return "Knight";
+        case Piece::Bishop:
+            return "Bishop";
+        case Piece::Queen:
+            return "Queen";
+        case Piece::King:
+            return "King";
+        case Piece::Empty:
+            return "Empty";
+        default:
+            return "PIECE NOT FOUND";
+    }
+}
+
 int get_index(char file, int rank) {
     int index = file - 'a' + 8 * (rank - 1);
     assert(index >= 0);
@@ -329,13 +350,13 @@ struct Position {
             uint64_t empty_squares = ~white_pawns;
 
             uint64_t pushable_pawns = (empty_squares & pushed_pawns) >> 8;
-//            std::cout << "Pushable_pawns\n";
-//            print_bitboard(pushable_pawns);
+            std::cout << "Pushable_pawns\n";
+            print_bitboard(pushable_pawns);
 
 
             pushed_pawns = pushable_pawns << 8;
-//            std::cout << "Pushed_pawns\n";
-//            print_bitboard(pushed_pawns);
+            std::cout << "Pushed_pawns\n";
+            print_bitboard(pushed_pawns);
 
             while (pushed_pawns != 0ULL) {
                 // Get the square index of the most significant bit
@@ -350,22 +371,54 @@ struct Position {
                 pushable_pawns ^= 1ULL << msb_index_from;
 
                 Move m(msb_index_from, msb_index_to);
+                // Check for promotions
+                if (msb_index_to < 56) {
+                    res.push_back(m);
+                } else {
+                    m.promotion = Piece::Queen;
+                    res.push_back(m);
+                    m.promotion = Piece::Knight;
+                    res.push_back(m);
+                    m.promotion = Piece::Rook;
+                    res.push_back(m);
+                    m.promotion = Piece::Bishop;
+                    res.push_back(m);
+                }
+            }
+
+            uint64_t white_pawns_starting_mask = 0x000000000000FF00ULL;
+
+            uint64_t double_pushed_pawns = (white_pawns_starting_mask & white_pawns) << 16;
+            std::cout << "Double Push\n";
+            print_bitboard(double_pushed_pawns);
+
+            uint64_t double_pushable_pawns = (empty_squares & double_pushed_pawns) >> 16;
+            std::cout << "Double Pushable\n";
+            print_bitboard(double_pushable_pawns);
+
+            double_pushed_pawns = double_pushable_pawns << 16;
+
+            // Get the moves out of that, just like for once square
+            while (double_pushed_pawns != 0ULL) {
+                // basicly iterating over the pieces
+                int msb_index_from = fast_log_2(double_pushable_pawns);
+                int msb_index_to = fast_log_2(double_pushed_pawns);
+
+                // remove this bit from the bitboard
+                double_pushed_pawns ^= 1ULL << msb_index_to;
+
+                // same for the starting square
+                double_pushable_pawns ^= 1ULL << msb_index_from;
+
+                Move m(msb_index_from, msb_index_to);
+                // No promotions with double push possible
                 res.push_back(m);
             }
 
-        return res;
-            uint64_t white_pawns_starting_mask = 0x000000000000FF00ULL;
 
-            uint64_t double_push = (white_pawns_starting_mask & white_pawns) << 16;
-            std::cout << "Double Push\n";
-            print_bitboard(double_push);
+//            std::cout << "Single and Double Push\n";
+//            print_bitboard(pushed_pawns | double_pushed_pawns);
 
-            std::cout << "Single and Double Push\n";
-            print_bitboard(pushed_pawns | double_push);
-
-            uint64_t white_pawns_promotion_mask = 0xFF00000000000000ULL;
-            std::cout << "Promotoion mask\n";
-            print_bitboard(white_pawns_promotion_mask);
         }
         return res;
     }
@@ -585,12 +638,16 @@ int main() {
 
     Position p;
     p.set_piece(Piece::Pawn, 'e', 2, Color::White);
-    p.set_piece(Piece::Pawn, 'd', 3, Color::White);
-    p.set_piece(Piece::Pawn, 'c', 4, Color::White);
-    p.set_piece(Piece::Pawn, 'f', 7, Color::White);
-    p.set_piece(Piece::Pawn, 'g', 7, Color::White);
+    p.set_piece(Piece::Pawn, 'b', 2, Color::White);
+    p.set_piece(Piece::Pawn, 'f', 2, Color::White);
+    p.set_piece(Piece::Pawn, 'f', 4, Color::White);
 
-    p.set_piece(Piece::Pawn, 'c', 5, Color::White);
+//    p.set_piece(Piece::Pawn, 'd', 3, Color::White);
+//    p.set_piece(Piece::Pawn, 'c', 4, Color::White);
+//    p.set_piece(Piece::Pawn, 'f', 7, Color::White);
+//    p.set_piece(Piece::Pawn, 'g', 7, Color::White);
+
+//    p.set_piece(Piece::Pawn, 'c', 5, Color::White);
     print_full_board(p);
     auto first_moves = p.generate_pawn_moves();
 
@@ -600,6 +657,9 @@ int main() {
         print_coords_from_index(it.from);
         std::cout << " ";
         print_coords_from_index(it.to);
+        std::cout << " ";
+        if (it.promotion != Piece::Empty)
+            std::cout << to_string(it.promotion);
     }
     std::cout << "\n";
 
