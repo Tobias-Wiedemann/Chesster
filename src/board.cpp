@@ -116,6 +116,9 @@ struct Position {
     uint64_t black_queens = 0ULL;
     uint64_t black_kings = 0ULL;
 
+    // Full Board Bitboards
+    uint64_t empty_squares = ~0ULL;
+    uint64_t occupied_squares = 0ULL;
 
     // 8x8 Board
     std::vector<Piece> piece_table;
@@ -128,7 +131,11 @@ struct Position {
         color_table[index] = col;
 
         // Bitboard
-        // Add new position
+        // Update combined Bitboards
+        empty_squares ^= bit;
+        occupied_squares |= bit;
+
+        // Update individual Bitboards
         if (col == Color::White) {
             switch (piece) {
                 case Piece::Pawn:
@@ -346,17 +353,15 @@ struct Position {
 //            std::cout << "Pushed_pawns\n";
 //            print_bitboard(pushed_pawns);
 
-            //TODO
-            uint64_t empty_squares = ~white_pawns;
 
             uint64_t pushable_pawns = (empty_squares & pushed_pawns) >> 8;
-            std::cout << "Pushable_pawns\n";
-            print_bitboard(pushable_pawns);
+//            std::cout << "Pushable_pawns\n";
+//            print_bitboard(pushable_pawns);
 
 
             pushed_pawns = pushable_pawns << 8;
-            std::cout << "Pushed_pawns\n";
-            print_bitboard(pushed_pawns);
+//            std::cout << "Pushed_pawns\n";
+//            print_bitboard(pushed_pawns);
 
             while (pushed_pawns != 0ULL) {
                 // Get the square index of the most significant bit
@@ -388,13 +393,20 @@ struct Position {
 
             uint64_t white_pawns_starting_mask = 0x000000000000FF00ULL;
 
+
+            // Take into account that double pawn pushes do not jump over pieces on the third row
+            uint64_t third_row = 0x0000000000FF0000ULL;
+            uint64_t third_row_mask = occupied_squares & third_row;
             uint64_t double_pushed_pawns = (white_pawns_starting_mask & white_pawns) << 16;
-            std::cout << "Double Push\n";
-            print_bitboard(double_pushed_pawns);
+            // substract blocked pawns
+            double_pushed_pawns ^= third_row_mask << 8;
+
+            //            std::cout << "Double Push\n";
+//            print_bitboard(double_pushed_pawns);
 
             uint64_t double_pushable_pawns = (empty_squares & double_pushed_pawns) >> 16;
-            std::cout << "Double Pushable\n";
-            print_bitboard(double_pushable_pawns);
+//            std::cout << "Double Pushable\n";
+//            print_bitboard(double_pushable_pawns);
 
             double_pushed_pawns = double_pushable_pawns << 16;
 
@@ -419,6 +431,55 @@ struct Position {
 //            std::cout << "Single and Double Push\n";
 //            print_bitboard(pushed_pawns | double_pushed_pawns);
 
+            // Captures
+            uint64_t pawns_to_check = white_pawns;
+            while (pawns_to_check > 0ULL) {
+                int index = fast_log_2(pawns_to_check);
+                uint64_t current_pawn = 1ULL << index;
+                pawns_to_check ^= current_pawn;
+                auto outside_pawn = index % 8;
+                if (outside_pawn > 0 && outside_pawn < 7) {
+                    // not outside
+                    int attacked_index_left = index + 7;
+                    int attacked_index_right = index + 9;
+
+                    if (piece_table[attacked_index_left] != Piece::Empty &&
+                    color_table[attacked_index_left] == Color::Black) {
+                        Move m(index, attacked_index_left);
+                        res.push_back(m);
+                    }
+
+                    if (piece_table[attacked_index_right] != Piece::Empty &&
+                    color_table[attacked_index_right] == Color::Black) {
+                        Move m(index, attacked_index_right);
+                        res.push_back(m);
+                    }
+
+                } else {
+                    // outside
+                    if (outside_pawn == 0) {
+                        // left side of the board
+                        int attacked_index_right = index + 9;
+
+                        if (piece_table[attacked_index_right] != Piece::Empty &&
+                        color_table[attacked_index_right] == Color::Black) {
+                            Move m(index, attacked_index_right);
+                            res.push_back(m);
+                        }
+                    } else {
+                        // right side of the board
+                        int attacked_index_left = index + 7;
+                        if (piece_table[attacked_index_left] != Piece::Empty &&
+                        color_table[attacked_index_left] == Color::Black) {
+                            Move m(index, attacked_index_left);
+                            res.push_back(m);
+                        }
+                    }
+                }
+            }
+        } else {
+            // TODO
+            // check for black pawn moves
         }
         return res;
     }
@@ -638,9 +699,9 @@ int main() {
 
     Position p;
     p.set_piece(Piece::Pawn, 'e', 2, Color::White);
-    p.set_piece(Piece::Pawn, 'b', 2, Color::White);
-    p.set_piece(Piece::Pawn, 'f', 2, Color::White);
-    p.set_piece(Piece::Pawn, 'f', 4, Color::White);
+    p.set_piece(Piece::Pawn, 'c', 2, Color::White);
+    p.set_piece(Piece::Pawn, 'd', 2, Color::White);
+    p.set_piece(Piece::Pawn, 'd', 3, Color::Black);
 
 //    p.set_piece(Piece::Pawn, 'd', 3, Color::White);
 //    p.set_piece(Piece::Pawn, 'c', 4, Color::White);
@@ -663,6 +724,12 @@ int main() {
     }
     std::cout << "\n";
 
+    /*
+    std::cout << "empty\n";
+    print_bitboard(p.empty_squares);
+    std::cout << "occupied\n";
+    print_bitboard(p.occupied_squares);
+*/
     /*
     uint64_t bb = 0xFFFFFFFFFFFFFFFFULL;
     print_bitboard(bb);
