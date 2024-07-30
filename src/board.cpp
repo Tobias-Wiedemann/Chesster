@@ -438,13 +438,39 @@ struct Position {
                     if (piece_table[attacked_index_left] != Piece::Empty &&
                     color_table[attacked_index_left] == Color::Black) {
                         Move m(index, attacked_index_left);
-                        res.push_back(m);
+
+                        // Check for promotions
+                        if (attacked_index_left < 56) {
+                            res.push_back(m);
+                        } else {
+                            m.promotion = Piece::Queen;
+                            res.push_back(m);
+                            m.promotion = Piece::Knight;
+                            res.push_back(m);
+                            m.promotion = Piece::Rook;
+                            res.push_back(m);
+                            m.promotion = Piece::Bishop;
+                            res.push_back(m);
+                        }
+
                     }
 
                     if (piece_table[attacked_index_right] != Piece::Empty &&
                     color_table[attacked_index_right] == Color::Black) {
                         Move m(index, attacked_index_right);
-                        res.push_back(m);
+                        // Check for promotions
+                        if (attacked_index_right < 56) {
+                            res.push_back(m);
+                        } else {
+                            m.promotion = Piece::Queen;
+                            res.push_back(m);
+                            m.promotion = Piece::Knight;
+                            res.push_back(m);
+                            m.promotion = Piece::Rook;
+                            res.push_back(m);
+                            m.promotion = Piece::Bishop;
+                            res.push_back(m);
+                        }
                     }
 
                 } else {
@@ -456,7 +482,19 @@ struct Position {
                         if (piece_table[attacked_index_right] != Piece::Empty &&
                         color_table[attacked_index_right] == Color::Black) {
                             Move m(index, attacked_index_right);
-                            res.push_back(m);
+                            // Check for promotions
+                            if (attacked_index_right < 56) {
+                                res.push_back(m);
+                            } else {
+                                m.promotion = Piece::Queen;
+                                res.push_back(m);
+                                m.promotion = Piece::Knight;
+                                res.push_back(m);
+                                m.promotion = Piece::Rook;
+                                res.push_back(m);
+                                m.promotion = Piece::Bishop;
+                                res.push_back(m);
+                            }
                         }
                     } else {
                         // right side of the board
@@ -464,7 +502,19 @@ struct Position {
                         if (piece_table[attacked_index_left] != Piece::Empty &&
                         color_table[attacked_index_left] == Color::Black) {
                             Move m(index, attacked_index_left);
-                            res.push_back(m);
+                            // Check for promotions
+                            if (attacked_index_left < 56) {
+                                res.push_back(m);
+                            } else {
+                                m.promotion = Piece::Queen;
+                                res.push_back(m);
+                                m.promotion = Piece::Knight;
+                                res.push_back(m);
+                                m.promotion = Piece::Rook;
+                                res.push_back(m);
+                                m.promotion = Piece::Bishop;
+                                res.push_back(m);
+                            }
                         }
                     }
                 }
@@ -472,6 +522,171 @@ struct Position {
         } else {
             // TODO
             // check for black pawn moves
+
+            std::cout << "Pawns\n";
+
+            uint64_t pushed_pawns = black_pawns >> 8;
+
+            uint64_t pushable_pawns = (empty_squares & pushed_pawns) << 8;
+
+            pushed_pawns = pushable_pawns >> 8;
+
+            while (pushed_pawns != 0ULL) {
+                // Get the square index of the most significant bit
+                // so of one piece
+                int msb_index_from = fast_log_2(pushable_pawns);
+                int msb_index_to = fast_log_2(pushed_pawns);
+
+                // remove this bit from the bitboard
+                pushed_pawns ^= 1ULL << msb_index_to;
+
+                // same for the starting square
+                pushable_pawns ^= 1ULL << msb_index_from;
+
+                Move m(msb_index_from, msb_index_to);
+                // Check for promotions
+                if (msb_index_to > 7) {
+                    res.push_back(m);
+                } else {
+                    m.promotion = Piece::Queen;
+                    res.push_back(m);
+                    m.promotion = Piece::Knight;
+                    res.push_back(m);
+                    m.promotion = Piece::Rook;
+                    res.push_back(m);
+                    m.promotion = Piece::Bishop;
+                    res.push_back(m);
+                }
+            }
+
+            uint64_t black_pawns_starting_mask = 0x00FF000000000000ULL;
+
+
+            // Take into account that double pawn pushes do not jump over pieces on the third row
+            uint64_t sixth_row = 0x0000FF0000000000ULL;
+            uint64_t sixth_row_mask = occupied_squares & sixth_row;
+            uint64_t double_pushed_pawns = ((black_pawns_starting_mask & black_pawns) >> 16);
+            // substract blocked pawns
+            double_pushed_pawns &= ~(sixth_row_mask >> 8);
+
+            uint64_t double_pushable_pawns = (empty_squares & double_pushed_pawns) << 16;
+
+            double_pushed_pawns = double_pushable_pawns >> 16;
+
+            // Get the moves out of that, just like for once square
+            while (double_pushed_pawns != 0ULL) {
+                // basicly iterating over the pieces
+                int msb_index_from = fast_log_2(double_pushable_pawns);
+                int msb_index_to = fast_log_2(double_pushed_pawns);
+
+                // remove this bit from the bitboard
+                double_pushed_pawns ^= 1ULL << msb_index_to;
+
+                // same for the starting square
+                double_pushable_pawns ^= 1ULL << msb_index_from;
+
+                Move m(msb_index_from, msb_index_to);
+                // No promotions with double push possible
+                res.push_back(m);
+            }
+
+            // Captures
+            uint64_t pawns_to_check = black_pawns;
+            while (pawns_to_check > 0ULL) {
+                int index = fast_log_2(pawns_to_check);
+                uint64_t current_pawn = 1ULL << index;
+                pawns_to_check ^= current_pawn;
+                auto outside_pawn = index % 8;
+                if (outside_pawn > 0 && outside_pawn < 7) {
+                    // not outside
+                    int attacked_index_left = index - 9;
+                    int attacked_index_right = index - 7;
+
+                    if (piece_table[attacked_index_left] != Piece::Empty &&
+                    color_table[attacked_index_left] == Color::White) {
+                        Move m(index, attacked_index_left);
+
+                        // Check for promotions
+                        if (attacked_index_left > 7) {
+                            res.push_back(m);
+                        } else {
+                            m.promotion = Piece::Queen;
+                            res.push_back(m);
+                            m.promotion = Piece::Knight;
+                            res.push_back(m);
+                            m.promotion = Piece::Rook;
+                            res.push_back(m);
+                            m.promotion = Piece::Bishop;
+                            res.push_back(m);
+                        }
+
+                    }
+
+                    if (piece_table[attacked_index_right] != Piece::Empty &&
+                    color_table[attacked_index_right] == Color::White) {
+                        Move m(index, attacked_index_right);
+                        // Check for promotions
+                        if (attacked_index_right > 7) {
+                            res.push_back(m);
+                        } else {
+                            m.promotion = Piece::Queen;
+                            res.push_back(m);
+                            m.promotion = Piece::Knight;
+                            res.push_back(m);
+                            m.promotion = Piece::Rook;
+                            res.push_back(m);
+                            m.promotion = Piece::Bishop;
+                            res.push_back(m);
+                        }
+                    }
+
+                } else {
+                    // outside
+                    if (outside_pawn == 0) {
+                        // left side of the board
+                        int attacked_index_right = index - 7;
+
+                        if (piece_table[attacked_index_right] != Piece::Empty &&
+                        color_table[attacked_index_right] == Color::White) {
+                            Move m(index, attacked_index_right);
+                            // Check for promotions
+                            if (attacked_index_right > 7) {
+                                res.push_back(m);
+                            } else {
+                                m.promotion = Piece::Queen;
+                                res.push_back(m);
+                                m.promotion = Piece::Knight;
+                                res.push_back(m);
+                                m.promotion = Piece::Rook;
+                                res.push_back(m);
+                                m.promotion = Piece::Bishop;
+                                res.push_back(m);
+                            }
+                        }
+                    } else {
+                        // right side of the board
+                        int attacked_index_left = index - 9;
+                        if (piece_table[attacked_index_left] != Piece::Empty &&
+                        color_table[attacked_index_left] == Color::White) {
+                            Move m(index, attacked_index_left);
+                            // Check for promotions
+                            if (attacked_index_left > 7) {
+                                res.push_back(m);
+                            } else {
+                                m.promotion = Piece::Queen;
+                                res.push_back(m);
+                                m.promotion = Piece::Knight;
+                                res.push_back(m);
+                                m.promotion = Piece::Rook;
+                                res.push_back(m);
+                                m.promotion = Piece::Bishop;
+                                res.push_back(m);
+                            }
+                        }
+                    }
+                }
+            }
+
         }
         return res;
     }
@@ -703,6 +918,9 @@ int main() {
     p.set_piece(Piece::Pawn, 'b', 3, Color::Black);
     p.set_piece(Piece::Pawn, 'c', 3, Color::Black);
     p.set_piece(Piece::Pawn, 'h', 3, Color::Black);
+    p.set_piece(Piece::Pawn, 'h', 7, Color::Black);
+
+    p.side_to_move = Color::Black;
 
 //    p.set_piece(Piece::Pawn, 'd', 3, Color::White);
 //    p.set_piece(Piece::Pawn, 'c', 4, Color::White);
@@ -724,6 +942,7 @@ int main() {
             std::cout << to_string(it.promotion);
     }
     std::cout << "\n";
+
 
     /*
     std::cout << "empty\n";
