@@ -233,8 +233,13 @@ struct Position {
 
         uint64_t from_bit = get_bitboard_bit(from_index);
         uint64_t to_bit = get_bitboard_bit(to_index);
-        // Bitboard Move
-        // Delete old piece
+
+        // Bitboard
+        // Update combined Bitboards
+        empty_squares |= from_bit;
+        occupied_squares ^= from_bit;
+
+        // Update individual Bitboards
         if (moving_color == Color::White) {
             switch (piece) {
                 case Piece::Pawn:
@@ -286,6 +291,12 @@ struct Position {
         }
 
         // Insert new piece
+
+        // Update combined Bitboards
+        empty_squares ^= from_bit;
+        occupied_squares |= from_bit;
+
+        // Update individual Bitboards
         if (moving_color == Color::White) {
             switch (piece) {
                 case Piece::Pawn:
@@ -724,12 +735,20 @@ int main() {
     }
     std::cout << "\n";
 
-    /*
     std::cout << "empty\n";
     print_bitboard(p.empty_squares);
     std::cout << "occupied\n";
     print_bitboard(p.occupied_squares);
-*/
+
+p.move_piece(Move(get_index('c', 2), get_index('c', 3)));
+
+    std::cout << "empty\n";
+    print_bitboard(p.empty_squares);
+    std::cout << "occupied\n";
+    print_bitboard(p.occupied_squares);
+
+    print_full_board(p);
+
     /*
     uint64_t bb = 0xFFFFFFFFFFFFFFFFULL;
     print_bitboard(bb);
