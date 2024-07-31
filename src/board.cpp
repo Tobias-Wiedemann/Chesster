@@ -691,6 +691,19 @@ struct Position {
         }
         return res;
     }
+
+    std::vector<Move> generate_knight_moves() {
+        return generate_pseudo_knight_moves();
+        // clean them up afterwards
+    }
+
+
+    std::vector<Move> generate_pseudo_knight_moves() {
+        std::vector<Move> res;
+
+
+        return res;
+    }
 };
 
 void print_all_bitboards(Position &p) {
@@ -903,6 +916,55 @@ void cmdl_game_loop() {
 int main() {
     Position p;
 
+    std::vector<uint64_t> knight_moves(64, 0ULL);
+    knight_moves[0] = 0x0000000000020400ULL;
+    knight_moves[1] = 0x0000000000050800ULL;
+    knight_moves[2] = 0x00000000000A1100ULL;
+    knight_moves[3] = 0x0000000000142200ULL;
+    knight_moves[4] = 0x0000000000284400ULL;
+    knight_moves[5] = 0x0000000000508800ULL;
+    knight_moves[6] = 0x0000000000A01000ULL;
+    knight_moves[7] = 0x0000000000402000ULL;
+    knight_moves[8] = 0x0000000002040004ULL;
+    knight_moves[9] = 0x0000000005080008ULL;
+    knight_moves[10] = 0x000000000A110011ULL;
+    knight_moves[11] = 0x0000000014220022ULL;
+    knight_moves[12] = 0x0000000028440044ULL;
+    knight_moves[13] = 0x0000000050880088ULL;
+    knight_moves[14] = 0x00000000A0100010ULL;
+    knight_moves[15] = 0x0000000040200020ULL;
+    knight_moves[16] = 0x0000000204000402ULL;
+    knight_moves[17] = 0x0000000508000805ULL;
+    knight_moves[18] = 0x0000000A1100110AULL;
+    knight_moves[19] = 0x0000001422002214ULL;
+    knight_moves[20] = 0x0000002844004428ULL;
+    knight_moves[21] = 0x0000005088008850ULL;
+    knight_moves[22] = 0x000000A0100010A0ULL;
+    knight_moves[23] = 0x0000004020002040ULL;
+    knight_moves[24] = 0x0000020400040200ULL;
+    knight_moves[25] = 0x0000050800080500ULL;
+    knight_moves[26] = 0x00000A1100110A00ULL;
+    knight_moves[27] = 0x0000142200221400ULL;
+    knight_moves[28] = 0x0000284400442800ULL;
+    knight_moves[29] = 0x0000508800885000ULL;
+    knight_moves[30] = 0x0000A0100010A000ULL;
+    knight_moves[31] = 0x0000402000204000ULL;
+
+    int index = 31;
+    uint64_t bb = 1ULL << index;
+    uint64_t mask = 0x0000402000204000ULL;
+
+
+    print_bitboard(bb);
+    std::cout << "\n";
+    print_bitboard(mask);
+
+    std::cout << index << "\n";
+
+
+
+
+    /*
     p.set_piece(Piece::Pawn, 'a', 2, Color::White);
     p.set_piece(Piece::Pawn, 'b', 2, Color::White);
     p.set_piece(Piece::Pawn, 'c', 2, Color::White);
@@ -929,6 +991,7 @@ int main() {
     }
     std::cout << "\n";
 
+    */
 
 
     return 0;
