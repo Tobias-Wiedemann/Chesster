@@ -949,10 +949,42 @@ int main() {
     knight_moves[29] = 0x0000508800885000ULL;
     knight_moves[30] = 0x0000A0100010A000ULL;
     knight_moves[31] = 0x0000402000204000ULL;
+    knight_moves[32] = 0x0002040004020000ULL;
+    knight_moves[33] = 0x0005080008050000ULL;
+    knight_moves[34] = 0x000A1100110A0000ULL;
+    knight_moves[35] = 0x0014220022140000ULL;
+    knight_moves[36] = 0x0028440044280000ULL;
+    knight_moves[37] = 0x0050880088500000ULL;
+    knight_moves[38] = 0x00A0100010A00000ULL;
+    knight_moves[39] = 0x0040200020400000ULL;
+    knight_moves[40] = 0x0204000402000000ULL;
+    knight_moves[41] = 0x0508000805000000ULL;
+    knight_moves[42] = 0x0A1100110A000000ULL;
+    knight_moves[43] = 0x1422002214000000ULL;
+    knight_moves[44] = 0x2844004428000000ULL;
+    knight_moves[45] = 0x5088008850000000ULL;
+    knight_moves[46] = 0xA0100010A0000000ULL;
+    knight_moves[47] = 0x4020002040000000ULL;
+    knight_moves[48] = 0x0400040200000000ULL;
+    knight_moves[49] = 0x0800080500000000ULL;
+    knight_moves[50] = 0x1100110A00000000ULL;
+    knight_moves[51] = 0x2200221400000000ULL;
+    knight_moves[52] = 0x4400442800000000ULL;
+    knight_moves[53] = 0x8800885000000000ULL;
+    knight_moves[54] = 0x100010A000000000ULL;
+    knight_moves[55] = 0x2000204000000000ULL;
+    knight_moves[56] = 0x0004020000000000ULL;
+    knight_moves[57] = 0x0008050000000000ULL;
+    knight_moves[58] = 0x00110A0000000000ULL;
+    knight_moves[59] = 0x0022140000000000ULL;
+    knight_moves[60] = 0x0044280000000000ULL;
+    knight_moves[61] = 0x0088500000000000ULL;
+    knight_moves[62] = 0x0010A00000000000ULL;
+    knight_moves[63] = 0x0020400000000000ULL;
 
-    int index = 31;
+    int index = 63;
     uint64_t bb = 1ULL << index;
-    uint64_t mask = 0x0000402000204000ULL;
+    uint64_t mask = 0x0020400000000000ULL;
 
 
     print_bitboard(bb);
