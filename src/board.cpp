@@ -348,13 +348,15 @@ struct Position {
         }
     }
 
-    std::list<Move> generate_pawn_moves() {
+    std::vector<Move> generate_pawn_moves() {
         return generate_pseudo_pawn_moves();
         // clean them up afterwards
     }
 
-    std::list<Move> generate_pseudo_pawn_moves() {
-        std::list<Move> res = {};
+    std::vector<Move> generate_pseudo_pawn_moves() {
+        // TODO: En Passent
+        // TODO: Make this shit pretty
+        std::vector<Move> res = {};
         if (side_to_move == Color::White) {
             std::cout << "Pawns\n";
 
@@ -520,7 +522,6 @@ struct Position {
                 }
             }
         } else {
-            // TODO
             // check for black pawn moves
 
             std::cout << "Pawns\n";
@@ -900,17 +901,8 @@ void cmdl_game_loop() {
 }
 
 int main() {
-
-
-    std::cout << fast_log_2(1) << "\n";
-
     Position p;
-    /*
-    p.set_piece(Piece::Pawn, 'e', 2, Color::White);
-    p.set_piece(Piece::Pawn, 'c', 2, Color::White);
-    p.set_piece(Piece::Pawn, 'd', 2, Color::White);
-    p.set_piece(Piece::Pawn, 'd', 3, Color::Black);
-*/
+
     p.set_piece(Piece::Pawn, 'a', 2, Color::White);
     p.set_piece(Piece::Pawn, 'b', 2, Color::White);
     p.set_piece(Piece::Pawn, 'c', 2, Color::White);
@@ -922,12 +914,6 @@ int main() {
 
     p.side_to_move = Color::Black;
 
-//    p.set_piece(Piece::Pawn, 'd', 3, Color::White);
-//    p.set_piece(Piece::Pawn, 'c', 4, Color::White);
-//    p.set_piece(Piece::Pawn, 'f', 7, Color::White);
-//    p.set_piece(Piece::Pawn, 'g', 7, Color::White);
-
-//    p.set_piece(Piece::Pawn, 'c', 5, Color::White);
     print_full_board(p);
     auto first_moves = p.generate_pawn_moves();
 
@@ -943,32 +929,6 @@ int main() {
     }
     std::cout << "\n";
 
-
-    /*
-    std::cout << "empty\n";
-    print_bitboard(p.empty_squares);
-    std::cout << "occupied\n";
-    print_bitboard(p.occupied_squares);
-
-p.move_piece(Move(get_index('c', 2), get_index('c', 3)));
-
-    std::cout << "empty\n";
-    print_bitboard(p.empty_squares);
-    std::cout << "occupied\n";
-    print_bitboard(p.occupied_squares);
-
-    print_full_board(p);
-*/
-
-    /*
-    uint64_t bb = 0xFFFFFFFFFFFFFFFFULL;
-    print_bitboard(bb);
-    std::cout << "MS1B\n";
-    bb = ms1b(bb);
-    print_bitboard(bb);
-    std::cout << bit_to_index(bb) << "\n";
-    std::cout << ld(bb) << "\n";
-*/
 
 
     return 0;
