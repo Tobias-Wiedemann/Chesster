@@ -699,8 +699,182 @@ struct Position {
 
 
     std::vector<Move> generate_pseudo_knight_moves() {
+        // knight mask
+        std::vector<uint64_t> knight_moves(64, 0ULL);
+        knight_moves[0] = 0x0000000000020400ULL;
+        knight_moves[1] = 0x0000000000050800ULL;
+        knight_moves[2] = 0x00000000000A1100ULL;
+        knight_moves[3] = 0x0000000000142200ULL;
+        knight_moves[4] = 0x0000000000284400ULL;
+        knight_moves[5] = 0x0000000000508800ULL;
+        knight_moves[6] = 0x0000000000A01000ULL;
+        knight_moves[7] = 0x0000000000402000ULL;
+        knight_moves[8] = 0x0000000002040004ULL;
+        knight_moves[9] = 0x0000000005080008ULL;
+        knight_moves[10] = 0x000000000A110011ULL;
+        knight_moves[11] = 0x0000000014220022ULL;
+        knight_moves[12] = 0x0000000028440044ULL;
+        knight_moves[13] = 0x0000000050880088ULL;
+        knight_moves[14] = 0x00000000A0100010ULL;
+        knight_moves[15] = 0x0000000040200020ULL;
+        knight_moves[16] = 0x0000000204000402ULL;
+        knight_moves[17] = 0x0000000508000805ULL;
+        knight_moves[18] = 0x0000000A1100110AULL;
+        knight_moves[19] = 0x0000001422002214ULL;
+        knight_moves[20] = 0x0000002844004428ULL;
+        knight_moves[21] = 0x0000005088008850ULL;
+        knight_moves[22] = 0x000000A0100010A0ULL;
+        knight_moves[23] = 0x0000004020002040ULL;
+        knight_moves[24] = 0x0000020400040200ULL;
+        knight_moves[25] = 0x0000050800080500ULL;
+        knight_moves[26] = 0x00000A1100110A00ULL;
+        knight_moves[27] = 0x0000142200221400ULL;
+        knight_moves[28] = 0x0000284400442800ULL;
+        knight_moves[29] = 0x0000508800885000ULL;
+        knight_moves[30] = 0x0000A0100010A000ULL;
+        knight_moves[31] = 0x0000402000204000ULL;
+        knight_moves[32] = 0x0002040004020000ULL;
+        knight_moves[33] = 0x0005080008050000ULL;
+        knight_moves[34] = 0x000A1100110A0000ULL;
+        knight_moves[35] = 0x0014220022140000ULL;
+        knight_moves[36] = 0x0028440044280000ULL;
+        knight_moves[37] = 0x0050880088500000ULL;
+        knight_moves[38] = 0x00A0100010A00000ULL;
+        knight_moves[39] = 0x0040200020400000ULL;
+        knight_moves[40] = 0x0204000402000000ULL;
+        knight_moves[41] = 0x0508000805000000ULL;
+        knight_moves[42] = 0x0A1100110A000000ULL;
+        knight_moves[43] = 0x1422002214000000ULL;
+        knight_moves[44] = 0x2844004428000000ULL;
+        knight_moves[45] = 0x5088008850000000ULL;
+        knight_moves[46] = 0xA0100010A0000000ULL;
+        knight_moves[47] = 0x4020002040000000ULL;
+        knight_moves[48] = 0x0400040200000000ULL;
+        knight_moves[49] = 0x0800080500000000ULL;
+        knight_moves[50] = 0x1100110A00000000ULL;
+        knight_moves[51] = 0x2200221400000000ULL;
+        knight_moves[52] = 0x4400442800000000ULL;
+        knight_moves[53] = 0x8800885000000000ULL;
+        knight_moves[54] = 0x100010A000000000ULL;
+        knight_moves[55] = 0x2000204000000000ULL;
+        knight_moves[56] = 0x0004020000000000ULL;
+        knight_moves[57] = 0x0008050000000000ULL;
+        knight_moves[58] = 0x00110A0000000000ULL;
+        knight_moves[59] = 0x0022140000000000ULL;
+        knight_moves[60] = 0x0044280000000000ULL;
+        knight_moves[61] = 0x0088500000000000ULL;
+        knight_moves[62] = 0x0010A00000000000ULL;
+        knight_moves[63] = 0x0020400000000000ULL;
+
+
+
         std::vector<Move> res;
 
+        if (side_to_move == Color::White) {
+            uint64_t white_knights_copy = white_knights;
+
+            while(white_knights_copy > 0ULL) {
+                // iterate over all knights
+                int current_knight_index = fast_log_2(white_knights);
+                uint64_t current_mask = knight_moves[current_knight_index];
+                while(current_mask > 0ULL) {
+                    // iterate over all possible moves of the current knight
+                    int current_attack_index = fast_log_2(current_mask);
+                    if (color_table[current_attack_index] == Color::White) {
+                        // can not capture white pieces
+                    } else if (color_table[current_attack_index] == Color::Black) {
+                        // capture
+                        Piece p = piece_table[current_attack_index];
+                        switch (p) {
+                            case Piece::Pawn:
+                                black_pawns ^= 1ULL << current_attack_index;
+                                break;
+                            case Piece::Rook:
+                                black_rooks ^= 1ULL << current_attack_index;
+                                break;
+                            case Piece::Knight:
+                                black_knights ^= 1ULL << current_attack_index;
+                                break;
+                            case Piece::Bishop:
+                                black_bishops ^= 1ULL << current_attack_index;
+                                break;
+                            case Piece::Queen:
+                                black_queens ^= 1ULL << current_attack_index;
+                                break;
+                            case Piece::King:
+                                black_kings ^= 1ULL << current_attack_index;
+                                break;
+                            case Piece::Empty:
+                                std::cout << "PANIC, EMPTY PIECE CAPTURED\n";
+                                break;
+                            default:
+                                std::cout << "PANIC, invalid piece in 8x8\n";
+                        }
+                        Move m(current_knight_index, current_attack_index);
+                        res.push_back(m);
+                    } else {
+                        // empty square
+                        Move m(current_knight_index, current_attack_index);
+                        res.push_back(m);
+                    }
+                    current_mask ^= 1ULL << current_attack_index;
+                }
+                white_knights_copy ^= 1ULL << current_knight_index;
+            }
+        } else {
+
+            uint64_t black_knights_copy = black_knights;
+
+            while(black_knights_copy > 0ULL) {
+                // iterate over all knights
+                int current_knight_index = fast_log_2(black_knights);
+                uint64_t current_mask = knight_moves[current_knight_index];
+                while(current_mask > 0ULL) {
+                    // iterate over all possible moves of the current knight
+                    int current_attack_index = fast_log_2(current_mask);
+                    if (color_table[current_attack_index] == Color::Black) {
+                        // can not capture white pieces
+                        // TODO: make this nicer
+                    } else if (color_table[current_attack_index] == Color::White) {
+                        // capture
+                        Piece p = piece_table[current_attack_index];
+                        switch (p) {
+                            case Piece::Pawn:
+                                white_pawns ^= 1ULL << current_attack_index;
+                                break;
+                            case Piece::Rook:
+                                white_rooks ^= 1ULL << current_attack_index;
+                                break;
+                            case Piece::Knight:
+                                white_knights ^= 1ULL << current_attack_index;
+                                break;
+                            case Piece::Bishop:
+                                white_bishops ^= 1ULL << current_attack_index;
+                                break;
+                            case Piece::Queen:
+                                white_queens ^= 1ULL << current_attack_index;
+                                break;
+                            case Piece::King:
+                                white_kings ^= 1ULL << current_attack_index;
+                                break;
+                            case Piece::Empty:
+                                std::cout << "PANIC, EMPTY PIECE CAPTURED\n";
+                                break;
+                            default:
+                                std::cout << "PANIC, invalid piece in 8x8\n";
+                        }
+                        Move m(current_knight_index, current_attack_index);
+                        res.push_back(m);
+                    } else {
+                        // empty square
+                        Move m(current_knight_index, current_attack_index);
+                        res.push_back(m);
+                    }
+                    current_mask ^= 1ULL << current_attack_index;
+                }
+                black_knights_copy ^= 1ULL << current_knight_index;
+            }
+        }
 
         return res;
     }
@@ -996,75 +1170,26 @@ void go_through_all_knight_masks() {
 
 int main() {
     Position p;
+    p.set_piece(Piece::Knight, 'f', 5, Color::White);
+    auto first_moves = p.generate_knight_moves();
+    print_full_board(p);
 
-    go_through_all_knight_masks();
+    std::cout << "Number of Moves:" << first_moves.size() << std::endl;
+    for (auto it : first_moves) {
+        std::cout << "\n";
+        print_coords_from_index(it.from);
+        std::cout << " ";
+        print_coords_from_index(it.to);
+        std::cout << " ";
+        if (it.promotion != Piece::Empty)
+            std::cout << to_string(it.promotion);
+    }
+    std::cout << "\n";
 
-    std::vector<uint64_t> knight_moves(64, 0ULL);
-    knight_moves[0] = 0x0000000000020400ULL;
-    knight_moves[1] = 0x0000000000050800ULL;
-    knight_moves[2] = 0x00000000000A1100ULL;
-    knight_moves[3] = 0x0000000000142200ULL;
-    knight_moves[4] = 0x0000000000284400ULL;
-    knight_moves[5] = 0x0000000000508800ULL;
-    knight_moves[6] = 0x0000000000A01000ULL;
-    knight_moves[7] = 0x0000000000402000ULL;
-    knight_moves[8] = 0x0000000002040004ULL;
-    knight_moves[9] = 0x0000000005080008ULL;
-    knight_moves[10] = 0x000000000A110011ULL;
-    knight_moves[11] = 0x0000000014220022ULL;
-    knight_moves[12] = 0x0000000028440044ULL;
-    knight_moves[13] = 0x0000000050880088ULL;
-    knight_moves[14] = 0x00000000A0100010ULL;
-    knight_moves[15] = 0x0000000040200020ULL;
-    knight_moves[16] = 0x0000000204000402ULL;
-    knight_moves[17] = 0x0000000508000805ULL;
-    knight_moves[18] = 0x0000000A1100110AULL;
-    knight_moves[19] = 0x0000001422002214ULL;
-    knight_moves[20] = 0x0000002844004428ULL;
-    knight_moves[21] = 0x0000005088008850ULL;
-    knight_moves[22] = 0x000000A0100010A0ULL;
-    knight_moves[23] = 0x0000004020002040ULL;
-    knight_moves[24] = 0x0000020400040200ULL;
-    knight_moves[25] = 0x0000050800080500ULL;
-    knight_moves[26] = 0x00000A1100110A00ULL;
-    knight_moves[27] = 0x0000142200221400ULL;
-    knight_moves[28] = 0x0000284400442800ULL;
-    knight_moves[29] = 0x0000508800885000ULL;
-    knight_moves[30] = 0x0000A0100010A000ULL;
-    knight_moves[31] = 0x0000402000204000ULL;
-    knight_moves[32] = 0x0002040004020000ULL;
-    knight_moves[33] = 0x0005080008050000ULL;
-    knight_moves[34] = 0x000A1100110A0000ULL;
-    knight_moves[35] = 0x0014220022140000ULL;
-    knight_moves[36] = 0x0028440044280000ULL;
-    knight_moves[37] = 0x0050880088500000ULL;
-    knight_moves[38] = 0x00A0100010A00000ULL;
-    knight_moves[39] = 0x0040200020400000ULL;
-    knight_moves[40] = 0x0204000402000000ULL;
-    knight_moves[41] = 0x0508000805000000ULL;
-    knight_moves[42] = 0x0A1100110A000000ULL;
-    knight_moves[43] = 0x1422002214000000ULL;
-    knight_moves[44] = 0x2844004428000000ULL;
-    knight_moves[45] = 0x5088008850000000ULL;
-    knight_moves[46] = 0xA0100010A0000000ULL;
-    knight_moves[47] = 0x4020002040000000ULL;
-    knight_moves[48] = 0x0400040200000000ULL;
-    knight_moves[49] = 0x0800080500000000ULL;
-    knight_moves[50] = 0x1100110A00000000ULL;
-    knight_moves[51] = 0x2200221400000000ULL;
-    knight_moves[52] = 0x4400442800000000ULL;
-    knight_moves[53] = 0x8800885000000000ULL;
-    knight_moves[54] = 0x100010A000000000ULL;
-    knight_moves[55] = 0x2000204000000000ULL;
-    knight_moves[56] = 0x0004020000000000ULL;
-    knight_moves[57] = 0x0008050000000000ULL;
-    knight_moves[58] = 0x00110A0000000000ULL;
-    knight_moves[59] = 0x0022140000000000ULL;
-    knight_moves[60] = 0x0044280000000000ULL;
-    knight_moves[61] = 0x0088500000000000ULL;
-    knight_moves[62] = 0x0010A00000000000ULL;
-    knight_moves[63] = 0x0020400000000000ULL;
+//    go_through_all_knight_masks();
 
+
+    /*
     int index = 63;
     uint64_t bb = 1ULL << index;
     uint64_t mask = 0x0020400000000000ULL;
@@ -1075,7 +1200,7 @@ int main() {
     print_bitboard(mask);
 
     std::cout << index << "\n";
-
+*/
 
 
 
