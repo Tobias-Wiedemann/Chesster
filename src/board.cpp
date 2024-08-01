@@ -692,11 +692,11 @@ struct Position {
         return res;
     }
 
+
     std::vector<Move> generate_knight_moves() {
         return generate_pseudo_knight_moves();
         // clean them up afterwards
     }
-
 
     std::vector<Move> generate_pseudo_knight_moves() {
         // knight mask
@@ -878,6 +878,107 @@ struct Position {
 
         return res;
     }
+
+
+    std::vector<Move> generate_rook_moves() {
+        return generate_pseudo_rook_moves();
+        // clean them up afterwards
+    }
+
+    std::vector<Move> generate_pseudo_rook_moves() {
+        std::vector<Move> res;
+
+        // TODO: for all rooks
+        uint64_t rooks = white_rooks;
+        int index = fast_log_2(rooks);
+
+        // true until blocked in that direction
+        int down_steps = index / 8;
+        int up_steps = 7 - down_steps;
+        int left_steps = index % 8;
+        int right_steps = 7 - left_steps;
+
+//        std::cout << up_steps << " " << down_steps << " " << left_steps << " " << right_steps << std::endl;
+
+
+        while (down_steps || up_steps || left_steps || right_steps) {
+            if (down_steps) {
+                uint64_t current_square = (1ULL << (index - down_steps * 8)) & empty_squares;
+                if (current_square == 0) {
+                    // hit something
+                    if (color_table[current_square] != side_to_move) {
+                        int current_index = fast_log_2(current_square);
+                        Move m(index, current_index);
+                        res.push_back(m);
+                    }
+                    down_steps = 0;
+                } else {
+                    // empty
+                    int current_index = fast_log_2(current_square);
+                    Move m(index, current_index);
+                    res.push_back(m);
+                    down_steps--;
+                }
+            }
+            if (up_steps) {
+                uint64_t current_square = (1ULL << (index + up_steps * 8)) & empty_squares;
+                if (current_square == 0) {
+                    // hit something
+                    if (color_table[current_square] != side_to_move) {
+                        int current_index = fast_log_2(current_square);
+                        Move m(index, current_index);
+                        res.push_back(m);
+                    }
+                    up_steps = 0;
+                } else {
+                    // empty
+                    int current_index = fast_log_2(current_square);
+                    Move m(index, current_index);
+                    res.push_back(m);
+                    up_steps--;
+                }
+            }
+            if (left_steps) {
+                uint64_t current_square = (1ULL << (index - left_steps)) & empty_squares;
+                if (current_square == 0) {
+                    // hit something
+                    if (color_table[current_square] != side_to_move) {
+                        int current_index = fast_log_2(current_square);
+                        Move m(index, current_index);
+                        res.push_back(m);
+                    }
+                    left_steps = 0;
+                } else {
+                    // empty
+                    int current_index = fast_log_2(current_square);
+                    Move m(index, current_index);
+                    res.push_back(m);
+                    left_steps--;
+                }
+            }
+            if (right_steps) {
+                uint64_t current_square = (1ULL << (index + right_steps)) & empty_squares;
+                if (current_square == 0) {
+                    // hit something
+                    if (color_table[current_square] != side_to_move) {
+                        int current_index = fast_log_2(current_square);
+                        Move m(index, current_index);
+                        res.push_back(m);
+                    }
+                    right_steps = 0;
+                } else {
+                    // empty
+                    int current_index = fast_log_2(current_square);
+                    Move m(index, current_index);
+                    res.push_back(m);
+                    right_steps--;
+                }
+            }
+        }
+
+        return res;
+    }
+ 
 };
 
 void print_all_bitboards(Position &p) {
@@ -1170,11 +1271,20 @@ void go_through_all_knight_masks() {
 
 int main() {
     Position p;
+
+    p.set_piece(Piece::Rook, 'e', 4, Color::White);
+
+    auto first_moves = p.generate_rook_moves();
+
+
+    /*
     p.set_piece(Piece::Knight, 'f', 5, Color::White);
     auto first_moves = p.generate_knight_moves();
     print_full_board(p);
 
     std::cout << "Number of Moves:" << first_moves.size() << std::endl;
+*/
+
     for (auto it : first_moves) {
         std::cout << "\n";
         print_coords_from_index(it.from);
@@ -1185,6 +1295,7 @@ int main() {
             std::cout << to_string(it.promotion);
     }
     std::cout << "\n";
+
 
 //    go_through_all_knight_masks();
 
