@@ -1367,8 +1367,33 @@ struct Position {
     }
 
 
+    std::vector<Move> generate_moves() {
 
- 
+        std::vector<Move> pawn_moves = generate_pawn_moves();
+        std::vector<Move> knight_moves = {};//generate_knight_moves();
+        std::vector<Move> rook_moves = generate_rook_moves();
+        std::vector<Move> bishop_moves = generate_bishop_moves();
+        std::vector<Move> queen_moves = generate_queen_moves();
+        std::vector<Move> king_moves = generate_king_moves();
+
+        std::vector<Move> res = pawn_moves;
+        res.insert(res.end(), 
+                   knight_moves.begin(), 
+                   knight_moves.end());
+        res.insert(res.end(), 
+                   rook_moves.begin(), 
+                   rook_moves.end());
+        res.insert(res.end(), 
+                   bishop_moves.begin(), 
+                   bishop_moves.end());
+        res.insert(res.end(), 
+                   queen_moves.begin(), 
+                   queen_moves.end());
+        res.insert(res.end(), 
+                   king_moves.begin(), 
+                   king_moves.end());
+        return res;
+    }
 };
 
 void print_all_bitboards(Position &p) {
@@ -1741,16 +1766,15 @@ void go_through_all_king_masks() {
 int main() {
     Position p;
 
-    p.set_piece(Piece::King, 'a', 8, Color::White);
-    p.set_piece(Piece::Rook, 'b', 8, Color::White);
+    starting_position(p);
 
-//    p.side_to_move = Color::Black;
+    print_full_board(p);
 
-    auto first_moves = p.generate_king_moves();
-
+    auto first_moves = p.generate_moves();
 
     std::cout << "Number of Moves:" << first_moves.size() << std::endl;
 
+    /*
     for (auto it : first_moves) {
         std::cout << "\n";
         print_coords_from_index(it.from);
@@ -1760,6 +1784,7 @@ int main() {
         if (it.promotion != Piece::Empty)
             std::cout << to_string(it.promotion);
     }
+    */
     std::cout << "\n";
 
 
