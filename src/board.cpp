@@ -1268,6 +1268,106 @@ struct Position {
         return res;
     }
 
+
+    std::vector<Move> generate_king_moves() {
+        return generate_pseudo_king_moves();
+        // clean them up afterwards
+    }
+
+    std::vector<Move> generate_pseudo_king_moves() {
+        // TODO: I included the square on which the king stands on. That's useless. Remove that for slight optimization
+        std::vector<uint64_t> king_masks(64, 0ULL);
+        king_masks[0] = 0x0000000000000303ULL;
+        king_masks[1] = 0x0000000000000707ULL;
+        king_masks[2] = 0x0000000000000E0EULL;
+        king_masks[3] = 0x0000000000001C1CULL;
+        king_masks[4] = 0x0000000000003838ULL;
+        king_masks[5] = 0x0000000000007070ULL;
+        king_masks[6] = 0x000000000000E0E0ULL;
+        king_masks[7] = 0x000000000000C0C0ULL;
+        king_masks[8] = 0x0000000000030303ULL;
+        king_masks[9] = 0x0000000000070707ULL;
+        king_masks[10] = 0x00000000000E0E0EULL;
+        king_masks[11] = 0x00000000001C1C1CULL;
+        king_masks[12] = 0x0000000000383838ULL;
+        king_masks[13] = 0x0000000000707070ULL;
+        king_masks[14] = 0x0000000000E0E0E0ULL;
+        king_masks[15] = 0x0000000000C0C0C0ULL;
+        king_masks[16] = 0x0000000003030300ULL;
+        king_masks[17] = 0x0000000007070700ULL;
+        king_masks[18] = 0x000000000E0E0E00ULL;
+        king_masks[19] = 0x000000001C1C1C00ULL;
+        king_masks[20] = 0x0000000038383800ULL;
+        king_masks[21] = 0x0000000070707000ULL;
+        king_masks[22] = 0x00000000E0E0E000ULL;
+        king_masks[23] = 0x00000000C0C0C000ULL;
+        king_masks[24] = 0x0000000303030000ULL;
+        king_masks[25] = 0x0000000707070000ULL;
+        king_masks[26] = 0x0000000E0E0E0000ULL;
+        king_masks[27] = 0x0000001C1C1C0000ULL;
+        king_masks[28] = 0x0000003838380000ULL;
+        king_masks[29] = 0x0000007070700000ULL;
+        king_masks[30] = 0x000000E0E0E00000ULL;
+        king_masks[31] = 0x000000C0C0C00000ULL;
+        king_masks[32] = 0x0000030303000000ULL;
+        king_masks[33] = 0x0000070707000000ULL;
+        king_masks[34] = 0x00000E0E0E000000ULL;
+        king_masks[35] = 0x00001C1C1C000000ULL;
+        king_masks[36] = 0x0000383838000000ULL;
+        king_masks[37] = 0x0000707070000000ULL;
+        king_masks[38] = 0x0000E0E0E0000000ULL;
+        king_masks[39] = 0x0000C0C0C0000000ULL;
+        king_masks[40] = 0x0003030300000000ULL;
+        king_masks[41] = 0x0007070700000000ULL;
+        king_masks[42] = 0x000E0E0E00000000ULL;
+        king_masks[43] = 0x001C1C1C00000000ULL;
+        king_masks[44] = 0x0038383800000000ULL;
+        king_masks[45] = 0x0070707000000000ULL;
+        king_masks[46] = 0x00E0E0E000000000ULL;
+        king_masks[47] = 0x00C0C0C000000000ULL;
+        king_masks[48] = 0x0303030000000000ULL;
+        king_masks[49] = 0x0707070000000000ULL;
+        king_masks[50] = 0x0E0E0E0000000000ULL;
+        king_masks[51] = 0x1C1C1C0000000000ULL;
+        king_masks[52] = 0x3838380000000000ULL;
+        king_masks[53] = 0x7070700000000000ULL;
+        king_masks[54] = 0xE0E0E00000000000ULL;
+        king_masks[55] = 0xC0C0C00000000000ULL;
+        king_masks[56] = 0x0303000000000000ULL;
+        king_masks[57] = 0x0707000000000000ULL;
+        king_masks[58] = 0x0E0E000000000000ULL;
+        king_masks[59] = 0x1C1C000000000000ULL;
+        king_masks[60] = 0x3838000000000000ULL;
+        king_masks[61] = 0x7070000000000000ULL;
+        king_masks[62] = 0xE0E0000000000000ULL;
+        king_masks[63] = 0xC0C0000000000000ULL;
+
+
+        std::vector<Move> res;
+
+        uint64_t king = side_to_move == Color::White ? white_kings : black_kings;
+        int index = fast_log_2(king);
+
+        uint64_t moves = king_masks[index];
+
+        while (moves != 0ULL) {
+            int current_index = fast_log_2(moves);
+            if (piece_table[current_index] == Piece::Empty) {
+                Move m(index, current_index);
+                res.push_back(m);
+            } else if (color_table[current_index] != side_to_move) {
+                // capture
+                Move m(index, current_index);
+                res.push_back(m);
+            }
+            moves ^= 1ULL << current_index;
+        }
+
+        return res;
+    }
+
+
+
  
 };
 
@@ -1560,77 +1660,77 @@ void go_through_all_knight_masks() {
 }
 
 void go_through_all_king_masks() {
-    std::vector<uint64_t> king_moves(64, 0ULL);
-    king_moves[0] = 0x0000000000000303ULL;
-    king_moves[1] = 0x0000000000000707ULL;
-    king_moves[2] = 0x0000000000000E0EULL;
-    king_moves[3] = 0x0000000000001C1CULL;
-    king_moves[4] = 0x0000000000003838ULL;
-    king_moves[5] = 0x0000000000007070ULL;
-    king_moves[6] = 0x000000000000E0E0ULL;
-    king_moves[7] = 0x000000000000C0C0ULL;
-    king_moves[8] = 0x0000000000030303ULL;
-    king_moves[9] = 0x0000000000070707ULL;
-    king_moves[10] = 0x00000000000E0E0EULL;
-    king_moves[11] = 0x00000000001C1C1CULL;
-    king_moves[12] = 0x0000000000383838ULL;
-    king_moves[13] = 0x0000000000707070ULL;
-    king_moves[14] = 0x0000000000E0E0E0ULL;
-    king_moves[15] = 0x0000000000C0C0C0ULL;
-    king_moves[16] = 0x0000000003030300ULL;
-    king_moves[17] = 0x0000000007070700ULL;
-    king_moves[18] = 0x000000000E0E0E00ULL;
-    king_moves[19] = 0x000000001C1C1C00ULL;
-    king_moves[20] = 0x0000000038383800ULL;
-    king_moves[21] = 0x0000000070707000ULL;
-    king_moves[22] = 0x00000000E0E0E000ULL;
-    king_moves[23] = 0x00000000C0C0C000ULL;
-    king_moves[24] = 0x0000000303030000ULL;
-    king_moves[25] = 0x0000000707070000ULL;
-    king_moves[26] = 0x0000000E0E0E0000ULL;
-    king_moves[27] = 0x0000001C1C1C0000ULL;
-    king_moves[28] = 0x0000003838380000ULL;
-    king_moves[29] = 0x0000007070700000ULL;
-    king_moves[30] = 0x000000E0E0E00000ULL;
-    king_moves[31] = 0x000000C0C0C00000ULL;
-    king_moves[32] = 0x0000030303000000ULL;
-    king_moves[33] = 0x0000070707000000ULL;
-    king_moves[34] = 0x00000E0E0E000000ULL;
-    king_moves[35] = 0x00001C1C1C000000ULL;
-    king_moves[36] = 0x0000383838000000ULL;
-    king_moves[37] = 0x0000707070000000ULL;
-    king_moves[38] = 0x0000E0E0E0000000ULL;
-    king_moves[39] = 0x0000C0C0C0000000ULL;
-    king_moves[40] = 0x0003030300000000ULL;
-    king_moves[41] = 0x0007070700000000ULL;
-    king_moves[42] = 0x000E0E0E00000000ULL;
-    king_moves[43] = 0x001C1C1C00000000ULL;
-    king_moves[44] = 0x0038383800000000ULL;
-    king_moves[45] = 0x0070707000000000ULL;
-    king_moves[46] = 0x00E0E0E000000000ULL;
-    king_moves[47] = 0x00C0C0C000000000ULL;
-    king_moves[48] = 0x0303030000000000ULL;
-    king_moves[49] = 0x0707070000000000ULL;
-    king_moves[50] = 0x0E0E0E0000000000ULL;
-    king_moves[51] = 0x1C1C1C0000000000ULL;
-    king_moves[52] = 0x3838380000000000ULL;
-    king_moves[53] = 0x7070700000000000ULL;
-    king_moves[54] = 0xE0E0E00000000000ULL;
-    king_moves[55] = 0xC0C0C00000000000ULL;
-    king_moves[56] = 0x0303000000000000ULL;
-    king_moves[57] = 0x0707000000000000ULL;
-    king_moves[58] = 0x0E0E000000000000ULL;
-    king_moves[59] = 0x1C1C000000000000ULL;
-    king_moves[60] = 0x3838000000000000ULL;
-    king_moves[61] = 0x7070000000000000ULL;
-    king_moves[62] = 0xE0E0000000000000ULL;
-    king_moves[63] = 0xC0C0000000000000ULL;
+    std::vector<uint64_t> king_masks(64, 0ULL);
+    king_masks[0] = 0x0000000000000303ULL;
+    king_masks[1] = 0x0000000000000707ULL;
+    king_masks[2] = 0x0000000000000E0EULL;
+    king_masks[3] = 0x0000000000001C1CULL;
+    king_masks[4] = 0x0000000000003838ULL;
+    king_masks[5] = 0x0000000000007070ULL;
+    king_masks[6] = 0x000000000000E0E0ULL;
+    king_masks[7] = 0x000000000000C0C0ULL;
+    king_masks[8] = 0x0000000000030303ULL;
+    king_masks[9] = 0x0000000000070707ULL;
+    king_masks[10] = 0x00000000000E0E0EULL;
+    king_masks[11] = 0x00000000001C1C1CULL;
+    king_masks[12] = 0x0000000000383838ULL;
+    king_masks[13] = 0x0000000000707070ULL;
+    king_masks[14] = 0x0000000000E0E0E0ULL;
+    king_masks[15] = 0x0000000000C0C0C0ULL;
+    king_masks[16] = 0x0000000003030300ULL;
+    king_masks[17] = 0x0000000007070700ULL;
+    king_masks[18] = 0x000000000E0E0E00ULL;
+    king_masks[19] = 0x000000001C1C1C00ULL;
+    king_masks[20] = 0x0000000038383800ULL;
+    king_masks[21] = 0x0000000070707000ULL;
+    king_masks[22] = 0x00000000E0E0E000ULL;
+    king_masks[23] = 0x00000000C0C0C000ULL;
+    king_masks[24] = 0x0000000303030000ULL;
+    king_masks[25] = 0x0000000707070000ULL;
+    king_masks[26] = 0x0000000E0E0E0000ULL;
+    king_masks[27] = 0x0000001C1C1C0000ULL;
+    king_masks[28] = 0x0000003838380000ULL;
+    king_masks[29] = 0x0000007070700000ULL;
+    king_masks[30] = 0x000000E0E0E00000ULL;
+    king_masks[31] = 0x000000C0C0C00000ULL;
+    king_masks[32] = 0x0000030303000000ULL;
+    king_masks[33] = 0x0000070707000000ULL;
+    king_masks[34] = 0x00000E0E0E000000ULL;
+    king_masks[35] = 0x00001C1C1C000000ULL;
+    king_masks[36] = 0x0000383838000000ULL;
+    king_masks[37] = 0x0000707070000000ULL;
+    king_masks[38] = 0x0000E0E0E0000000ULL;
+    king_masks[39] = 0x0000C0C0C0000000ULL;
+    king_masks[40] = 0x0003030300000000ULL;
+    king_masks[41] = 0x0007070700000000ULL;
+    king_masks[42] = 0x000E0E0E00000000ULL;
+    king_masks[43] = 0x001C1C1C00000000ULL;
+    king_masks[44] = 0x0038383800000000ULL;
+    king_masks[45] = 0x0070707000000000ULL;
+    king_masks[46] = 0x00E0E0E000000000ULL;
+    king_masks[47] = 0x00C0C0C000000000ULL;
+    king_masks[48] = 0x0303030000000000ULL;
+    king_masks[49] = 0x0707070000000000ULL;
+    king_masks[50] = 0x0E0E0E0000000000ULL;
+    king_masks[51] = 0x1C1C1C0000000000ULL;
+    king_masks[52] = 0x3838380000000000ULL;
+    king_masks[53] = 0x7070700000000000ULL;
+    king_masks[54] = 0xE0E0E00000000000ULL;
+    king_masks[55] = 0xC0C0C00000000000ULL;
+    king_masks[56] = 0x0303000000000000ULL;
+    king_masks[57] = 0x0707000000000000ULL;
+    king_masks[58] = 0x0E0E000000000000ULL;
+    king_masks[59] = 0x1C1C000000000000ULL;
+    king_masks[60] = 0x3838000000000000ULL;
+    king_masks[61] = 0x7070000000000000ULL;
+    king_masks[62] = 0xE0E0000000000000ULL;
+    king_masks[63] = 0xC0C0000000000000ULL;
 
-    for (int i = 50; i < 64; i++) {
+    for (int i = 0; i < 64; i++) {
         uint64_t index = 1ULL << i;
         print_bitboard(index);
         std::cout << "\n" << i << "\n";
-        print_bitboard(king_moves[i]);
+        print_bitboard(king_masks[i]);
         std::cout << "\npress to confirm\n";
         std::string s;
         std::cin >> s;
@@ -1640,24 +1740,14 @@ void go_through_all_king_masks() {
 
 int main() {
     Position p;
-go_through_all_king_masks();
 
-/*
-    p.set_piece(Piece::Queen, 'c', 3, Color::White);
-    p.set_piece(Piece::Pawn, 'f', 3, Color::White);
-    p.set_piece(Piece::Pawn, 'c', 2, Color::White);
-    p.set_piece(Piece::Queen, 'a', 3, Color::Black);
-    p.set_piece(Piece::Queen, 'c', 4, Color::Black);
-    p.set_piece(Piece::Queen, 'e', 5, Color::Black);
+    p.set_piece(Piece::King, 'a', 8, Color::White);
+    p.set_piece(Piece::Rook, 'b', 8, Color::White);
 
 //    p.side_to_move = Color::Black;
 
-    auto first_moves = p.generate_queen_moves();
+    auto first_moves = p.generate_king_moves();
 
-    print_full_board(p);
-    p.set_piece(Piece::Knight, 'f', 5, Color::White);
-    auto first_moves = p.generate_knight_moves();
-    print_full_board(p);
 
     std::cout << "Number of Moves:" << first_moves.size() << std::endl;
 
@@ -1673,10 +1763,8 @@ go_through_all_king_masks();
     std::cout << "\n";
 
 
-//    go_through_all_knight_masks();
 
-    */
-
+/*
     int index = 14;
     uint64_t bb = 1ULL << index;
     uint64_t mask = 0x0000000000E0E0E0ULL;
@@ -1687,7 +1775,7 @@ go_through_all_king_masks();
     print_bitboard(mask);
 
     std::cout << index << "\n";
-
+*/
 
 
     /*
