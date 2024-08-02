@@ -998,8 +998,6 @@ struct Position {
             int right_down_steps = std::min(index / 8, 7 - (index % 8));
             int right_up_steps = std::min(7 - (index / 8), 7 - (index % 8));
 
-            std::cout << left_down_steps << " " << right_down_steps << " " << left_up_steps << " " << right_up_steps << "\n";
-
             // Important, go from inside outwards
             int current_offset = 1;
 
@@ -1080,6 +1078,195 @@ struct Position {
         return res;
     }
 
+    std::vector<Move> generate_queen_moves() {
+        return generate_pseudo_queen_moves();
+        // clean them up afterwards
+    }
+
+    std::vector<Move> generate_pseudo_queen_moves() {
+        std::vector<Move> res;
+
+        uint64_t queens = side_to_move == Color::White ? white_queens : black_queens;
+
+        // Bishop pattern first, then rook pattern
+        while(queens != 0) {
+            int index = fast_log_2(queens);
+
+            // true until blocked in that direction
+            int left_down_steps = std::min(index / 8, index % 8);
+            int left_up_steps = std::min(7 - (index / 8), index % 8);
+            int right_down_steps = std::min(index / 8, 7 - (index % 8));
+            int right_up_steps = std::min(7 - (index / 8), 7 - (index % 8));
+
+
+            // Important, go from inside outwards
+            int current_offset = 1;
+
+            while (left_down_steps || left_up_steps || right_down_steps || right_up_steps) {
+                if (left_down_steps) {
+                    int current_index = index - current_offset * 9;
+                    uint64_t current_square = (1ULL << current_index) & empty_squares;
+                    if (current_square == 0) {
+                        // hit something
+                        if (color_table[current_index] != side_to_move) {
+                            Move m(index, current_index);
+                            res.push_back(m);
+                        }
+                        left_down_steps = 0;
+                    } else {
+                        // empty
+                        Move m(index, current_index);
+                        res.push_back(m);
+                        left_down_steps--;
+                    }
+                }
+                if (left_up_steps) {
+                    int current_index = index + current_offset * 7;
+                    uint64_t current_square = (1ULL << current_index) & empty_squares;
+                    if (current_square == 0) {
+                        // hit something
+                        if (color_table[current_index] != side_to_move) {
+                            Move m(index, current_index);
+                            res.push_back(m);
+                        }
+                        left_up_steps = 0;
+                    } else {
+                        // empty
+                        Move m(index, current_index);
+                        res.push_back(m);
+                        left_up_steps--;
+                    }
+                }
+                if (right_down_steps) {
+                    int current_index = index - current_offset * 7;
+                    uint64_t current_square = (1ULL << current_index) & empty_squares;
+                    if (current_square == 0) {
+                        // hit something
+                        if (color_table[current_index] != side_to_move) {
+                            Move m(index, current_index);
+                            res.push_back(m);
+                        }
+                        right_down_steps = 0;
+                    } else {
+                        // empty
+                        Move m(index, current_index);
+                        res.push_back(m);
+                        right_down_steps--;
+                    }
+                }
+                if (right_up_steps) {
+                    int current_index = index + current_offset * 9;
+                    uint64_t current_square = (1ULL << current_index) & empty_squares;
+                    if (current_square == 0) {
+                        // hit something
+                        if (color_table[current_index] != side_to_move) {
+                            Move m(index, current_index);
+                            res.push_back(m);
+                        }
+                        right_up_steps = 0;
+                    } else {
+                        // empty
+                        Move m(index, current_index);
+                        res.push_back(m);
+                        right_up_steps--;
+                    }
+                }
+                current_offset++;
+            }
+            queens ^= 1ULL << index;
+        }
+
+        // resetting for rook pattern
+        queens = side_to_move == Color::White ? white_queens : black_queens;
+
+
+        while(queens != 0) {
+            int index = fast_log_2(queens);
+
+            // true until blocked in that direction
+            int down_steps = index / 8;
+            int up_steps = 7 - down_steps;
+            int left_steps = index % 8;
+            int right_steps = 7 - left_steps;
+
+            // Important, go from inside outwards
+            int current_offset = 1;
+
+            while (down_steps || up_steps || left_steps || right_steps) {
+                if (down_steps) {
+                    int current_index = index - current_offset * 8;
+                    uint64_t current_square = (1ULL << current_index) & empty_squares;
+                    if (current_square == 0) {
+                        // hit something
+                        if (color_table[current_index] != side_to_move) {
+                            Move m(index, current_index);
+                            res.push_back(m);
+                        }
+                        down_steps = 0;
+                    } else {
+                        // empty
+                        Move m(index, current_index);
+                        res.push_back(m);
+                        down_steps--;
+                    }
+                }
+                if (up_steps) {
+                    int current_index = index + current_offset * 8;
+                    uint64_t current_square = (1ULL << current_index) & empty_squares;
+                    if (current_square == 0) {
+                        // hit something
+                        if (color_table[current_index] != side_to_move) {
+                            Move m(index, current_index);
+                            res.push_back(m);
+                        }
+                        up_steps = 0;
+                    } else {
+                        // empty
+                        Move m(index, current_index);
+                        res.push_back(m);
+                        up_steps--;
+                    }
+                }
+                if (left_steps) {
+                    int current_index = index - current_offset;
+                    uint64_t current_square = (1ULL << current_index) & empty_squares;
+                    if (current_square == 0) {
+                        // hit something
+                        if (color_table[current_index] != side_to_move) {
+                            Move m(index, current_index);
+                            res.push_back(m);
+                        }
+                        left_steps = 0;
+                    } else {
+                        // empty
+                        Move m(index, current_index);
+                        res.push_back(m);
+                        left_steps--;
+                    }
+                }
+                if (right_steps) {
+                    int current_index = index + current_offset;
+                    uint64_t current_square = (1ULL << current_index) & empty_squares;
+                    if (current_square == 0) {
+                        // hit something
+                        if (color_table[current_index] != side_to_move) {
+                            Move m(index, current_index);
+                            res.push_back(m);
+                        }
+                        right_steps = 0;
+                    } else {
+                        // empty
+                        Move m(index, current_index);
+                        res.push_back(m);
+                        right_steps--;
+                    }
+                }
+                current_offset++;
+            }
+            queens ^= 1ULL << index;
+        }
+        return res;
+    }
 
  
 };
@@ -1375,9 +1562,16 @@ void go_through_all_knight_masks() {
 int main() {
     Position p;
 
-    p.set_piece(Piece::Bishop, 'b', 3, Color::White);
+    p.set_piece(Piece::Queen, 'c', 3, Color::White);
+    p.set_piece(Piece::Pawn, 'f', 3, Color::White);
+    p.set_piece(Piece::Pawn, 'c', 2, Color::White);
+    p.set_piece(Piece::Queen, 'a', 3, Color::Black);
+    p.set_piece(Piece::Queen, 'c', 4, Color::Black);
+    p.set_piece(Piece::Queen, 'e', 5, Color::Black);
 
-    auto first_moves = p.generate_bishop_moves();
+//    p.side_to_move = Color::Black;
+
+    auto first_moves = p.generate_queen_moves();
 
     print_full_board(p);
     /*
