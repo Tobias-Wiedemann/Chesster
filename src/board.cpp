@@ -212,7 +212,7 @@ struct Position {
         }
     }
 
-    void move_piece(Move m) {
+    void make_move(Move m) {
         //int from_index = get_index(from_file, from_rank);
         //int to_index = get_index(to_file, to_rank);
         int from_index = m.from;
@@ -358,7 +358,6 @@ struct Position {
         // TODO: Make this shit pretty
         std::vector<Move> res = {};
         if (side_to_move == Color::White) {
-            std::cout << "Pawns\n";
 
             uint64_t pushed_pawns = white_pawns << 8;
 
@@ -523,8 +522,6 @@ struct Position {
             }
         } else {
             // check for black pawn moves
-
-            std::cout << "Pawns\n";
 
             uint64_t pushed_pawns = black_pawns >> 8;
 
@@ -1287,7 +1284,7 @@ struct Position {
     std::vector<Move> generate_moves() {
 
         std::vector<Move> pawn_moves = generate_pawn_moves();
-        std::vector<Move> knight_moves = {};//generate_knight_moves();
+        std::vector<Move> knight_moves = generate_knight_moves();
         std::vector<Move> rook_moves = generate_rook_moves();
         std::vector<Move> bishop_moves = generate_bishop_moves();
         std::vector<Move> queen_moves = generate_queen_moves();
@@ -1514,7 +1511,7 @@ void cmdl_game_loop() {
         int from_index = get_index(from, from_row);
         int to_index = get_index(to, to_row);
         Move m(from_index, to_index);
-        p.move_piece(m);
+        p.make_move(m);
         print_full_board(p);
     }
 
@@ -1680,6 +1677,23 @@ void go_through_all_king_masks() {
     }
 }
 
+uint64_t perft(int depth, Position p) {
+    if (depth == 0)
+        return 1ULL;
+
+    std::vector<Move> move_list = p.generate_moves();
+
+    uint64_t nodes = 0ULL;
+
+    for (Move m : move_list) {
+        Position p_copy = p;
+        p_copy.make_move(m);
+        nodes += perft(depth - 1, p_copy);
+    }
+
+    return nodes;
+}
+
 int main() {
     Position p;
 
@@ -1687,9 +1701,12 @@ int main() {
 
     print_full_board(p);
 
-    auto first_moves = p.generate_moves();
+    int depth = 2;
+    std::cout << "Perft on depth " << depth << ": " << perft(depth, p) << "\n";
 
-    std::cout << "Number of Moves:" << first_moves.size() << std::endl;
+//    auto first_moves = p.generate_moves();
+
+//    std::cout << "Number of Moves:" << first_moves.size() << std::endl;
 
     /*
     for (auto it : first_moves) {
