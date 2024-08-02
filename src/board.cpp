@@ -985,6 +985,99 @@ struct Position {
     }
 
     std::vector<Move> generate_pseudo_bishop_moves() {
+        std::vector<Move> res;
+
+        uint64_t bishops = side_to_move == Color::White ? white_bishops : black_bishops;
+
+        while(bishops != 0) {
+            int index = fast_log_2(bishops);
+
+            // true until blocked in that direction
+            int left_down_steps = std::min(index / 8, index % 8);
+            int left_up_steps = std::min(7 - (index / 8), index % 8);
+            int right_down_steps = std::min(index / 8, 7 - (index % 8));
+            int right_up_steps = std::min(7 - (index / 8), 7 - (index % 8));
+
+            std::cout << left_down_steps << " " << right_down_steps << " " << left_up_steps << " " << right_up_steps << "\n";
+
+            // Important, go from inside outwards
+            int current_offset = 1;
+
+            while (left_down_steps || left_up_steps || right_down_steps || right_up_steps) {
+                if (left_down_steps) {
+                    int current_index = index - current_offset * 9;
+                    uint64_t current_square = (1ULL << current_index) & empty_squares;
+                    if (current_square == 0) {
+                        // hit something
+                        if (color_table[current_index] != side_to_move) {
+                            Move m(index, current_index);
+                            res.push_back(m);
+                        }
+                        left_down_steps = 0;
+                    } else {
+                        // empty
+                        Move m(index, current_index);
+                        res.push_back(m);
+                        left_down_steps--;
+                    }
+                }
+                if (left_up_steps) {
+                    int current_index = index + current_offset * 7;
+                    uint64_t current_square = (1ULL << current_index) & empty_squares;
+                    if (current_square == 0) {
+                        // hit something
+                        if (color_table[current_index] != side_to_move) {
+                            Move m(index, current_index);
+                            res.push_back(m);
+                        }
+                        left_up_steps = 0;
+                    } else {
+                        // empty
+                        Move m(index, current_index);
+                        res.push_back(m);
+                        left_up_steps--;
+                    }
+                }
+                if (right_down_steps) {
+                    int current_index = index - current_offset * 7;
+                    uint64_t current_square = (1ULL << current_index) & empty_squares;
+                    if (current_square == 0) {
+                        // hit something
+                        if (color_table[current_index] != side_to_move) {
+                            Move m(index, current_index);
+                            res.push_back(m);
+                        }
+                        right_down_steps = 0;
+                    } else {
+                        // empty
+                        Move m(index, current_index);
+                        res.push_back(m);
+                        right_down_steps--;
+                    }
+                }
+                if (right_up_steps) {
+                    int current_index = index + current_offset * 9;
+                    uint64_t current_square = (1ULL << current_index) & empty_squares;
+                    if (current_square == 0) {
+                        // hit something
+                        if (color_table[current_index] != side_to_move) {
+                            Move m(index, current_index);
+                            res.push_back(m);
+                        }
+                        right_up_steps = 0;
+                    } else {
+                        // empty
+                        Move m(index, current_index);
+                        res.push_back(m);
+                        right_up_steps--;
+                    }
+                }
+                current_offset++;
+            }
+            bishops ^= 1ULL << index;
+        }
+
+        return res;
     }
 
 
@@ -1282,13 +1375,9 @@ void go_through_all_knight_masks() {
 int main() {
     Position p;
 
-    p.set_piece(Piece::Rook, 'a', 1, Color::Black);
-    p.set_piece(Piece::Rook, 'b', 1, Color::Black);
-    p.set_piece(Piece::Pawn, 'a', 3, Color::White);
-    p.set_piece(Piece::Pawn, 'b', 3, Color::White);
-    p.side_to_move = Color::Black;
+    p.set_piece(Piece::Bishop, 'b', 3, Color::White);
 
-    auto first_moves = p.generate_rook_moves();
+    auto first_moves = p.generate_bishop_moves();
 
     print_full_board(p);
     /*
