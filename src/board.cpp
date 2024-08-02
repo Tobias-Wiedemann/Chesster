@@ -888,95 +888,106 @@ struct Position {
     std::vector<Move> generate_pseudo_rook_moves() {
         std::vector<Move> res;
 
-        // TODO: for all rooks
-        uint64_t rooks = white_rooks;
-        int index = fast_log_2(rooks);
+        uint64_t rooks = side_to_move == Color::White ? white_rooks : black_rooks;
 
-        // true until blocked in that direction
-        int down_steps = index / 8;
-        int up_steps = 7 - down_steps;
-        int left_steps = index % 8;
-        int right_steps = 7 - left_steps;
+        while(rooks != 0) {
+            int index = fast_log_2(rooks);
 
-//        std::cout << up_steps << " " << down_steps << " " << left_steps << " " << right_steps << std::endl;
+            // true until blocked in that direction
+            int down_steps = index / 8;
+            int up_steps = 7 - down_steps;
+            int left_steps = index % 8;
+            int right_steps = 7 - left_steps;
 
-        // Important, go from inside outwards
-        int current_offset = 1;
+            // Important, go from inside outwards
+            int current_offset = 1;
 
-        while (down_steps || up_steps || left_steps || right_steps) {
-            if (down_steps) {
-                int current_index = index - current_offset * 8;
-                uint64_t current_square = (1ULL << current_index) & empty_squares;
-                if (current_square == 0) {
-                    // hit something
-                    if (color_table[current_index] != side_to_move) {
+            while (down_steps || up_steps || left_steps || right_steps) {
+                if (down_steps) {
+                    int current_index = index - current_offset * 8;
+                    uint64_t current_square = (1ULL << current_index) & empty_squares;
+                    if (current_square == 0) {
+                        // hit something
+                        if (color_table[current_index] != side_to_move) {
+                            Move m(index, current_index);
+                            res.push_back(m);
+                        }
+                        down_steps = 0;
+                    } else {
+                        // empty
                         Move m(index, current_index);
                         res.push_back(m);
+                        down_steps--;
                     }
-                    down_steps = 0;
-                } else {
-                    // empty
-                    Move m(index, current_index);
-                    res.push_back(m);
-                    down_steps--;
                 }
-            }
-            if (up_steps) {
-                int current_index = index + current_offset * 8;
-                uint64_t current_square = (1ULL << current_index) & empty_squares;
-                if (current_square == 0) {
-                    // hit something
-                    if (color_table[current_index] != side_to_move) {
+                if (up_steps) {
+                    int current_index = index + current_offset * 8;
+                    uint64_t current_square = (1ULL << current_index) & empty_squares;
+                    if (current_square == 0) {
+                        // hit something
+                        if (color_table[current_index] != side_to_move) {
+                            Move m(index, current_index);
+                            res.push_back(m);
+                        }
+                        up_steps = 0;
+                    } else {
+                        // empty
                         Move m(index, current_index);
                         res.push_back(m);
+                        up_steps--;
                     }
-                    up_steps = 0;
-                } else {
-                    // empty
-                    Move m(index, current_index);
-                    res.push_back(m);
-                    up_steps--;
                 }
-            }
-            if (left_steps) {
-                int current_index = index - current_offset;
-                uint64_t current_square = (1ULL << current_index) & empty_squares;
-                if (current_square == 0) {
-                    // hit something
-                    if (color_table[current_index] != side_to_move) {
+                if (left_steps) {
+                    int current_index = index - current_offset;
+                    uint64_t current_square = (1ULL << current_index) & empty_squares;
+                    if (current_square == 0) {
+                        // hit something
+                        if (color_table[current_index] != side_to_move) {
+                            Move m(index, current_index);
+                            res.push_back(m);
+                        }
+                        left_steps = 0;
+                    } else {
+                        // empty
                         Move m(index, current_index);
                         res.push_back(m);
+                        left_steps--;
                     }
-                    left_steps = 0;
-                } else {
-                    // empty
-                    Move m(index, current_index);
-                    res.push_back(m);
-                    left_steps--;
                 }
-            }
-            if (right_steps) {
-                int current_index = index + current_offset;
-                uint64_t current_square = (1ULL << current_index) & empty_squares;
-                if (current_square == 0) {
-                    // hit something
-                    if (color_table[current_index] != side_to_move) {
+                if (right_steps) {
+                    int current_index = index + current_offset;
+                    uint64_t current_square = (1ULL << current_index) & empty_squares;
+                    if (current_square == 0) {
+                        // hit something
+                        if (color_table[current_index] != side_to_move) {
+                            Move m(index, current_index);
+                            res.push_back(m);
+                        }
+                        right_steps = 0;
+                    } else {
+                        // empty
                         Move m(index, current_index);
                         res.push_back(m);
+                        right_steps--;
                     }
-                    right_steps = 0;
-                } else {
-                    // empty
-                    Move m(index, current_index);
-                    res.push_back(m);
-                    right_steps--;
                 }
+                current_offset++;
             }
-            current_offset++;
+            rooks ^= 1ULL << index;
         }
 
         return res;
     }
+
+    std::vector<Move> generate_bishop_moves() {
+        return generate_pseudo_bishop_moves();
+        // clean them up afterwards
+    }
+
+    std::vector<Move> generate_pseudo_bishop_moves() {
+    }
+
+
  
 };
 
@@ -1271,10 +1282,11 @@ void go_through_all_knight_masks() {
 int main() {
     Position p;
 
-    p.set_piece(Piece::Rook, 'd', 4, Color::White);
-    p.set_piece(Piece::Pawn, 'a', 4, Color::Black);
-    p.set_piece(Piece::Pawn, 'f', 4, Color::Black);
-    p.set_piece(Piece::Knight, 'd', 1, Color::White);
+    p.set_piece(Piece::Rook, 'a', 1, Color::Black);
+    p.set_piece(Piece::Rook, 'b', 1, Color::Black);
+    p.set_piece(Piece::Pawn, 'a', 3, Color::White);
+    p.set_piece(Piece::Pawn, 'b', 3, Color::White);
+    p.side_to_move = Color::Black;
 
     auto first_moves = p.generate_rook_moves();
 
