@@ -1559,9 +1559,90 @@ void go_through_all_knight_masks() {
 
 }
 
+void go_through_all_king_masks() {
+    std::vector<uint64_t> king_moves(64, 0ULL);
+    king_moves[0] = 0x0000000000000303ULL;
+    king_moves[1] = 0x0000000000000707ULL;
+    king_moves[2] = 0x0000000000000E0EULL;
+    king_moves[3] = 0x0000000000001C1CULL;
+    king_moves[4] = 0x0000000000003838ULL;
+    king_moves[5] = 0x0000000000007070ULL;
+    king_moves[6] = 0x000000000000E0E0ULL;
+    king_moves[7] = 0x000000000000C0C0ULL;
+    king_moves[8] = 0x0000000000030303ULL;
+    king_moves[9] = 0x0000000000070707ULL;
+    king_moves[10] = 0x00000000000E0E0EULL;
+    king_moves[11] = 0x00000000001C1C1CULL;
+    king_moves[12] = 0x0000000000383838ULL;
+    king_moves[13] = 0x0000000000707070ULL;
+    king_moves[14] = 0x0000000000E0E0E0ULL;
+    king_moves[15] = 0x0000000000C0C0C0ULL;
+    king_moves[16] = 0x0000000003030300ULL;
+    king_moves[17] = 0x0000000007070700ULL;
+    king_moves[18] = 0x000000000E0E0E00ULL;
+    king_moves[19] = 0x000000001C1C1C00ULL;
+    king_moves[20] = 0x0000000038383800ULL;
+    king_moves[21] = 0x0000000070707000ULL;
+    king_moves[22] = 0x00000000E0E0E000ULL;
+    king_moves[23] = 0x00000000C0C0C000ULL;
+    king_moves[24] = 0x0000000303030000ULL;
+    king_moves[25] = 0x0000000707070000ULL;
+    king_moves[26] = 0x0000000E0E0E0000ULL;
+    king_moves[27] = 0x0000001C1C1C0000ULL;
+    king_moves[28] = 0x0000003838380000ULL;
+    king_moves[29] = 0x0000007070700000ULL;
+    king_moves[30] = 0x000000E0E0E00000ULL;
+    king_moves[31] = 0x000000C0C0C00000ULL;
+    king_moves[32] = 0x0000030303000000ULL;
+    king_moves[33] = 0x0000070707000000ULL;
+    king_moves[34] = 0x00000E0E0E000000ULL;
+    king_moves[35] = 0x00001C1C1C000000ULL;
+    king_moves[36] = 0x0000383838000000ULL;
+    king_moves[37] = 0x0000707070000000ULL;
+    king_moves[38] = 0x0000E0E0E0000000ULL;
+    king_moves[39] = 0x0000C0C0C0000000ULL;
+    king_moves[40] = 0x0003030300000000ULL;
+    king_moves[41] = 0x0007070700000000ULL;
+    king_moves[42] = 0x000E0E0E00000000ULL;
+    king_moves[43] = 0x001C1C1C00000000ULL;
+    king_moves[44] = 0x0038383800000000ULL;
+    king_moves[45] = 0x0070707000000000ULL;
+    king_moves[46] = 0x00E0E0E000000000ULL;
+    king_moves[47] = 0x00C0C0C000000000ULL;
+    king_moves[48] = 0x0303030000000000ULL;
+    king_moves[49] = 0x0707070000000000ULL;
+    king_moves[50] = 0x0E0E0E0000000000ULL;
+    king_moves[51] = 0x1C1C1C0000000000ULL;
+    king_moves[52] = 0x3838380000000000ULL;
+    king_moves[53] = 0x7070700000000000ULL;
+    king_moves[54] = 0xE0E0E00000000000ULL;
+    king_moves[55] = 0xC0C0C00000000000ULL;
+    king_moves[56] = 0x0303000000000000ULL;
+    king_moves[57] = 0x0707000000000000ULL;
+    king_moves[58] = 0x0E0E000000000000ULL;
+    king_moves[59] = 0x1C1C000000000000ULL;
+    king_moves[60] = 0x3838000000000000ULL;
+    king_moves[61] = 0x7070000000000000ULL;
+    king_moves[62] = 0xE0E0000000000000ULL;
+    king_moves[63] = 0xC0C0000000000000ULL;
+
+    for (int i = 50; i < 64; i++) {
+        uint64_t index = 1ULL << i;
+        print_bitboard(index);
+        std::cout << "\n" << i << "\n";
+        print_bitboard(king_moves[i]);
+        std::cout << "\npress to confirm\n";
+        std::string s;
+        std::cin >> s;
+
+    }
+}
+
 int main() {
     Position p;
+go_through_all_king_masks();
 
+/*
     p.set_piece(Piece::Queen, 'c', 3, Color::White);
     p.set_piece(Piece::Pawn, 'f', 3, Color::White);
     p.set_piece(Piece::Pawn, 'c', 2, Color::White);
@@ -1574,13 +1655,11 @@ int main() {
     auto first_moves = p.generate_queen_moves();
 
     print_full_board(p);
-    /*
     p.set_piece(Piece::Knight, 'f', 5, Color::White);
     auto first_moves = p.generate_knight_moves();
     print_full_board(p);
 
     std::cout << "Number of Moves:" << first_moves.size() << std::endl;
-*/
 
     for (auto it : first_moves) {
         std::cout << "\n";
@@ -1596,11 +1675,11 @@ int main() {
 
 //    go_through_all_knight_masks();
 
+    */
 
-    /*
-    int index = 63;
+    int index = 14;
     uint64_t bb = 1ULL << index;
-    uint64_t mask = 0x0020400000000000ULL;
+    uint64_t mask = 0x0000000000E0E0E0ULL;
 
 
     print_bitboard(bb);
@@ -1608,7 +1687,6 @@ int main() {
     print_bitboard(mask);
 
     std::cout << index << "\n";
-*/
 
 
 
