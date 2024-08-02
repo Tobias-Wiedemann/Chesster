@@ -900,80 +900,79 @@ struct Position {
 
 //        std::cout << up_steps << " " << down_steps << " " << left_steps << " " << right_steps << std::endl;
 
+        // Important, go from inside outwards
+        int current_offset = 1;
 
         while (down_steps || up_steps || left_steps || right_steps) {
             if (down_steps) {
-                uint64_t current_square = (1ULL << (index - down_steps * 8)) & empty_squares;
+                int current_index = index - current_offset * 8;
+                uint64_t current_square = (1ULL << current_index) & empty_squares;
                 if (current_square == 0) {
                     // hit something
-                    if (color_table[current_square] != side_to_move) {
-                        int current_index = fast_log_2(current_square);
+                    if (color_table[current_index] != side_to_move) {
                         Move m(index, current_index);
                         res.push_back(m);
                     }
                     down_steps = 0;
                 } else {
                     // empty
-                    int current_index = fast_log_2(current_square);
                     Move m(index, current_index);
                     res.push_back(m);
                     down_steps--;
                 }
             }
             if (up_steps) {
-                uint64_t current_square = (1ULL << (index + up_steps * 8)) & empty_squares;
+                int current_index = index + current_offset * 8;
+                uint64_t current_square = (1ULL << current_index) & empty_squares;
                 if (current_square == 0) {
                     // hit something
-                    if (color_table[current_square] != side_to_move) {
-                        int current_index = fast_log_2(current_square);
+                    if (color_table[current_index] != side_to_move) {
                         Move m(index, current_index);
                         res.push_back(m);
                     }
                     up_steps = 0;
                 } else {
                     // empty
-                    int current_index = fast_log_2(current_square);
                     Move m(index, current_index);
                     res.push_back(m);
                     up_steps--;
                 }
             }
             if (left_steps) {
-                uint64_t current_square = (1ULL << (index - left_steps)) & empty_squares;
+                int current_index = index - current_offset;
+                uint64_t current_square = (1ULL << current_index) & empty_squares;
                 if (current_square == 0) {
                     // hit something
-                    if (color_table[current_square] != side_to_move) {
-                        int current_index = fast_log_2(current_square);
+                    if (color_table[current_index] != side_to_move) {
                         Move m(index, current_index);
                         res.push_back(m);
                     }
                     left_steps = 0;
                 } else {
                     // empty
-                    int current_index = fast_log_2(current_square);
                     Move m(index, current_index);
                     res.push_back(m);
                     left_steps--;
                 }
             }
             if (right_steps) {
-                uint64_t current_square = (1ULL << (index + right_steps)) & empty_squares;
+                int current_index = index + current_offset;
+                uint64_t current_square = (1ULL << current_index) & empty_squares;
                 if (current_square == 0) {
                     // hit something
-                    if (color_table[current_square] != side_to_move) {
-                        int current_index = fast_log_2(current_square);
+                    if (color_table[current_index] != side_to_move) {
                         Move m(index, current_index);
                         res.push_back(m);
                     }
                     right_steps = 0;
                 } else {
                     // empty
-                    int current_index = fast_log_2(current_square);
                     Move m(index, current_index);
                     res.push_back(m);
                     right_steps--;
                 }
             }
+            current_offset++;
         }
 
         return res;
@@ -1272,11 +1271,14 @@ void go_through_all_knight_masks() {
 int main() {
     Position p;
 
-    p.set_piece(Piece::Rook, 'e', 4, Color::White);
+    p.set_piece(Piece::Rook, 'd', 4, Color::White);
+    p.set_piece(Piece::Pawn, 'a', 4, Color::Black);
+    p.set_piece(Piece::Pawn, 'f', 4, Color::Black);
+    p.set_piece(Piece::Knight, 'd', 1, Color::White);
 
     auto first_moves = p.generate_rook_moves();
 
-
+    print_full_board(p);
     /*
     p.set_piece(Piece::Knight, 'f', 5, Color::White);
     auto first_moves = p.generate_knight_moves();
