@@ -34,7 +34,20 @@ std::string to_string(Piece p) {
         case Piece::Empty:
             return "Empty";
         default:
-            return "PIECE NOT FOUND";
+            return "PIECE NOT FOUND 1";
+    }
+}
+
+std::string to_string(Color c) {
+    switch (c) {
+        case Color::White:
+            return "White";
+        case Color::Black:
+            return "Black";
+        case Color::Empty:
+            return "Empty";
+        default:
+            return "Color NOT FOUND";
     }
 }
 
@@ -51,11 +64,6 @@ void print_coords_from_index(int index) {
 
 uint64_t get_bitboard_bit(char file, int rank) {
     int index = get_index(file, rank);
-    uint64_t bit = (uint64_t) std::pow(2, index);
-    return bit;
-}
-
-uint64_t get_bitboard_bit(int index) {
     uint64_t bit = (uint64_t) std::pow(2, index);
     return bit;
 }
@@ -157,7 +165,7 @@ struct Position {
                     white_kings |= bit;
                     break;
                 default:
-                    std::cout << "PIECE NOT FOUND";
+                    std::cout << "PIECE NOT FOUND 2";
                     return;
             }
         } else {
@@ -181,7 +189,7 @@ struct Position {
                     black_kings |= bit;
                     break;
                 default:
-                    std::cout << "PIECE NOT FOUND";
+                    std::cout << "PIECE NOT FOUND 3";
                     return;
             }
         }
@@ -207,7 +215,7 @@ struct Position {
                 piece_table[index] = Piece::King;
                 break;
             default:
-                std::cout << "PIECE NOT FOUND";
+                std::cout << "PIECE NOT FOUND 4";
                 return;
         }
     }
@@ -220,9 +228,15 @@ struct Position {
 
         // 8x8 Board Move
         Piece piece = piece_table[from_index];
+        if (piece == Piece::Empty) {
+            std::cout << "not good";
+            return;
+        }
+
         Color moving_color = color_table[from_index];
         Piece moving_piece = piece_table[from_index];
         piece_table[from_index] = Piece::Empty;
+        assert(moving_piece != Piece::Empty);
 
         Color captured_color = color_table[to_index];
         Piece captured_piece = piece_table[to_index];
@@ -231,8 +245,8 @@ struct Position {
         color_table[from_index] = Color::Empty;
         color_table[to_index] = moving_color;
 
-        uint64_t from_bit = get_bitboard_bit(from_index);
-        uint64_t to_bit = get_bitboard_bit(to_index);
+        uint64_t from_bit = 1ULL << from_index;
+        uint64_t to_bit = 1ULL << to_index;
 
         // Bitboard
         // Update combined Bitboards
@@ -261,7 +275,7 @@ struct Position {
                     white_kings ^= from_bit;
                     break;
                 default:
-                    std::cout << "PIECE NOT FOUND";
+                    std::cout << "PIECE NOT FOUND 5";
                     return;
             }
         } else {
@@ -285,7 +299,9 @@ struct Position {
                     black_kings ^= from_bit;
                     break;
                 default:
-                    std::cout << "PIECE NOT FOUND";
+                    if (piece == Piece::Empty)
+                        std::cout << "uwu";
+                    std::cout << "PIECE NOT FOUND 6";
                     return;
             }
         }
@@ -318,7 +334,7 @@ struct Position {
                     white_kings |= to_bit;
                     break;
                 default:
-                    std::cout << "PIECE NOT FOUND";
+                    std::cout << "PIECE NOT FOUND 7";
                     return;
             }
         } else {
@@ -342,21 +358,126 @@ struct Position {
                     black_kings |= to_bit;
                     break;
                 default:
-                    std::cout << "PIECE NOT FOUND";
+                    std::cout << "PIECE NOT FOUND 8";
                     return;
             }
         }
     }
 
     std::vector<Move> generate_pawn_moves() {
-        return generate_pseudo_pawn_moves();
+        return rewritten_pawn_moves();
         // clean them up afterwards
+    }
+
+    std::vector<Move> rewritten_pawn_moves() {
+        std::vector<Move> res;
+
+        uint64_t white_pawns_starting_mask = 0x000000000000FF00ULL;
+        uint64_t black_pawns_starting_mask = 0x00FF000000000000ULL;
+
+        uint64_t pawns;
+        uint64_t pushed_pawns;
+        uint64_t pushable_pawns;
+        uint64_t double_pushable_pawns;
+
+        if (side_to_move == Color::White) {
+            pawns = white_pawns;
+            pushed_pawns = white_pawns << 8;
+            pushable_pawns = (pushed_pawns & empty_squares) >> 8;
+            double_pushable_pawns = (((pushable_pawns & white_pawns_starting_mask) << 16) & empty_squares) >> 16;
+        } else {
+            pawns = black_pawns;
+            pushed_pawns = black_pawns >> 8;
+            pushable_pawns = (pushed_pawns & empty_squares) << 8;
+            double_pushable_pawns = (((pushable_pawns & black_pawns_starting_mask) >> 16) & empty_squares) << 16;
+        }
+
+
+        while (pushable_pawns) {
+            int index = fast_log_2(pushable_pawns);
+
+            Move m(index, index);
+            m.to = side_to_move == Color::White ? index + 8 : index - 8;
+            if (m.to < 56 && m.to > 8) {
+                res.push_back(m);
+            } else {
+                m.promotion = Piece::Queen;
+                res.push_back(m);
+                m.promotion = Piece::Knight;
+                res.push_back(m);
+                m.promotion = Piece::Rook;
+                res.push_back(m);
+                m.promotion = Piece::Bishop;
+                res.push_back(m);
+            }
+
+            pushable_pawns ^= 1ULL << index;
+        }
+
+        while (double_pushable_pawns) {
+            int index = fast_log_2(double_pushable_pawns);
+
+            Move m(index, index);
+            m.to = side_to_move == Color::White ? index + 16 : index - 16;
+            res.push_back(m);
+
+            double_pushable_pawns ^= 1ULL << index;
+        }
+
+        // captures
+        while (pawns) {
+            int index = fast_log_2(pawns);
+
+            if (index % 8 < 7) {
+                // rightwards (from white's perspective)
+                int attacked_index = side_to_move == Color::White ? index + 9 : index - 7;
+                if (piece_table[attacked_index] != Piece::Empty) {
+                    Move m(index, attacked_index);
+                    if (attacked_index < 56 && attacked_index > 8) {
+                        res.push_back(m);
+                    } else {
+                        m.promotion = Piece::Queen;
+                        res.push_back(m);
+                        m.promotion = Piece::Knight;
+                        res.push_back(m);
+                        m.promotion = Piece::Rook;
+                        res.push_back(m);
+                        m.promotion = Piece::Bishop;
+                        res.push_back(m);
+                    }
+                }
+            }
+
+            if (index % 8 > 0) {
+                // leftwards (from white's perspective)
+                int attacked_index = side_to_move == Color::White ? index + 7 : index - 9;
+                if (piece_table[attacked_index] != Piece::Empty) {
+                    Move m(index, attacked_index);
+                    if (attacked_index < 56 && attacked_index > 8) {
+                        res.push_back(m);
+                    } else {
+                        m.promotion = Piece::Queen;
+                        res.push_back(m);
+                        m.promotion = Piece::Knight;
+                        res.push_back(m);
+                        m.promotion = Piece::Rook;
+                        res.push_back(m);
+                        m.promotion = Piece::Bishop;
+                        res.push_back(m);
+                    }
+                }
+            }
+
+            pawns ^= 1ULL << index;
+        }
+
+        return res;
     }
 
     std::vector<Move> generate_pseudo_pawn_moves() {
         // TODO: En Passent
         // TODO: Make this shit pretty
-        std::vector<Move> res = {};
+        std::vector<Move> res;
         if (side_to_move == Color::White) {
 
             uint64_t pushed_pawns = white_pawns << 8;
@@ -771,6 +892,12 @@ struct Position {
 
         while(knights) {
             int index = fast_log_2(knights);
+            //assert(piece_table[index] == Piece::Knight);
+            if (piece_table[index] != Piece::Knight) {
+                std::cout << to_string(piece_table[index]);
+                std::cout << to_string(color_table[index]);
+                std::cout << to_string(side_to_move);
+            }
             uint64_t possible_squares = knight_mask[index];
 
             while(possible_squares) {
@@ -1284,12 +1411,31 @@ struct Position {
     std::vector<Move> generate_moves() {
 
         std::vector<Move> pawn_moves = generate_pawn_moves();
+        for (auto m : pawn_moves) 
+            if (piece_table[m.from] == Piece::Empty)
+                std::cout << "PAWNS BAD ";
         std::vector<Move> knight_moves = generate_knight_moves();
+        for (auto m : knight_moves) 
+            if (piece_table[m.from] == Piece::Empty)
+                std::cout << "KNIGHTS BAD ";
         std::vector<Move> rook_moves = generate_rook_moves();
+        for (auto m : rook_moves) 
+            if (piece_table[m.from] == Piece::Empty)
+                std::cout << "ROOKS BAD ";
         std::vector<Move> bishop_moves = generate_bishop_moves();
+        for (auto m : bishop_moves) 
+            if (piece_table[m.from] == Piece::Empty)
+                std::cout << "BISHOPS BAD ";
         std::vector<Move> queen_moves = generate_queen_moves();
+        for (auto m : queen_moves) 
+            if (piece_table[m.from] == Piece::Empty)
+                std::cout << "QUEENS BAD ";
         std::vector<Move> king_moves = generate_king_moves();
+        for (auto m : king_moves) 
+            if (piece_table[m.from] == Piece::Empty)
+                std::cout << "KING BAD ";
 
+        std::cout << std::endl;
         std::vector<Move> res = pawn_moves;
         res.insert(res.end(), 
                    knight_moves.begin(), 
@@ -1702,6 +1848,7 @@ int main() {
     print_full_board(p);
 
     int depth = 2;
+//    p.side_to_move = Color::Black;
     std::cout << "Perft on depth " << depth << ": " << perft(depth, p) << "\n";
 
 //    auto first_moves = p.generate_moves();
