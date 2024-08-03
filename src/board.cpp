@@ -233,7 +233,6 @@ struct Position {
             return;
         }
 
-        Color moving_color = color_table[from_index];
         Piece moving_piece = piece_table[from_index];
         piece_table[from_index] = Piece::Empty;
         assert(moving_piece != Piece::Empty);
@@ -243,7 +242,7 @@ struct Position {
         piece_table[to_index] = moving_piece;
 
         color_table[from_index] = Color::Empty;
-        color_table[to_index] = moving_color;
+        color_table[to_index] = side_to_move;
 
         uint64_t from_bit = 1ULL << from_index;
         uint64_t to_bit = 1ULL << to_index;
@@ -254,7 +253,7 @@ struct Position {
         occupied_squares ^= from_bit;
 
         // Update individual Bitboards
-        if (moving_color == Color::White) {
+        if (side_to_move == Color::White) {
             switch (piece) {
                 case Piece::Pawn:
                     white_pawns ^= from_bit;
@@ -313,7 +312,7 @@ struct Position {
         occupied_squares |= from_bit;
 
         // Update individual Bitboards
-        if (moving_color == Color::White) {
+        if (side_to_move == Color::White) {
             switch (piece) {
                 case Piece::Pawn:
                     white_pawns |= to_bit;
@@ -361,6 +360,11 @@ struct Position {
                     std::cout << "PIECE NOT FOUND 8";
                     return;
             }
+        }
+        if (side_to_move == Color::White) {
+            side_to_move = Color::Black;
+        } else {
+            side_to_move = Color::White;
         }
     }
 
@@ -1847,7 +1851,7 @@ int main() {
 
     print_full_board(p);
 
-    int depth = 2;
+    int depth = 3;
 //    p.side_to_move = Color::Black;
     std::cout << "Perft on depth " << depth << ": " << perft(depth, p) << "\n";
 
