@@ -29,6 +29,27 @@ enum class Move_Type{
     Capture_Promotion
 };
 
+std::string to_string(Move_Type m) {
+    switch (m) {
+        case Move_Type::Regular:
+            return "Regular";
+        case Move_Type::En_Passent:
+            return "En_Passent";
+        case Move_Type::Capture:
+            return "Capture";
+        case Move_Type::Capture_Promotion:
+            return "Capture_Promotion";
+        case Move_Type::Promotion:
+            return "Promotion";
+        case Move_Type::Short_Castle:
+            return "Short_Castle";
+        case Move_Type::Long_Castle:
+            return "Long_Castle";
+        default:
+            return "MOVE TYPE NOT FOUND";
+    }
+}
+
 std::string to_string(Piece p) {
     switch (p) {
         case Piece::Pawn:
@@ -239,6 +260,230 @@ struct Position {
     }
 
     void make_move(Move m) {
+        rewritten_make_move(m);
+    }
+
+    void rewritten_make_move(Move m) {
+        Piece moving_piece = piece_table[m.from];
+
+        // delete from initial square
+        piece_table[m.from] = Piece::Empty;
+        color_table[m.from] = Color::Empty;
+        if (side_to_move == Color::White) {
+            switch(moving_piece) {
+                case Piece::Pawn:
+                    white_pawns ^= 1ULL << m.from;
+                    break;
+                case Piece::Knight:
+                    white_knights ^= 1ULL << m.from;
+                    break;
+                case Piece::Rook:
+                    white_rooks ^= 1ULL << m.from;
+                    break;
+                case Piece::Bishop:
+                    white_bishops ^= 1ULL << m.from;
+                    break;
+                case Piece::Queen:
+                    white_queens ^= 1ULL << m.from;
+                    break;
+                case Piece::King:
+                    white_kings ^= 1ULL << m.from;
+                    break;
+                case Piece::Empty:
+                    print_full_board(*this);
+                    std::cout << m.from;
+                    std::cout << "moving an empty square";
+                    exit(1);
+                    break;
+            }
+        } else {
+            switch(moving_piece) {
+                case Piece::Pawn:
+                    black_pawns ^= 1ULL << m.from;
+                    break;
+                case Piece::Knight:
+                    black_knights ^= 1ULL << m.from;
+                    break;
+                case Piece::Rook:
+                    black_rooks ^= 1ULL << m.from;
+                    break;
+                case Piece::Bishop:
+                    black_bishops ^= 1ULL << m.from;
+                    break;
+                case Piece::Queen:
+                    black_queens ^= 1ULL << m.from;
+                    break;
+                case Piece::King:
+                    black_kings ^= 1ULL << m.from;
+                    break;
+                case Piece::Empty:
+                    print_full_board(*this);
+                    std::cout << m.from;
+                    std::cout << "moving an empty square";
+                    exit(1);
+                    break;
+            }
+        }
+
+
+        // insert to new square
+        if (m.type == Move_Type::Promotion ||
+            m.type == Move_Type::Capture_Promotion)
+            moving_piece = m.promotion;
+        piece_table[m.to] = moving_piece;
+        color_table[m.to] = side_to_move;
+        if (side_to_move == Color::White) {
+            switch(moving_piece) {
+                case Piece::Pawn:
+                    white_pawns ^= 1ULL << m.to;
+                    break;
+                case Piece::Knight:
+                    white_knights ^= 1ULL << m.to;
+                    break;
+                case Piece::Rook:
+                    white_rooks ^= 1ULL << m.to;
+                    break;
+                case Piece::Bishop:
+                    white_bishops ^= 1ULL << m.to;
+                    break;
+                case Piece::Queen:
+                    white_queens ^= 1ULL << m.to;
+                    break;
+                case Piece::King:
+                    white_kings ^= 1ULL << m.to;
+                    break;
+                case Piece::Empty:
+                    print_full_board(*this);
+                    std::cout << m.to;
+                    std::cout << "inserted nothing";
+                    exit(1);
+                    break;
+            }
+        } else {
+            switch(moving_piece) {
+                case Piece::Pawn:
+                    black_pawns ^= 1ULL << m.to;
+                    break;
+                case Piece::Knight:
+                    black_knights ^= 1ULL << m.to;
+                    break;
+                case Piece::Rook:
+                    black_rooks ^= 1ULL << m.to;
+                    break;
+                case Piece::Bishop:
+                    black_bishops ^= 1ULL << m.to;
+                    break;
+                case Piece::Queen:
+                    black_queens ^= 1ULL << m.to;
+                    break;
+                case Piece::King:
+                    black_kings ^= 1ULL << m.to;
+                    break;
+                case Piece::Empty:
+                    print_full_board(*this);
+                    std::cout << m.to;
+                    std::cout << "inserted nothing";
+                    exit(1);
+                    break;
+            }
+        }
+
+
+
+
+        // remove a captured piece
+        if (m.type == Move_Type::Capture ||
+            m.type == Move_Type::Capture_Promotion) {
+            if (side_to_move == Color::Black) {
+                switch(m.captured_piece) {
+                    case Piece::Pawn:
+                        white_pawns ^= 1ULL << m.to;
+                        break;
+                    case Piece::Knight:
+                        white_knights ^= 1ULL << m.to;
+                        break;
+                    case Piece::Rook:
+                        white_rooks ^= 1ULL << m.to;
+                        break;
+                    case Piece::Bishop:
+                        white_bishops ^= 1ULL << m.to;
+                        break;
+                    case Piece::Queen:
+                        white_queens ^= 1ULL << m.to;
+                        break;
+                    case Piece::King:
+                        white_kings ^= 1ULL << m.to;
+                        break;
+                    case Piece::Empty:
+                        print_full_board(*this);
+                        std::cout << m.from;
+                        std::cout << to_string(m.type);
+                        std::cout << m.to;
+                        std::cout << to_string(side_to_move);
+                        std::cout << "removing an empty square\n";
+                        print_bitboard(1ULL << m.from);
+                        std::cout << "\n";
+                        print_bitboard(1ULL << m.to);
+                        exit(1);
+                        break;
+                }
+            } else {
+                switch(m.captured_piece) {
+                    case Piece::Pawn:
+                        black_pawns ^= 1ULL << m.to;
+                        break;
+                    case Piece::Knight:
+                        black_knights ^= 1ULL << m.to;
+                        break;
+                    case Piece::Rook:
+                        black_rooks ^= 1ULL << m.to;
+                        break;
+                    case Piece::Bishop:
+                        black_bishops ^= 1ULL << m.to;
+                        break;
+                    case Piece::Queen:
+                        black_queens ^= 1ULL << m.to;
+                        break;
+                    case Piece::King:
+                        black_kings ^= 1ULL << m.to;
+                        break;
+                    case Piece::Empty:
+                        print_full_board(*this);
+                        std::cout << m.from;
+                        std::cout << to_string(m.type);
+                        std::cout << m.to;
+                        std::cout << to_string(side_to_move);
+                        std::cout << "removing an empty square\n";
+                        print_bitboard(1ULL << m.from);
+                        std::cout << "\n";
+                        print_bitboard(1ULL << m.to);
+                        exit(1);
+                        break;
+                }
+            }
+        }
+
+        // En Passent
+        if (m.type == Move_Type::En_Passent) {
+            int index_to_capture = side_to_move == Color::White ? m.to - 8 : m.to + 8;
+
+            if (side_to_move == Color::White) {
+                black_pawns ^= 1ULL << index_to_capture;
+            } else {
+                white_pawns ^= 1ULL << index_to_capture;
+            }
+
+            piece_table[index_to_capture] = Piece::Empty;
+            color_table[index_to_capture] = Color::Empty;
+
+        }
+
+
+
+        side_to_move = side_to_move == Color::White ? Color::Black : Color::White;
+    }
+
+    void old_make_move(Move m) {
         int from_index = m.from;
         int to_index = m.to;
 
@@ -433,8 +678,10 @@ std::cout << number_of_captures << std::endl;
             Color::Black : Color::White;
 
         make_move(m);
+
         side_to_move = side_to_move == Color::White ?
             Color::Black : Color::White;
+
         move_history.pop_back();
 
         /*
@@ -525,6 +772,7 @@ std::cout << number_of_captures << std::endl;
                 if (piece_table[attacked_index] != Piece::Empty &&
                 color_table[attacked_index] != side_to_move) {
                     Move m(index, attacked_index, Move_Type::Capture);
+                    m.captured_piece = piece_table[attacked_index];
                     if (attacked_index < 56 && attacked_index > 8) {
                         res.push_back(m);
                     } else {
@@ -547,6 +795,7 @@ std::cout << number_of_captures << std::endl;
                 if (piece_table[attacked_index] != Piece::Empty &&
                 color_table[attacked_index] != side_to_move) {
                     Move m(index, attacked_index, Move_Type::Capture);
+                    m.captured_piece = piece_table[attacked_index];
                     if (attacked_index < 56 && attacked_index > 8) {
                         res.push_back(m);
                     } else {
@@ -666,7 +915,11 @@ std::cout << number_of_captures << std::endl;
                     res.push_back(m);
                 } else if (color_table[current_index] != side_to_move) {
                     // capture
-                    Move m(index, current_index, Move_Type::Capture);
+                    Move m(index, current_index);
+                    if(color_table[current_index] != Color::Empty) {
+                        m.type = Move_Type::Capture;
+                        m.captured_piece = piece_table[current_index];
+                    }
                     res.push_back(m);
                 }
                 possible_squares ^= 1ULL << current_index;
@@ -708,7 +961,11 @@ std::cout << number_of_captures << std::endl;
                     if (current_square == 0) {
                         // hit something
                         if (color_table[current_index] != side_to_move) {
-                            Move m(index, current_index, Move_Type::Capture);
+                            Move m(index, current_index);
+                            if(color_table[current_index] != Color::Empty) {
+                                m.type = Move_Type::Capture;
+                                m.captured_piece = piece_table[current_index];
+                            }
                             res.push_back(m);
                         }
                         down_steps = 0;
@@ -725,7 +982,11 @@ std::cout << number_of_captures << std::endl;
                     if (current_square == 0) {
                         // hit something
                         if (color_table[current_index] != side_to_move) {
-                            Move m(index, current_index, Move_Type::Capture);
+                            Move m(index, current_index);
+                            if(color_table[current_index] != Color::Empty) {
+                                m.type = Move_Type::Capture;
+                                m.captured_piece = piece_table[current_index];
+                            }
                             res.push_back(m);
                         }
                         up_steps = 0;
@@ -742,7 +1003,11 @@ std::cout << number_of_captures << std::endl;
                     if (current_square == 0) {
                         // hit something
                         if (color_table[current_index] != side_to_move) {
-                            Move m(index, current_index, Move_Type::Capture);
+                            Move m(index, current_index);
+                            if(color_table[current_index] != Color::Empty) {
+                                m.type = Move_Type::Capture;
+                                m.captured_piece = piece_table[current_index];
+                            }
                             res.push_back(m);
                         }
                         left_steps = 0;
@@ -759,7 +1024,11 @@ std::cout << number_of_captures << std::endl;
                     if (current_square == 0) {
                         // hit something
                         if (color_table[current_index] != side_to_move) {
-                            Move m(index, current_index, Move_Type::Capture);
+                            Move m(index, current_index);
+                            if(color_table[current_index] != Color::Empty) {
+                                m.type = Move_Type::Capture;
+                                m.captured_piece = piece_table[current_index];
+                            }
                             res.push_back(m);
                         }
                         right_steps = 0;
@@ -807,7 +1076,11 @@ std::cout << number_of_captures << std::endl;
                     if (current_square == 0) {
                         // hit something
                         if (color_table[current_index] != side_to_move) {
-                            Move m(index, current_index, Move_Type::Capture);
+                            Move m(index, current_index);
+                            if(color_table[current_index] != Color::Empty) {
+                                m.type = Move_Type::Capture;
+                                m.captured_piece = piece_table[current_index];
+                            }
                             res.push_back(m);
                         }
                         left_down_steps = 0;
@@ -824,7 +1097,11 @@ std::cout << number_of_captures << std::endl;
                     if (current_square == 0) {
                         // hit something
                         if (color_table[current_index] != side_to_move) {
-                            Move m(index, current_index, Move_Type::Capture);
+                            Move m(index, current_index);
+                            if(color_table[current_index] != Color::Empty) {
+                                m.type = Move_Type::Capture;
+                                m.captured_piece = piece_table[current_index];
+                            }
                             res.push_back(m);
                         }
                         left_up_steps = 0;
@@ -841,7 +1118,11 @@ std::cout << number_of_captures << std::endl;
                     if (current_square == 0) {
                         // hit something
                         if (color_table[current_index] != side_to_move) {
-                            Move m(index, current_index, Move_Type::Capture);
+                            Move m(index, current_index);
+                            if(color_table[current_index] != Color::Empty) {
+                                m.type = Move_Type::Capture;
+                                m.captured_piece = piece_table[current_index];
+                            }
                             res.push_back(m);
                         }
                         right_down_steps = 0;
@@ -858,7 +1139,11 @@ std::cout << number_of_captures << std::endl;
                     if (current_square == 0) {
                         // hit something
                         if (color_table[current_index] != side_to_move) {
-                            Move m(index, current_index, Move_Type::Capture);
+                            Move m(index, current_index);
+                            if(color_table[current_index] != Color::Empty) {
+                                m.type = Move_Type::Capture;
+                                m.captured_piece = piece_table[current_index];
+                            }
                             res.push_back(m);
                         }
                         right_up_steps = 0;
@@ -908,7 +1193,11 @@ std::cout << number_of_captures << std::endl;
                     if (current_square == 0) {
                         // hit something
                         if (color_table[current_index] != side_to_move) {
-                            Move m(index, current_index, Move_Type::Capture);
+                            Move m(index, current_index);
+                            if(color_table[current_index] != Color::Empty) {
+                                m.type = Move_Type::Capture;
+                                m.captured_piece = piece_table[current_index];
+                            }
                             res.push_back(m);
                         }
                         left_down_steps = 0;
@@ -925,7 +1214,11 @@ std::cout << number_of_captures << std::endl;
                     if (current_square == 0) {
                         // hit something
                         if (color_table[current_index] != side_to_move) {
-                            Move m(index, current_index, Move_Type::Capture);
+                            Move m(index, current_index);
+                            if(color_table[current_index] != Color::Empty) {
+                                m.type = Move_Type::Capture;
+                                m.captured_piece = piece_table[current_index];
+                            }
                             res.push_back(m);
                         }
                         left_up_steps = 0;
@@ -942,7 +1235,11 @@ std::cout << number_of_captures << std::endl;
                     if (current_square == 0) {
                         // hit something
                         if (color_table[current_index] != side_to_move) {
-                            Move m(index, current_index, Move_Type::Capture);
+                            Move m(index, current_index);
+                            if(color_table[current_index] != Color::Empty) {
+                                m.type = Move_Type::Capture;
+                                m.captured_piece = piece_table[current_index];
+                            }
                             res.push_back(m);
                         }
                         right_down_steps = 0;
@@ -959,7 +1256,11 @@ std::cout << number_of_captures << std::endl;
                     if (current_square == 0) {
                         // hit something
                         if (color_table[current_index] != side_to_move) {
-                            Move m(index, current_index, Move_Type::Capture);
+                            Move m(index, current_index);
+                            if(color_table[current_index] != Color::Empty) {
+                                m.type = Move_Type::Capture;
+                                m.captured_piece = piece_table[current_index];
+                            }
                             res.push_back(m);
                         }
                         right_up_steps = 0;
@@ -998,7 +1299,11 @@ std::cout << number_of_captures << std::endl;
                     if (current_square == 0) {
                         // hit something
                         if (color_table[current_index] != side_to_move) {
-                            Move m(index, current_index, Move_Type::Capture);
+                            Move m(index, current_index);
+                            if(color_table[current_index] != Color::Empty) {
+                                m.type = Move_Type::Capture;
+                                m.captured_piece = piece_table[current_index];
+                            }
                             res.push_back(m);
                         }
                         down_steps = 0;
@@ -1015,7 +1320,11 @@ std::cout << number_of_captures << std::endl;
                     if (current_square == 0) {
                         // hit something
                         if (color_table[current_index] != side_to_move) {
-                            Move m(index, current_index, Move_Type::Capture);
+                            Move m(index, current_index);
+                            if(color_table[current_index] != Color::Empty) {
+                                m.type = Move_Type::Capture;
+                                m.captured_piece = piece_table[current_index];
+                            }
                             res.push_back(m);
                         }
                         up_steps = 0;
@@ -1032,7 +1341,11 @@ std::cout << number_of_captures << std::endl;
                     if (current_square == 0) {
                         // hit something
                         if (color_table[current_index] != side_to_move) {
-                            Move m(index, current_index, Move_Type::Capture);
+                            Move m(index, current_index);
+                            if(color_table[current_index] != Color::Empty) {
+                                m.type = Move_Type::Capture;
+                                m.captured_piece = piece_table[current_index];
+                            }
                             res.push_back(m);
                         }
                         left_steps = 0;
@@ -1049,7 +1362,11 @@ std::cout << number_of_captures << std::endl;
                     if (current_square == 0) {
                         // hit something
                         if (color_table[current_index] != side_to_move) {
-                            Move m(index, current_index, Move_Type::Capture);
+                            Move m(index, current_index);
+                            if(color_table[current_index] != Color::Empty) {
+                                m.type = Move_Type::Capture;
+                                m.captured_piece = piece_table[current_index];
+                            }
                             res.push_back(m);
                         }
                         right_steps = 0;
@@ -1597,14 +1914,16 @@ uint64_t perft(int depth, Position &p) {
     if (depth == 0)
         return 1ULL;
 
+    print_full_board(p);
     std::vector<Move> move_list = p.generate_moves();
 
     uint64_t nodes = 0ULL;
 
     for (Move m : move_list) {
-        p.make_move(m);
-        nodes += perft(depth - 1, p);
-        p.unmake_move();
+        Position copy = p;
+        copy.make_move(m);
+        nodes += perft(depth - 1, copy);
+//        p.unmake_move();
     }
 
     return nodes;
@@ -1615,6 +1934,7 @@ int main() {
 
     starting_position(p);
 
+    /*
     print_full_board(p);
     Move m(get_index('e', 2), get_index('e', 4));
     p.make_move(m);
@@ -1623,9 +1943,10 @@ int main() {
     p.unmake_move();
     std::cout << "Move undone\n";
     print_full_board(p);
+    */
 
 
-    int depth = 4;
+    int depth = 3;
 //    p.side_to_move = Color::Black;
     std::cout << "Perft on depth " << depth << ": " << perft(depth, p) << "\n";
     std::cout << "captures: " << number_of_captures << "\n";
