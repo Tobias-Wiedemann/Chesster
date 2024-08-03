@@ -467,7 +467,6 @@ struct Position {
             double_pushable_pawns ^= 1ULL << index;
         }
 
-        /*
         // captures
         while (pawns) {
             int index = fast_log_2(pawns);
@@ -496,7 +495,8 @@ struct Position {
             if (index % 8 > 0) {
                 // leftwards (from white's perspective)
                 int attacked_index = side_to_move == Color::White ? index + 7 : index - 9;
-                if (piece_table[attacked_index] != Piece::Empty) {
+                if (piece_table[attacked_index] != Piece::Empty &&
+                color_table[attacked_index] != side_to_move) {
                     Move m(index, attacked_index);
                     if (attacked_index < 56 && attacked_index > 8) {
                         res.push_back(m);
@@ -515,7 +515,6 @@ struct Position {
 
             pawns ^= 1ULL << index;
         }
-        */
 
         return res;
     }
