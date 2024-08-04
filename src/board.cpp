@@ -173,6 +173,308 @@ struct Position {
 
     std::vector<Move> move_history;
 
+    bool position_is_legal() {
+        std::vector<uint64_t> knight_mask(64, 0ULL);
+        knight_mask[0] = 0x0000000000020400ULL;
+        knight_mask[1] = 0x0000000000050800ULL;
+        knight_mask[2] = 0x00000000000A1100ULL;
+        knight_mask[3] = 0x0000000000142200ULL;
+        knight_mask[4] = 0x0000000000284400ULL;
+        knight_mask[5] = 0x0000000000508800ULL;
+        knight_mask[6] = 0x0000000000A01000ULL;
+        knight_mask[7] = 0x0000000000402000ULL;
+        knight_mask[8] = 0x0000000002040004ULL;
+        knight_mask[9] = 0x0000000005080008ULL;
+        knight_mask[10] = 0x000000000A110011ULL;
+        knight_mask[11] = 0x0000000014220022ULL;
+        knight_mask[12] = 0x0000000028440044ULL;
+        knight_mask[13] = 0x0000000050880088ULL;
+        knight_mask[14] = 0x00000000A0100010ULL;
+        knight_mask[15] = 0x0000000040200020ULL;
+        knight_mask[16] = 0x0000000204000402ULL;
+        knight_mask[17] = 0x0000000508000805ULL;
+        knight_mask[18] = 0x0000000A1100110AULL;
+        knight_mask[19] = 0x0000001422002214ULL;
+        knight_mask[20] = 0x0000002844004428ULL;
+        knight_mask[21] = 0x0000005088008850ULL;
+        knight_mask[22] = 0x000000A0100010A0ULL;
+        knight_mask[23] = 0x0000004020002040ULL;
+        knight_mask[24] = 0x0000020400040200ULL;
+        knight_mask[25] = 0x0000050800080500ULL;
+        knight_mask[26] = 0x00000A1100110A00ULL;
+        knight_mask[27] = 0x0000142200221400ULL;
+        knight_mask[28] = 0x0000284400442800ULL;
+        knight_mask[29] = 0x0000508800885000ULL;
+        knight_mask[30] = 0x0000A0100010A000ULL;
+        knight_mask[31] = 0x0000402000204000ULL;
+        knight_mask[32] = 0x0002040004020000ULL;
+        knight_mask[33] = 0x0005080008050000ULL;
+        knight_mask[34] = 0x000A1100110A0000ULL;
+        knight_mask[35] = 0x0014220022140000ULL;
+        knight_mask[36] = 0x0028440044280000ULL;
+        knight_mask[37] = 0x0050880088500000ULL;
+        knight_mask[38] = 0x00A0100010A00000ULL;
+        knight_mask[39] = 0x0040200020400000ULL;
+        knight_mask[40] = 0x0204000402000000ULL;
+        knight_mask[41] = 0x0508000805000000ULL;
+        knight_mask[42] = 0x0A1100110A000000ULL;
+        knight_mask[43] = 0x1422002214000000ULL;
+        knight_mask[44] = 0x2844004428000000ULL;
+        knight_mask[45] = 0x5088008850000000ULL;
+        knight_mask[46] = 0xA0100010A0000000ULL;
+        knight_mask[47] = 0x4020002040000000ULL;
+        knight_mask[48] = 0x0400040200000000ULL;
+        knight_mask[49] = 0x0800080500000000ULL;
+        knight_mask[50] = 0x1100110A00000000ULL;
+        knight_mask[51] = 0x2200221400000000ULL;
+        knight_mask[52] = 0x4400442800000000ULL;
+        knight_mask[53] = 0x8800885000000000ULL;
+        knight_mask[54] = 0x100010A000000000ULL;
+        knight_mask[55] = 0x2000204000000000ULL;
+        knight_mask[56] = 0x0004020000000000ULL;
+        knight_mask[57] = 0x0008050000000000ULL;
+        knight_mask[58] = 0x00110A0000000000ULL;
+        knight_mask[59] = 0x0022140000000000ULL;
+        knight_mask[60] = 0x0044280000000000ULL;
+        knight_mask[61] = 0x0088500000000000ULL;
+        knight_mask[62] = 0x0010A00000000000ULL;
+        knight_mask[63] = 0x0020400000000000ULL;
+
+        // Test if side_to_move could capture the king
+
+        uint64_t king = 
+            side_to_move == Color::Black ? 
+            white_kings : black_kings;
+
+        int king_index = fast_log_2(king);
+
+        // Pawns
+        int index = king_index;
+
+        if (index % 8 < 7) {
+            // rightwards (from white's perspective)
+            int attacked_index = side_to_move == Color::White ? index - 7 : index + 9;
+            if (piece_table[attacked_index] != Piece::Pawn &&
+            color_table[attacked_index] == side_to_move) {
+                return false;
+            }
+        }
+        if (index % 8 > 0) {
+            // leftwards (from white's perspective)
+            int attacked_index = side_to_move == Color::White ? index - 9 : index + 7;
+            if (piece_table[attacked_index] == Piece::Pawn &&
+            color_table[attacked_index] == side_to_move) {
+                return false;
+            }
+        }
+        // Pawns survived
+
+        // Knights
+        uint64_t possible_knight_checks = knight_mask[king_index];
+        while (possible_knight_checks) {
+            int current_index = fast_log_2(possible_knight_checks);
+            if (color_table[current_index] != side_to_move) {
+                // no danger here
+            } else if (piece_table[current_index] == Piece::Knight) {
+                // king dead
+                return false;
+            }
+            possible_knight_checks ^= 1ULL << current_index;
+        }
+
+        // king survived knights
+
+        // now "queen move gen" for king
+
+        // first bishop style
+
+        index = king_index;
+        // true until blocked in that direction
+        int left_down_steps = std::min(index / 8, index % 8);
+        int left_up_steps = std::min(7 - (index / 8), index % 8);
+        int right_down_steps = std::min(index / 8, 7 - (index % 8));
+        int right_up_steps = std::min(7 - (index / 8), 7 - (index % 8));
+
+
+        // Important, go from inside outwards
+        int current_offset = 1;
+
+        while (left_down_steps || left_up_steps || right_down_steps || right_up_steps) {
+            if (left_down_steps) {
+                int current_index = index - current_offset * 9;
+                uint64_t current_square = (1ULL << current_index) & empty_squares;
+                if (current_square == 0) {
+                    // hit something
+                    if (color_table[current_index] == side_to_move) {
+                        // danger
+                        if (piece_table[current_index] == Piece::Bishop ||
+                        piece_table[current_index] == Piece::Queen) {
+                            // dead
+                            return false;
+                        }
+                    }
+                    left_down_steps = 0;
+                } else {
+                    // empty
+                    left_down_steps--;
+                }
+            }
+            if (left_up_steps) {
+                int current_index = index + current_offset * 7;
+                uint64_t current_square = (1ULL << current_index) & empty_squares;
+                if (current_square == 0) {
+                    // hit something
+                    if (color_table[current_index] == side_to_move) {
+                        // danger
+                        if (piece_table[current_index] == Piece::Bishop ||
+                        piece_table[current_index] == Piece::Queen) {
+                            // dead
+                            return false;
+                        }
+                    }
+                    left_up_steps = 0;
+                } else {
+                    // empty
+                    left_up_steps--;
+                }
+            }
+            if (right_down_steps) {
+                int current_index = index - current_offset * 7;
+                uint64_t current_square = (1ULL << current_index) & empty_squares;
+                if (current_square == 0) {
+                    // hit something
+                    if (color_table[current_index] == side_to_move) {
+                        // danger
+                        if (piece_table[current_index] == Piece::Bishop ||
+                        piece_table[current_index] == Piece::Queen) {
+                            // dead
+                            return false;
+                        }
+                    }
+                    right_down_steps = 0;
+                } else {
+                    // empty
+                    right_down_steps--;
+                }
+            }
+            if (right_up_steps) {
+                int current_index = index + current_offset * 9;
+                uint64_t current_square = (1ULL << current_index) & empty_squares;
+                if (current_square == 0) {
+                    // hit something
+                    if (color_table[current_index] == side_to_move) {
+                        // danger
+                        if (piece_table[current_index] == Piece::Bishop ||
+                        piece_table[current_index] == Piece::Queen) {
+                            // dead
+                            return false;
+                        }
+                    }
+                    right_up_steps = 0;
+                } else {
+                    // empty
+                    right_up_steps--;
+                }
+            }
+            current_offset++;
+        }
+
+
+        // now rook style
+        index = king_index;
+
+        // true until blocked in that direction
+        int down_steps = index / 8;
+        int up_steps = 7 - down_steps;
+        int left_steps = index % 8;
+        int right_steps = 7 - left_steps;
+
+        // Important, go from inside outwards
+        current_offset = 1;
+
+        while (down_steps || up_steps || left_steps || right_steps) {
+            if (down_steps) {
+                int current_index = index - current_offset * 8;
+                uint64_t current_square = (1ULL << current_index) & empty_squares;
+                if (current_square == 0) {
+                    // hit something
+                    if (color_table[current_index] == side_to_move) {
+                        // danger
+                        if (piece_table[current_index] == Piece::Rook ||
+                        piece_table[current_index] == Piece::Queen) {
+                            // dead
+                            return false;
+                        }
+                    }
+                    down_steps = 0;
+                } else {
+                    // empty
+                    down_steps--;
+                }
+            }
+            if (up_steps) {
+                int current_index = index + current_offset * 8;
+                uint64_t current_square = (1ULL << current_index) & empty_squares;
+                if (current_square == 0) {
+                    // hit something
+                    if (color_table[current_index] == side_to_move) {
+                        // danger
+                        if (piece_table[current_index] == Piece::Rook ||
+                        piece_table[current_index] == Piece::Queen) {
+                            // dead
+                            return false;
+                        }
+                    }
+                    up_steps = 0;
+                } else {
+                    // empty
+                    up_steps--;
+                }
+            }
+            if (left_steps) {
+                int current_index = index - current_offset;
+                uint64_t current_square = (1ULL << current_index) & empty_squares;
+                if (current_square == 0) {
+                    // hit something
+                    if (color_table[current_index] == side_to_move) {
+                        // danger
+                        if (piece_table[current_index] == Piece::Rook ||
+                        piece_table[current_index] == Piece::Queen) {
+                            // dead
+                            return false;
+                        }
+                    }
+                    left_steps = 0;
+                } else {
+                    // empty
+                    left_steps--;
+                }
+            }
+            if (right_steps) {
+                int current_index = index + current_offset;
+                uint64_t current_square = (1ULL << current_index) & empty_squares;
+                if (current_square == 0) {
+                    // hit something
+                    if (color_table[current_index] == side_to_move) {
+                        // danger
+                        if (piece_table[current_index] == Piece::Rook ||
+                        piece_table[current_index] == Piece::Queen) {
+                            // dead
+                            return false;
+                        }
+                    }
+                    right_steps = 0;
+                } else {
+                    // empty
+                    right_steps--;
+                }
+            }
+            current_offset++;
+        }
+
+        return true;
+    }
+
     void set_piece(Piece piece, int index, Color col) {
         uint64_t bit = 1ULL << index;
         color_table[index] = col;
@@ -1533,6 +1835,11 @@ std::cout << number_of_captures << std::endl;
         res.insert(res.end(), 
                    king_moves.begin(), 
                    king_moves.end());
+
+        std::vector<Move> real_res;
+        for (auto m : res) {
+
+        }
         return res;
     }
 };
@@ -1959,7 +2266,7 @@ int main() {
     */
 
 
-    int depth = 3;
+    int depth = 4;
 //    p.side_to_move = Color::Black;
     std::cout << "Perft on depth " << depth << ": " << perft(depth, p) << "\n";
     std::cout << "captures: " << number_of_captures << "\n";
