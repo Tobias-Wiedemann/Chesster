@@ -1,6 +1,9 @@
 #include <bits/stdc++.h>
 #include <cassert>
 
+struct Move;
+struct Position;
+
 uint64_t number_of_captures = 0;
 
 enum class Piece{
@@ -84,8 +87,6 @@ std::string to_string(Color c) {
     }
 }
 
-struct Position;
-
 void print_full_board(Position &p);
 
 int get_index(char file, int rank) {
@@ -137,6 +138,10 @@ struct Move {
     Move_Type type;
     Piece captured_piece;
 };
+
+void print_move(Move m) {
+    std::cout << "\nFrom: " << m.from << " to: " << m.to << "\nPromotion: " << to_string(m.promotion) << "\nType: " << to_string(m.type) << "\nCaptured: " << to_string(m.captured_piece) << "\n";
+}
 
 struct Position {
     Position() {
@@ -501,7 +506,7 @@ struct Position {
                         white_kings ^= bit;
                         break;
                     default:
-                        std::cout << "PIECE NOT FOUND 2";
+                        std::cout << "PIECE NOT FOUND 2 1";
                         return;
                 }
             } else {
@@ -525,7 +530,7 @@ struct Position {
                         black_kings ^= bit;
                         break;
                     default:
-                        std::cout << "PIECE NOT FOUND 3";
+                        std::cout << "PIECE NOT FOUND 3 1";
                         return;
                 }
             }
@@ -557,6 +562,8 @@ struct Position {
                 case Piece::King:
                     white_kings |= bit;
                     break;
+                case Piece::Empty:
+                    break;
                 default:
                     std::cout << "PIECE NOT FOUND 2";
                     return;
@@ -581,6 +588,8 @@ struct Position {
                 case Piece::King:
                     black_kings |= bit;
                     break;
+                case Piece::Empty:
+                    break;
                 default:
                     std::cout << "PIECE NOT FOUND 3";
                     return;
@@ -594,6 +603,7 @@ struct Position {
     }
 
     void make_move(Move m) {
+        assert(move_history.size() < 4);
         move_history.push_back(m);
         Piece moving_piece = piece_table[m.from];
 
@@ -624,6 +634,9 @@ struct Position {
                     print_full_board(*this);
                     std::cout << m.from;
                     std::cout << "moving an empty square";
+                    std::cout << m.to;
+                    for (auto moves : move_history)
+                        print_move(moves);
                     exit(1);
                     break;
             }
@@ -651,6 +664,9 @@ struct Position {
                     print_full_board(*this);
                     std::cout << m.from;
                     std::cout << "moving an empty square";
+                    std::cout << m.to;
+                    for (auto moves : move_history)
+                        print_move(moves);
                     exit(1);
                     break;
             }
@@ -755,6 +771,9 @@ struct Position {
                         print_bitboard(1ULL << m.from);
                         std::cout << "\n";
                         print_bitboard(1ULL << m.to);
+
+                        for (auto moves : move_history)
+                            print_move(moves);
                         exit(1);
                         break;
                 }
@@ -788,6 +807,9 @@ struct Position {
                         print_bitboard(1ULL << m.from);
                         std::cout << "\n";
                         print_bitboard(1ULL << m.to);
+
+                        for (auto moves : move_history)
+                            print_move(moves);
                         exit(1);
                         break;
                 }
@@ -834,6 +856,11 @@ struct Position {
         if (m.type == Move_Type::Regular) {
             set_piece(piece_table[m.to], m.from, side_to_move);
             set_piece(Piece::Empty, m.to, Color::Empty);
+        }
+
+        if (m.type == Move_Type::Capture) {
+            set_piece(piece_table[m.to], m.from, side_to_move);
+            set_piece(m.captured_piece, m.to, side_to_move == Color::White ? Color::Black : Color::White);
         }
 
 
@@ -1611,7 +1638,8 @@ struct Position {
             if (piece_table[current_index] == Piece::Empty) {
                 Move m(index, current_index);
                 res.push_back(m);
-            } else if (color_table[current_index] != side_to_move) {
+            } else if (color_table[current_index] != side_to_move &&
+            color_table[current_index] != Color::Empty) {
                 // capture
                 Move m(index, current_index, Move_Type::Capture);
                 res.push_back(m);
@@ -2059,23 +2087,19 @@ uint64_t perft(int depth, Position &p) {
     if (depth == 0)
         return 1ULL;
 
-//    print_full_board(p);
     std::vector<Move> move_list = p.generate_moves();
 
     uint64_t nodes = 0ULL;
 
-    for (Move m : move_list) {
-
+    for (int i = 0; i < move_list.size(); i++) {
         if (depth == 1) {
             number_of_captures += 
-                m.type == Move_Type::Capture ||
-                m.type == Move_Type::Capture_Promotion ? 1 : 0;
+                move_list[i].type == Move_Type::Capture ||
+                move_list[i].type == Move_Type::Capture_Promotion ? 1 : 0;
         }
-
-        Position copy = p;
-        copy.make_move(m);
-        nodes += perft(depth - 1, copy);
-//        p.unmake_move();
+        p.make_move(move_list[i]);
+        nodes += perft(depth - 1, p);
+        p.unmake_move();
     }
 
     return nodes;
@@ -2086,19 +2110,20 @@ int main() {
 
     starting_position(p);
 
+    /*
     print_full_board(p);
-    Move m(get_index('e', 2), get_index('e', 4));
+    Move m(get_index('d', 2), get_index('d', 3));
     p.make_move(m);
     std::cout << "Move done\n";
     print_full_board(p);
-    p.unmake_move();
-    std::cout << "Move undone\n";
-    print_full_board(p);
 
+    for (auto pm : p.generate_moves())
+         print_move(pm);
+         */
 
-    int depth = 4;
+    int depth = 3;
 //    p.side_to_move = Color::Black;
-//    std::cout << "Perft on depth " << depth << ": " << perft(depth, p) << "\n";
+    std::cout << "Perft on depth " << depth << ": " << perft(depth, p) << "\n";
     std::cout << "captures: " << number_of_captures << "\n";
 
 //    auto first_moves = p.generate_moves();
