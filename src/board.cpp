@@ -477,13 +477,65 @@ struct Position {
 
     void set_piece(Piece piece, int index, Color col) {
         uint64_t bit = 1ULL << index;
+
+        // remove the previous piece from bitboards
+        if (piece_table[index] != Piece::Empty) {
+            if (color_table[index] == Color::White) {
+                switch (piece_table[index]) {
+                    case Piece::Pawn:
+                        white_pawns ^= bit;
+                        break;
+                    case Piece::Rook:
+                        white_rooks ^= bit;
+                        break;
+                    case Piece::Knight:
+                        white_knights ^= bit;
+                        break;
+                    case Piece::Bishop:
+                        white_bishops ^= bit;
+                        break;
+                    case Piece::Queen:
+                        white_queens ^= bit;
+                        break;
+                    case Piece::King:
+                        white_kings ^= bit;
+                        break;
+                    default:
+                        std::cout << "PIECE NOT FOUND 2";
+                        return;
+                }
+            } else {
+                switch (piece_table[index]) {
+                    case Piece::Pawn:
+                        black_pawns ^= bit;
+                        break;
+                    case Piece::Rook:
+                        black_rooks ^= bit;
+                        break;
+                    case Piece::Knight:
+                        black_knights ^= bit;
+                        break;
+                    case Piece::Bishop:
+                        black_bishops ^= bit;
+                        break;
+                    case Piece::Queen:
+                        black_queens ^= bit;
+                        break;
+                    case Piece::King:
+                        black_kings ^= bit;
+                        break;
+                    default:
+                        std::cout << "PIECE NOT FOUND 3";
+                        return;
+                }
+            }
+        }
+
+        piece_table[index] = piece;
         color_table[index] = col;
 
-        // Bitboard
-        // Update combined Bitboards
-        empty_squares ^= bit;
-        occupied_squares |= bit;
 
+        // innserting in Bitboards
         // Update individual Bitboards
         if (col == Color::White) {
             switch (piece) {
@@ -535,37 +587,14 @@ struct Position {
             }
         }
 
-        // 8x8 Board
-        switch (piece) {
-            case Piece::Pawn:
-                piece_table[index] = Piece::Pawn;
-                break;
-            case Piece::Rook:
-                piece_table[index] = Piece::Rook;
-                break;
-            case Piece::Knight:
-                piece_table[index] = Piece::Knight;
-                break;
-            case Piece::Bishop:
-                piece_table[index] = Piece::Bishop;
-                break;
-            case Piece::Queen:
-                piece_table[index] = Piece::Queen;
-                break;
-            case Piece::King:
-                piece_table[index] = Piece::King;
-                break;
-            default:
-                std::cout << "PIECE NOT FOUND 4";
-                return;
-        }
+
+        // Update combined Bitboards (lazily)
+        occupied_squares = white_pawns | white_knights | white_rooks | white_bishops | white_queens | white_kings | black_pawns | black_knights | black_rooks | black_bishops | black_queens | black_kings;
+        empty_squares = ~occupied_squares;
     }
 
     void make_move(Move m) {
-        rewritten_make_move(m);
-    }
-
-    void rewritten_make_move(Move m) {
+        move_history.push_back(m);
         Piece moving_piece = piece_table[m.from];
 
         // delete from initial square
@@ -791,221 +820,24 @@ struct Position {
         }
     }
 
-    void old_make_move(Move m) {
-        int from_index = m.from;
-        int to_index = m.to;
+    void unmake_move() {
+        Move m = move_history.back();
+        move_history.pop_back();
 
-        // 8x8 Board Move
-        if (piece_table[from_index] == Piece::Empty) {
-            std::cout << "not good";
-//            exit(1);
-            return;
-        }
-
-        Piece moving_piece = piece_table[from_index];
-        piece_table[from_index] = Piece::Empty;
-        assert(moving_piece != Piece::Empty);
-
-        Color captured_color = color_table[to_index];
-        Piece captured_piece = piece_table[to_index];
-        piece_table[to_index] = moving_piece;
-
-        color_table[from_index] = Color::Empty;
-        color_table[to_index] = side_to_move;
-
-        uint64_t from_bit = 1ULL << from_index;
-        uint64_t to_bit = 1ULL << to_index;
-
-        // Bitboard
-        // Update combined Bitboards
-        empty_squares |= from_bit;
-        occupied_squares ^= from_bit;
-
-        // Update individual Bitboards
-        // remove moving piece from initial square
-        // and insert it on the new square
-        if (side_to_move == Color::White) {
-            switch (moving_piece) {
-                case Piece::Pawn:
-                    white_pawns ^= from_bit;
-                    white_pawns |= to_bit;
-                    break;
-                case Piece::Rook:
-                    white_rooks ^= from_bit;
-                    white_rooks |= to_bit;
-                    break;
-                case Piece::Knight:
-                    white_knights ^= from_bit;
-                    white_knights |= to_bit;
-                    break;
-                case Piece::Bishop:
-                    white_bishops ^= from_bit;
-                    white_bishops |= to_bit;
-                    break;
-                case Piece::Queen:
-                    white_queens ^= from_bit;
-                    white_queens |= to_bit;
-                    break;
-                case Piece::King:
-                    white_kings ^= from_bit;
-                    white_kings |= to_bit;
-                    break;
-                default:
-                    std::cout << "PIECE NOT FOUND 5";
-                    return;
-            }
-        } else if (side_to_move == Color::Black) {
-            switch (moving_piece) {
-                case Piece::Pawn:
-                    black_pawns ^= from_bit;
-                    black_pawns |= to_bit;
-                    break;
-                case Piece::Rook:
-                    black_rooks ^= from_bit;
-                    black_rooks |= to_bit;
-                    break;
-                case Piece::Knight:
-                    black_knights ^= from_bit;
-                    black_knights |= to_bit;
-                    break;
-                case Piece::Bishop:
-                    black_bishops ^= from_bit;
-                    black_bishops |= to_bit;
-                    break;
-                case Piece::Queen:
-                    black_queens ^= from_bit;
-                    black_queens |= to_bit;
-                    break;
-                case Piece::King:
-                    black_kings ^= from_bit;
-                    black_kings |= to_bit;
-                    break;
-                default:
-                    if (moving_piece == Piece::Empty)
-                        std::cout << "uwu";
-                    std::cout << "PIECE NOT FOUND 6";
-                    return;
-            }
-        } else {
-            std::cout << "NO COLOR MOVES";
-        }
-
-        // Insert new piece
-
-        // Update combined Bitboards
-
-        // Update individual Bitboards
-        // clear the empty square
-        if (captured_piece != Piece::Empty) {
-            if (side_to_move == Color::White) {
-                switch (captured_piece) {
-                    case Piece::Pawn:
-                        black_pawns ^= to_bit;
-                        break;
-                    case Piece::Rook:
-                        black_rooks ^= to_bit;
-                        break;
-                    case Piece::Knight:
-                        black_knights ^= to_bit;
-                        break;
-                    case Piece::Bishop:
-                        black_bishops ^= to_bit;
-                        break;
-                    case Piece::Queen:
-                        black_queens ^= to_bit;
-                        break;
-                    case Piece::King:
-                        black_kings ^= to_bit;
-                        break;
-                    case Piece::Empty:
-                        break;
-                    default:
-                        std::cout << "PIECE NOT FOUND 8";
-                        return;
-                }
-
-            } else if (side_to_move == Color::Black){
-                switch (captured_piece) {
-                    case Piece::Pawn:
-                        white_pawns ^= to_bit;
-                        break;
-                    case Piece::Rook:
-                        white_rooks ^= to_bit;
-                        break;
-                    case Piece::Knight:
-                        white_knights ^= to_bit;
-                        break;
-                    case Piece::Bishop:
-                        white_bishops ^= to_bit;
-                        break;
-                    case Piece::Queen:
-                        white_queens ^= to_bit;
-                        break;
-                    case Piece::King:
-                        white_kings ^= to_bit;
-                        break;
-                    case Piece::Empty:
-                        break;
-                    default:
-                        std::cout << "PIECE NOT FOUND 7";
-                        return;
-                }
-            }
-        }
-
+        // Important to note this happening here
         if (side_to_move == Color::White) {
             side_to_move = Color::Black;
         } else {
             side_to_move = Color::White;
         }
 
-        empty_squares ^= to_bit;
-        occupied_squares |= to_bit;
-
-        if (captured_piece != Piece::Empty)
-            m.captured_piece = captured_piece;
-        move_history.push_back(m);
-
-        if (captured_piece != Piece::Empty) {
-            number_of_captures++;
-            print_full_board(*this);
-//            std::cout << from_index << " " << to_index << "\n" << to_string(captured_piece) << "\n";
-std::cout << number_of_captures << std::endl;
+        if (m.type == Move_Type::Regular) {
+            set_piece(piece_table[m.to], m.from, side_to_move);
+            set_piece(Piece::Empty, m.to, Color::Empty);
         }
-    }
 
-    void unmake_move() {
-        Move m = move_history.back();
-        int old_from = m.from;
-        int old_to = m.to;
-        m.from = old_to;
-        m.to = old_from;
-        move_history.pop_back();
 
-        side_to_move = side_to_move == Color::White ?
-            Color::Black : Color::White;
 
-        make_move(m);
-
-        side_to_move = side_to_move == Color::White ?
-            Color::Black : Color::White;
-
-        move_history.pop_back();
-
-        /*
-        if (m.type == Move_Type::Promotion ||
-            m.type == Move_Type::Capture_Promotion) {
-            // replace the promoted piece with a pawn
-            set_piece(Piece::Pawn, m.from, side_to_move);
-        }
-        */
-        if (m.type == Move_Type::Capture ||
-            m.type == Move_Type::Capture_Promotion ) {
-            // replace the captured piece
-            set_piece(m.captured_piece, m.from, 
-                      side_to_move == Color::White ?
-                      Color::Black : Color::White);
-        }
 
     }
 
@@ -2254,7 +2086,6 @@ int main() {
 
     starting_position(p);
 
-    /*
     print_full_board(p);
     Move m(get_index('e', 2), get_index('e', 4));
     p.make_move(m);
@@ -2263,12 +2094,11 @@ int main() {
     p.unmake_move();
     std::cout << "Move undone\n";
     print_full_board(p);
-    */
 
 
     int depth = 4;
 //    p.side_to_move = Color::Black;
-    std::cout << "Perft on depth " << depth << ": " << perft(depth, p) << "\n";
+//    std::cout << "Perft on depth " << depth << ": " << perft(depth, p) << "\n";
     std::cout << "captures: " << number_of_captures << "\n";
 
 //    auto first_moves = p.generate_moves();
