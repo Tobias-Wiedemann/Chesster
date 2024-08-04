@@ -603,7 +603,6 @@ struct Position {
     }
 
     void make_move(Move m) {
-        assert(move_history.size() < 4);
         move_history.push_back(m);
         Piece moving_piece = piece_table[m.from];
 
@@ -1066,7 +1065,6 @@ struct Position {
 
         while(knights) {
             int index = fast_log_2(knights);
-            //assert(piece_table[index] == Piece::Knight);
             if (piece_table[index] != Piece::Knight) {
                 std::cout << to_string(piece_table[index]);
                 std::cout << to_string(color_table[index]);
@@ -1698,9 +1696,13 @@ struct Position {
 
         std::vector<Move> real_res;
         for (auto m : res) {
+            make_move(m);
+            if (position_is_legal())
+                real_res.push_back(m);
+            unmake_move();
 
         }
-        return res;
+        return real_res;
     }
 };
 
@@ -2095,7 +2097,9 @@ uint64_t perft(int depth, Position &p) {
         if (depth == 1) {
             number_of_captures += 
                 move_list[i].type == Move_Type::Capture ||
-                move_list[i].type == Move_Type::Capture_Promotion ? 1 : 0;
+                move_list[i].type == Move_Type::Capture_Promotion ||
+                move_list[i].type == Move_Type::En_Passent
+                ? 1 : 0;
         }
         p.make_move(move_list[i]);
         nodes += perft(depth - 1, p);
@@ -2106,9 +2110,6 @@ uint64_t perft(int depth, Position &p) {
 }
 
 int main() {
-    Position p;
-
-    starting_position(p);
 
     /*
     print_full_board(p);
@@ -2121,10 +2122,15 @@ int main() {
          print_move(pm);
          */
 
-    int depth = 3;
+    int depth = 5;
 //    p.side_to_move = Color::Black;
-    std::cout << "Perft on depth " << depth << ": " << perft(depth, p) << "\n";
-    std::cout << "captures: " << number_of_captures << "\n";
+    for (int i = 1; i <= depth; i++) {
+        Position p;
+        starting_position(p);
+        number_of_captures = 0;
+        std::cout << "Perft on depth " << i << ": " << perft(i, p) << "\n";
+        std::cout << "captures: " << number_of_captures << "\n";
+    }
 
 //    auto first_moves = p.generate_moves();
 
