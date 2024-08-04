@@ -479,8 +479,14 @@ struct Position {
         }
 
 
+        occupied_squares = white_pawns | white_knights | white_rooks | white_bishops | white_queens | white_kings | black_pawns | black_knights | black_rooks | black_bishops | black_queens | black_kings;
+        empty_squares = ~occupied_squares;
 
-        side_to_move = side_to_move == Color::White ? Color::Black : Color::White;
+        if (side_to_move == Color::White) {
+            side_to_move = Color::Black;
+        } else {
+            side_to_move = Color::White;
+        }
     }
 
     void old_make_move(Move m) {
@@ -1914,12 +1920,19 @@ uint64_t perft(int depth, Position &p) {
     if (depth == 0)
         return 1ULL;
 
-    print_full_board(p);
+//    print_full_board(p);
     std::vector<Move> move_list = p.generate_moves();
 
     uint64_t nodes = 0ULL;
 
     for (Move m : move_list) {
+
+        if (depth == 1) {
+            number_of_captures += 
+                m.type == Move_Type::Capture ||
+                m.type == Move_Type::Capture_Promotion ? 1 : 0;
+        }
+
         Position copy = p;
         copy.make_move(m);
         nodes += perft(depth - 1, copy);
@@ -1965,6 +1978,25 @@ int main() {
         if (it.promotion != Piece::Empty)
             std::cout << to_string(it.promotion);
     }
+
+
+    print_full_board(p);
+    Move m(get_index('e', 2), get_index('e', 4));
+    p.make_move(m);
+    print_full_board(p);
+    m = Move (get_index('d', 7), get_index('d', 5));
+    p.make_move(m);
+    print_full_board(p);
+    auto moves = p.generate_pawn_moves();
+    for (auto g : moves) {
+        if (g.type == Move_Type::Capture) {
+            std::cout << moves.size();
+        }
+    }
+
+
+
+
     */
     std::cout << "\n";
 
