@@ -862,6 +862,12 @@ struct Position {
             set_piece(m.captured_piece, m.to, side_to_move == Color::White ? Color::Black : Color::White);
         }
 
+        if (m.type == Move_Type::En_Passent) {
+            set_piece(Piece::Pawn, m.from, side_to_move);
+            int captured_pawn_index = side_to_move == Color::White ? m.to - 8 : m.to + 8;
+            set_piece(Piece::Pawn, captured_pawn_index , side_to_move);// == Color::White ? Color::Black : Color::White);
+            set_piece(Piece::Empty, captured_pawn_index, Color::Empty);
+        }
 
 
 
@@ -979,6 +985,65 @@ struct Position {
             }
 
             pawns ^= 1ULL << index;
+        }
+
+        // En Passent
+        if (move_history.size() > 0) {
+            Move last_move = move_history.back();
+            if (last_move.type == Move_Type::Regular &&
+                piece_table[last_move.to] == Piece::Pawn) {
+                // capture black pawn
+                if (last_move.to >= 32 && 
+                    last_move.to <= 39 && 
+                    last_move.from >= 48 &&
+                    last_move.from <= 55) {
+
+                    if (last_move.to % 8 < 7) {
+                        int index = last_move.to + 1;
+                        if (piece_table[index] == Piece::Pawn && 
+                            color_table[index] == side_to_move) {
+                            Move m(index, last_move.to + 8, Move_Type::En_Passent);
+                            m.captured_piece = Piece::Pawn;
+                            res.push_back(m);
+                        }
+                    }
+                    if (last_move.to % 8 > 0) {
+                        int index = last_move.to - 1;
+                        if (piece_table[index] == Piece::Pawn && 
+                            color_table[index] == side_to_move) {
+                            Move m(index, last_move.to + 8, Move_Type::En_Passent);
+                            m.captured_piece = Piece::Pawn;
+                            res.push_back(m);
+                        }
+                    }
+                }
+                // capture white pawn
+                if (last_move.to >= 24 && 
+                    last_move.to <= 31 && 
+                    last_move.from >= 8 &&
+                    last_move.from <= 15) {
+
+                    if (last_move.to % 8 < 7) {
+                        int index = last_move.to + 1;
+                        if (piece_table[index] == Piece::Pawn && 
+                            color_table[index] == side_to_move) {
+                            Move m(index, last_move.to - 8, Move_Type::En_Passent);
+                            m.captured_piece = Piece::Pawn;
+                            res.push_back(m);
+                        }
+                    }
+                    if (last_move.to % 8 > 0) {
+                        int index = last_move.to - 1;
+                        if (piece_table[index] == Piece::Pawn && 
+                            color_table[index] == side_to_move) {
+                            Move m(index, last_move.to - 8, Move_Type::En_Passent);
+                            m.captured_piece = Piece::Pawn;
+                            res.push_back(m);
+                        }
+                    }
+
+                }
+            }
         }
 
         return res;
