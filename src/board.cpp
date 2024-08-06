@@ -2175,7 +2175,7 @@ uint64_t number_of_en_passent = 0;
 
 uint64_t perft(int depth, Position &p) {
 
-    if (p.is_check()) {
+    if (depth == 0 && p.is_check()) {
         number_of_checks++;
     }
 
@@ -2209,21 +2209,7 @@ uint64_t perft(int depth, Position &p) {
     return nodes;
 }
 
-int main() {
-
-    /*
-    print_full_board(p);
-    Move m(get_index('d', 2), get_index('d', 3));
-    p.make_move(m);
-    std::cout << "Move done\n";
-    print_full_board(p);
-
-    for (auto pm : p.generate_moves())
-         print_move(pm);
-         */
-
-    int depth = 5;
-//    p.side_to_move = Color::Black;
+void perft_up_to(int depth) {
     for (int i = 1; i <= depth; i++) {
         Position p;
         starting_position(p);
@@ -2249,28 +2235,11 @@ int main() {
         std::cout << "checkmates: " << number_of_checkmates << "\n";
         std::cout << "\n";
     }
+}
 
-    /*
-    print_full_board(p);
-    Move m(get_index('e', 2), get_index('e', 4));
-    p.make_move(m);
-    m = Move(get_index('a', 7), get_index('a', 6));
-    p.make_move(m);
-    m = Move(get_index('e', 4), get_index('e', 5));
-    p.make_move(m);
-    m = Move(get_index('d', 7), get_index('d', 5));
-    p.make_move(m);
-    std::cout << "\nBefore en passent\n";
-    print_full_board(p);
-    m = Move(get_index('e', 5), get_index('d', 6), Move_Type::En_Passent);
-    p.make_move(m);
-    std::cout << "\nAfter en passent\n";
-    print_full_board(p);
-    p.unmake_move();
-    std::cout << "\nAfter undo en passent\n";
-    print_full_board(p);
-    */
+int main() {
 
+    perft_up_to(5);
 
     std::cout << "\n";
 
