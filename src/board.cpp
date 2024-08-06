@@ -865,8 +865,8 @@ struct Position {
         if (m.type == Move_Type::En_Passent) {
             set_piece(Piece::Pawn, m.from, side_to_move);
             int captured_pawn_index = side_to_move == Color::White ? m.to - 8 : m.to + 8;
-            set_piece(Piece::Pawn, captured_pawn_index , side_to_move);// == Color::White ? Color::Black : Color::White);
-            set_piece(Piece::Empty, captured_pawn_index, Color::Empty);
+            set_piece(Piece::Pawn, captured_pawn_index , side_to_move == Color::White ? Color::Black : Color::White);
+            set_piece(Piece::Empty, m.to, Color::Empty);
         }
 
 
@@ -2189,48 +2189,36 @@ int main() {
 
     int depth = 5;
 //    p.side_to_move = Color::Black;
+    Position p;
     for (int i = 1; i <= depth; i++) {
-        Position p;
         starting_position(p);
         number_of_captures = 0;
         std::cout << "Perft on depth " << i << ": " << perft(i, p) << "\n";
         std::cout << "captures: " << number_of_captures << "\n";
     }
 
-//    auto first_moves = p.generate_moves();
-
-//    std::cout << "Number of Moves:" << first_moves.size() << std::endl;
-
     /*
-    for (auto it : first_moves) {
-        std::cout << "\n";
-        print_coords_from_index(it.from);
-        std::cout << " ";
-        print_coords_from_index(it.to);
-        std::cout << " ";
-        if (it.promotion != Piece::Empty)
-            std::cout << to_string(it.promotion);
-    }
-
-
     print_full_board(p);
     Move m(get_index('e', 2), get_index('e', 4));
     p.make_move(m);
-    print_full_board(p);
-    m = Move (get_index('d', 7), get_index('d', 5));
+    m = Move(get_index('a', 7), get_index('a', 6));
     p.make_move(m);
+    m = Move(get_index('e', 4), get_index('e', 5));
+    p.make_move(m);
+    m = Move(get_index('d', 7), get_index('d', 5));
+    p.make_move(m);
+    std::cout << "\nBefore en passent\n";
     print_full_board(p);
-    auto moves = p.generate_pawn_moves();
-    for (auto g : moves) {
-        if (g.type == Move_Type::Capture) {
-            std::cout << moves.size();
-        }
-    }
-
-
-
-
+    m = Move(get_index('e', 5), get_index('d', 6), Move_Type::En_Passent);
+    p.make_move(m);
+    std::cout << "\nAfter en passent\n";
+    print_full_board(p);
+    p.unmake_move();
+    std::cout << "\nAfter undo en passent\n";
+    print_full_board(p);
     */
+
+
     std::cout << "\n";
 
 
