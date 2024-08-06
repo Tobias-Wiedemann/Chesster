@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 #include <chrono>
 #include <cassert>
+#include <sstream>
 
 struct Move;
 struct Position;
@@ -147,6 +148,116 @@ struct Position {
     Position() {
         piece_table.assign(64, Piece::Empty);
         color_table.assign(64, Color::Empty);
+    }
+
+    Position(std::string fen_position) {
+        piece_table.assign(64, Piece::Empty);
+        color_table.assign(64, Color::Empty);
+
+        std::stringstream fen_stream(fen_position);
+
+        std::string token;
+        std::vector<std::string> fen_elements;
+        char delimiter = ' ';
+
+        while (getline(fen_stream, token, delimiter)) {
+            fen_elements.push_back(token);
+        }
+
+        std::string board = fen_elements[0];
+
+        char file = 'a';
+        int rank = 8;
+        for (char c : board) {
+            if (c == '/') {
+                file = 'a';
+                rank--;
+                continue;
+            }
+
+            if (c >= '1' && c <= '8') {
+                file += c - '0';
+                continue;
+            }
+
+            // Black Pieces
+            if (c == 'r') {
+                this->set_piece(Piece::Rook, get_index(file, rank), Color::Black);
+                file++;
+                continue;
+            }
+            if (c == 'n') {
+                this->set_piece(Piece::Knight, get_index(file, rank), Color::Black);
+                file++;
+                continue;
+            }
+            if (c == 'b') {
+                this->set_piece(Piece::Bishop, get_index(file, rank), Color::Black);
+                file++;
+                continue;
+            }
+            if (c == 'q') {
+                this->set_piece(Piece::Queen, get_index(file, rank), Color::Black);
+                file++;
+                continue;
+            }
+            if (c == 'k') {
+                this->set_piece(Piece::King, get_index(file, rank), Color::Black);
+                file++;
+                continue;
+            }
+            if (c == 'p') {
+                this->set_piece(Piece::Pawn, get_index(file, rank), Color::Black);
+                file++;
+                continue;
+            }
+
+
+            // White Pieces
+            if (c == 'R') {
+                this->set_piece(Piece::Rook, get_index(file, rank), Color::White);
+                file++;
+                continue;
+            }
+            if (c == 'N') {
+                this->set_piece(Piece::Knight, get_index(file, rank), Color::White);
+                file++;
+                continue;
+            }
+            if (c == 'B') {
+                this->set_piece(Piece::Bishop, get_index(file, rank), Color::White);
+                file++;
+                continue;
+            }
+            if (c == 'Q') {
+                this->set_piece(Piece::Queen, get_index(file, rank), Color::White);
+                file++;
+                continue;
+            }
+            if (c == 'K') {
+                this->set_piece(Piece::King, get_index(file, rank), Color::White);
+                file++;
+                continue;
+            }
+            if (c == 'P') {
+                this->set_piece(Piece::Pawn, get_index(file, rank), Color::White);
+                file++;
+                continue;
+            }
+        }
+
+
+
+        if (fen_elements[1] == "w") {
+            side_to_move = Color::White;
+        } else if (fen_elements[1] == "b") {
+            side_to_move = Color::Black;
+        } else {
+            std::cout << "FEN error, invalid side to move\n";
+            exit(1);
+        }
+        for (auto &part : fen_elements)
+            std::cout << part << "\n";
     }
 
     Color side_to_move = Color::White;
@@ -2210,10 +2321,8 @@ uint64_t perft(int depth, Position &p) {
     return nodes;
 }
 
-void perft_up_to(int depth) {
+void perft_up_to(int depth, Position p) {
     for (int i = 1; i <= depth; i++) {
-        Position p;
-        starting_position(p);
         number_of_captures = 0;
         number_of_checks = 0;
         number_of_checkmates = 0;
@@ -2238,9 +2347,26 @@ void perft_up_to(int depth) {
     }
 }
 
+
 int main() {
 
-    perft_up_to(4);
+    // Starting Position
+    Position p("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+
+    // Perft Position 2
+    Position p2("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ");
+
+    // Perft Position 3
+    Position p3("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - ");
+
+    // Perft Position 4
+    Position p4("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
+
+
+    perft_up_to(4, p3);
+
+
+
 
     std::cout << "\n";
 
