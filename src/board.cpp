@@ -388,7 +388,7 @@ struct Position {
         if (index % 8 < 7) {
             // rightwards (from white's perspective)
             int attacked_index = side_to_move == Color::White ? index - 7 : index + 9;
-            if (piece_table[attacked_index] != Piece::Pawn &&
+            if (piece_table[attacked_index] == Piece::Pawn &&
             color_table[attacked_index] == side_to_move) {
                 return false;
             }
@@ -2363,7 +2363,7 @@ int main() {
     Position p4("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
 
 
-    perft_up_to(4, p3);
+    perft_up_to(5, p3);
 
 
 
