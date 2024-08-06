@@ -1,10 +1,10 @@
 #include <bits/stdc++.h>
+#include <chrono>
 #include <cassert>
 
 struct Move;
 struct Position;
 
-uint64_t number_of_captures = 0;
 
 enum class Piece{
     Pawn,
@@ -177,6 +177,24 @@ struct Position {
     std::vector<Color> color_table;
 
     std::vector<Move> move_history;
+
+    bool is_check() {
+        if (side_to_move == Color::White) {
+            side_to_move = Color::Black;
+        } else {
+            side_to_move = Color::White;
+        }
+
+        bool res = position_is_legal() == false;
+
+        if (side_to_move == Color::White) {
+            side_to_move = Color::Black;
+        } else {
+            side_to_move = Color::White;
+        }
+
+        return res;
+    }
 
     bool position_is_legal() {
         std::vector<uint64_t> knight_mask(64, 0ULL);
@@ -2150,11 +2168,25 @@ void go_through_all_king_masks() {
     }
 }
 
+uint64_t number_of_captures = 0;
+uint64_t number_of_checks = 0;
+uint64_t number_of_checkmates = 0;
+uint64_t number_of_en_passent = 0;
+
 uint64_t perft(int depth, Position &p) {
+
+    if (p.is_check()) {
+        number_of_checks++;
+    }
+
     if (depth == 0)
         return 1ULL;
 
     std::vector<Move> move_list = p.generate_moves();
+
+    if (move_list.size() == 0) {
+        number_of_checkmates++;
+    }
 
     uint64_t nodes = 0ULL;
 
@@ -2165,6 +2197,9 @@ uint64_t perft(int depth, Position &p) {
                 move_list[i].type == Move_Type::Capture_Promotion ||
                 move_list[i].type == Move_Type::En_Passent
                 ? 1 : 0;
+
+            number_of_en_passent += 
+                move_list[i].type == Move_Type::En_Passent ? 1 : 0;
         }
         p.make_move(move_list[i]);
         nodes += perft(depth - 1, p);
@@ -2189,12 +2224,30 @@ int main() {
 
     int depth = 5;
 //    p.side_to_move = Color::Black;
-    Position p;
     for (int i = 1; i <= depth; i++) {
+        Position p;
         starting_position(p);
         number_of_captures = 0;
-        std::cout << "Perft on depth " << i << ": " << perft(i, p) << "\n";
+        number_of_checks = 0;
+        number_of_checkmates = 0;
+        number_of_en_passent = 0;
+
+
+        auto beg = std::chrono::high_resolution_clock::now();
+        uint64_t nodes = perft(i, p);
+        auto end = std::chrono::high_resolution_clock::now();
+ 
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - beg);
+ 
+
+        std::cout << "\n";
+        std::cout << "Perft on depth " << i << " took " << duration.count() << " microseconds\n";
+        std::cout << "Nodes: " << nodes << "\n";
         std::cout << "captures: " << number_of_captures << "\n";
+        std::cout << "en passents: " << number_of_en_passent << "\n";
+        std::cout << "checks: " << number_of_checks << "\n";
+        std::cout << "checkmates: " << number_of_checkmates << "\n";
+        std::cout << "\n";
     }
 
     /*
