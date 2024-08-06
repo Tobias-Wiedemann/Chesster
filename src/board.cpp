@@ -1723,6 +1723,7 @@ struct Position {
             color_table[current_index] != Color::Empty) {
                 // capture
                 Move m(index, current_index, Move_Type::Capture);
+                m.captured_piece = piece_table[current_index];
                 res.push_back(m);
             }
             moves ^= 1ULL << current_index;
@@ -2175,17 +2176,17 @@ uint64_t number_of_en_passent = 0;
 
 uint64_t perft(int depth, Position &p) {
 
-    if (depth == 0 && p.is_check()) {
-        number_of_checks++;
-    }
-
-    if (depth == 0)
-        return 1ULL;
 
     std::vector<Move> move_list = p.generate_moves();
 
-    if (move_list.size() == 0) {
-        number_of_checkmates++;
+    if (depth == 0) {
+        if (p.is_check()) {
+            number_of_checks++;
+        }
+        if (move_list.size() == 0) {
+            number_of_checkmates++;
+        }
+        return 1ULL;
     }
 
     uint64_t nodes = 0ULL;
@@ -2239,7 +2240,7 @@ void perft_up_to(int depth) {
 
 int main() {
 
-    perft_up_to(5);
+    perft_up_to(4);
 
     std::cout << "\n";
 
