@@ -132,16 +132,24 @@ int fast_log_2(double num) {
 }
 
 struct Move {
-    Move(int f, int t, Move_Type m = Move_Type::Regular, Piece p = Piece::Empty) : from(f), to(t), type(m), promotion(p), captured_piece(Piece::Empty) {}
+    Move(int f, int t, Move_Type m = Move_Type::Regular, Piece p = Piece::Empty) : from(f), to(t), type(m), promotion(p), captured_piece(Piece::Empty), destroyed_kingside_castling(false), destroyed_queenside_castling(false) {}
     int from;
     int to;
     Piece promotion;
     Move_Type type;
     Piece captured_piece;
+    bool destroyed_kingside_castling;
+    bool destroyed_queenside_castling;
 };
 
 void print_move(Move m) {
-    std::cout << "\nFrom: " << m.from << " to: " << m.to << "\nPromotion: " << to_string(m.promotion) << "\nType: " << to_string(m.type) << "\nCaptured: " << to_string(m.captured_piece) << "\n";
+    std::cout << "\nFrom: " << m.from <<
+        " to: " << m.to <<
+        "\nPromotion: " << to_string(m.promotion) <<
+        "\nType: " << to_string(m.type) <<
+        "\nCaptured: " << to_string(m.captured_piece) <<
+        "\nDestroyed kingside castling: " << m.destroyed_kingside_castling <<
+        "\nDestroyed queenside castling: " << m.destroyed_queenside_castling << "\n";
 }
 
 struct Position {
@@ -783,6 +791,8 @@ struct Position {
                     std::cout << m.from;
                     std::cout << "moving an empty square";
                     std::cout << m.to;
+                    std::cout << "\nwhite ks castle" << white_kingside_castling_right;
+                    std::cout << "\nwhite qs castle" << white_queenside_castling_right;
                     for (auto moves : move_history)
                         print_move(moves);
                     exit(1);
@@ -813,6 +823,8 @@ struct Position {
                     std::cout << m.from;
                     std::cout << "moving an empty square";
                     std::cout << m.to;
+                    std::cout << "\nblack ks castle" << black_kingside_castling_right;
+                    std::cout << "\nblack qs castle" << black_queenside_castling_right;
                     for (auto moves : move_history)
                         print_move(moves);
                     exit(1);
@@ -979,6 +991,30 @@ struct Position {
 
         }
 
+        // Castling
+        if (m.type == Move_Type::Short_Castle) {
+            int king_index = side_to_move == Color::White ? 4 : 60;
+            set_piece(Piece::Empty, king_index, Color::Empty);
+            set_piece(Piece::Empty, king_index + 3, Color::Empty);
+            set_piece(Piece::King, king_index + 2, side_to_move);
+            set_piece(Piece::Rook, king_index + 1, side_to_move);
+        }
+        if (m.type == Move_Type::Long_Castle) {
+            int king_index = side_to_move == Color::White ? 4 : 60;
+            set_piece(Piece::Empty, king_index, Color::Empty);
+            set_piece(Piece::Empty, king_index - 4, Color::Empty);
+            set_piece(Piece::King, king_index - 2, side_to_move);
+            set_piece(Piece::Rook, king_index - 1, side_to_move);
+        }
+
+
+        if (side_to_move == Color::White) {
+            white_kingside_castling_right &= !m.destroyed_kingside_castling;
+            white_queenside_castling_right &= !m.destroyed_queenside_castling;
+        } else {
+            black_kingside_castling_right &= !m.destroyed_kingside_castling;
+            black_queenside_castling_right &= !m.destroyed_queenside_castling;
+        }
 
         occupied_squares = white_pawns | white_knights | white_rooks | white_bishops | white_queens | white_kings | black_pawns | black_knights | black_rooks | black_bishops | black_queens | black_kings;
         empty_squares = ~occupied_squares;
@@ -1026,6 +1062,30 @@ struct Position {
         if (m.type == Move_Type::Capture_Promotion) {
             set_piece(Piece::Pawn, m.from, side_to_move);
             set_piece(m.captured_piece, m.to, side_to_move == Color::White ? Color::Black : Color::White);
+        }
+
+        // Castling
+        if (m.type == Move_Type::Short_Castle) {
+            int king_index = side_to_move == Color::White ? 6 : 62;
+            set_piece(Piece::Empty, king_index, Color::Empty);
+            set_piece(Piece::Empty, king_index - 1, Color::Empty);
+            set_piece(Piece::King, king_index - 2, side_to_move);
+            set_piece(Piece::Rook, king_index + 1, side_to_move);
+        }
+        if (m.type == Move_Type::Long_Castle) {
+            int king_index = side_to_move == Color::White ? 2 : 58;
+            set_piece(Piece::Empty, king_index, Color::Empty);
+            set_piece(Piece::Empty, king_index + 1, Color::Empty);
+            set_piece(Piece::King, king_index + 2, side_to_move);
+            set_piece(Piece::Rook, king_index - 2, side_to_move);
+        }
+
+        if (side_to_move == Color::White) {
+            white_kingside_castling_right |= m.destroyed_kingside_castling;
+            white_queenside_castling_right |= m.destroyed_queenside_castling;
+        } else {
+            black_kingside_castling_right |= m.destroyed_kingside_castling;
+            black_queenside_castling_right |= m.destroyed_queenside_castling;
         }
 
     }
@@ -1324,6 +1384,25 @@ struct Position {
         // clean them up afterwards
     }
 
+    void rook_castling_right_helper(Move &m) {
+        if (white_kingside_castling_right && 
+            m.from == 7) {
+            m.destroyed_kingside_castling = true;
+        }
+        if (white_queenside_castling_right && 
+            m.from == 0) {
+            m.destroyed_queenside_castling = true;
+        }
+        if (black_kingside_castling_right && 
+            m.from == 63) {
+            m.destroyed_kingside_castling = true;
+        }
+        if (black_queenside_castling_right && 
+            m.from == 56) {
+            m.destroyed_queenside_castling = true;
+        }
+    }
+
     std::vector<Move> generate_pseudo_rook_moves() {
         std::vector<Move> res;
 
@@ -1353,12 +1432,14 @@ struct Position {
                                 m.type = Move_Type::Capture;
                                 m.captured_piece = piece_table[current_index];
                             }
+                            rook_castling_right_helper(m);
                             res.push_back(m);
                         }
                         down_steps = 0;
                     } else {
                         // empty
                         Move m(index, current_index);
+                        rook_castling_right_helper(m);
                         res.push_back(m);
                         down_steps--;
                     }
@@ -1374,12 +1455,14 @@ struct Position {
                                 m.type = Move_Type::Capture;
                                 m.captured_piece = piece_table[current_index];
                             }
+                            rook_castling_right_helper(m);
                             res.push_back(m);
                         }
                         up_steps = 0;
                     } else {
                         // empty
                         Move m(index, current_index);
+                        rook_castling_right_helper(m);
                         res.push_back(m);
                         up_steps--;
                     }
@@ -1395,12 +1478,14 @@ struct Position {
                                 m.type = Move_Type::Capture;
                                 m.captured_piece = piece_table[current_index];
                             }
+                            rook_castling_right_helper(m);
                             res.push_back(m);
                         }
                         left_steps = 0;
                     } else {
                         // empty
                         Move m(index, current_index);
+                        rook_castling_right_helper(m);
                         res.push_back(m);
                         left_steps--;
                     }
@@ -1416,12 +1501,14 @@ struct Position {
                                 m.type = Move_Type::Capture;
                                 m.captured_piece = piece_table[current_index];
                             }
+                            rook_castling_right_helper(m);
                             res.push_back(m);
                         }
                         right_steps = 0;
                     } else {
                         // empty
                         Move m(index, current_index);
+                        rook_castling_right_helper(m);
                         res.push_back(m);
                         right_steps--;
                     }
@@ -1857,16 +1944,165 @@ struct Position {
             int current_index = fast_log_2(moves);
             if (piece_table[current_index] == Piece::Empty) {
                 Move m(index, current_index);
+
+                // castling right tracking
+                if (side_to_move == Color::White) {
+                    if (white_kingside_castling_right) {
+                        m.destroyed_kingside_castling = true;
+                    }
+                    if (white_queenside_castling_right) {
+                        m.destroyed_queenside_castling = true;
+                    }
+                } else {
+                    if (black_kingside_castling_right) {
+                        m.destroyed_kingside_castling = true;
+                    }
+                    if (black_queenside_castling_right) {
+                        m.destroyed_queenside_castling = true;
+                    }
+                }
+
                 res.push_back(m);
             } else if (color_table[current_index] != side_to_move &&
             color_table[current_index] != Color::Empty) {
                 // capture
                 Move m(index, current_index, Move_Type::Capture);
                 m.captured_piece = piece_table[current_index];
+
+                // castling right tracking
+                if (side_to_move == Color::White) {
+                    if (white_kingside_castling_right) {
+                        m.destroyed_kingside_castling = true;
+                    }
+                    if (white_queenside_castling_right) {
+                        m.destroyed_queenside_castling = true;
+                    }
+                } else {
+                    if (black_kingside_castling_right) {
+                        m.destroyed_kingside_castling = true;
+                    }
+                    if (black_queenside_castling_right) {
+                        m.destroyed_queenside_castling = true;
+                    }
+                }
+
                 res.push_back(m);
             }
             moves ^= 1ULL << current_index;
         }
+
+        // castling
+        // filtered for legality already
+        if (side_to_move == Color::White) {
+            if (white_kingside_castling_right) {
+                bool can_castle_kingside = 
+                    piece_table[5] == Piece::Empty &&
+                    piece_table[6] == Piece::Empty;
+
+                if (can_castle_kingside) {
+                    Move m(4, 5);
+                    make_move(m);
+                    can_castle_kingside &= position_is_legal();
+                    unmake_move();
+
+                    m.to = 6;
+                    make_move(m);
+                    can_castle_kingside &= position_is_legal();
+                    unmake_move();
+                }
+
+                if (can_castle_kingside) {
+                    Move m(4, 6, Move_Type::Short_Castle);
+                    m.destroyed_kingside_castling = true;
+                    if (white_queenside_castling_right) {
+                        m.destroyed_queenside_castling = true;
+                    }
+                    res.push_back(m);
+                }
+            }
+
+            if (white_queenside_castling_right) {
+                bool can_castle_queenside = 
+                    piece_table[3] == Piece::Empty &&
+                    piece_table[2] == Piece::Empty;
+
+                if (can_castle_queenside) {
+                    Move m(4, 3);
+                    make_move(m);
+                    can_castle_queenside &= position_is_legal();
+                    unmake_move();
+
+                    m.to = 2;
+                    make_move(m);
+                    can_castle_queenside &= position_is_legal();
+                    unmake_move();
+                }
+
+                if (can_castle_queenside) {
+                    Move m(4, 2, Move_Type::Long_Castle);
+                    m.destroyed_queenside_castling = true;
+                    if (white_kingside_castling_right) {
+                        m.destroyed_kingside_castling = true;
+                    }
+                    res.push_back(m);
+                }
+            }
+        } else {
+            if (black_kingside_castling_right) {
+                bool can_castle_kingside = 
+                    piece_table[61] == Piece::Empty &&
+                    piece_table[62] == Piece::Empty;
+
+                if (can_castle_kingside) {
+                    Move m(60, 61);
+                    make_move(m);
+                    can_castle_kingside &= position_is_legal();
+                    unmake_move();
+
+                    m.to = 62;
+                    make_move(m);
+                    can_castle_kingside &= position_is_legal();
+                    unmake_move();
+                }
+
+                if (can_castle_kingside) {
+                    Move m(60, 62, Move_Type::Short_Castle);
+                    m.destroyed_kingside_castling = true;
+                    if (black_queenside_castling_right) {
+                        m.destroyed_queenside_castling = true;
+                    }
+                    res.push_back(m);
+                }
+            }
+
+            if (black_queenside_castling_right) {
+                bool can_castle_queenside = 
+                    piece_table[59] == Piece::Empty &&
+                    piece_table[58] == Piece::Empty;
+
+                if (can_castle_queenside) {
+                    Move m(60, 59);
+                    make_move(m);
+                    can_castle_queenside &= position_is_legal();
+                    unmake_move();
+
+                    m.to = 61;
+                    make_move(m);
+                    can_castle_queenside &= position_is_legal();
+                    unmake_move();
+                }
+
+                if (can_castle_queenside) {
+                    Move m(60, 58, Move_Type::Long_Castle);
+                    m.destroyed_queenside_castling = true;
+                    if (black_kingside_castling_right) {
+                        m.destroyed_kingside_castling = true;
+                    }
+                    res.push_back(m);
+                }
+            }
+        }
+
 
         return res;
     }
@@ -2318,6 +2554,7 @@ uint64_t number_of_checks = 0;
 uint64_t number_of_checkmates = 0;
 uint64_t number_of_en_passent = 0;
 uint64_t number_of_promotions = 0;
+uint64_t number_of_castles = 0;
 
 uint64_t perft(int depth, Position &p) {
 
@@ -2350,6 +2587,10 @@ uint64_t perft(int depth, Position &p) {
             number_of_promotions += 
                 move_list[i].type == Move_Type::Promotion ||
                 move_list[i].type == Move_Type::Capture_Promotion ? 1 : 0;
+
+            number_of_castles += 
+                move_list[i].type == Move_Type::Short_Castle ||
+                move_list[i].type == Move_Type::Long_Castle ? 1 : 0;
         }
         p.make_move(move_list[i]);
         nodes += perft(depth - 1, p);
@@ -2366,6 +2607,7 @@ void perft_up_to(int depth, Position p) {
         number_of_checkmates = 0;
         number_of_en_passent = 0;
         number_of_promotions = 0;
+        number_of_castles = 0;
 
         auto beg = std::chrono::high_resolution_clock::now();
         uint64_t nodes = perft(i, p);
@@ -2380,6 +2622,7 @@ void perft_up_to(int depth, Position p) {
         std::cout << "captures: " << number_of_captures << "\n";
         std::cout << "promotions: " << number_of_promotions << "\n";
         std::cout << "en passents: " << number_of_en_passent << "\n";
+        std::cout << "castles: " << number_of_castles << "\n";
         std::cout << "checks: " << number_of_checks << "\n";
         std::cout << "checkmates: " << number_of_checkmates << "\n";
         std::cout << "\n";
@@ -2402,7 +2645,7 @@ int main() {
     Position p4("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
 
 
-    perft_up_to(6, p3);
+    perft_up_to(3, p2);
 
 
 
