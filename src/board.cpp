@@ -246,8 +246,6 @@ struct Position {
             }
         }
 
-
-
         if (fen_elements[1] == "w") {
             side_to_move = Color::White;
         } else if (fen_elements[1] == "b") {
@@ -256,10 +254,32 @@ struct Position {
             std::cout << "FEN error, invalid side to move\n";
             exit(1);
         }
-        for (auto &part : fen_elements)
-            std::cout << part << "\n";
+
+        if (fen_elements[2].size() == 4) {
+            white_kingside_castling_right = true;
+            white_queenside_castling_right = true;
+            black_kingside_castling_right = true;
+            black_queenside_castling_right = true;
+        } else {
+            for (auto c : fen_elements[2]) {
+                if (c == 'K')
+                    white_kingside_castling_right = true;
+                if (c == 'Q')
+                    white_queenside_castling_right = true;
+
+                if (c == 'k')
+                    black_kingside_castling_right = true;
+                if (c == 'q')
+                    black_queenside_castling_right = true;
+            }
+        }
+
     }
 
+    bool white_kingside_castling_right = false;
+    bool white_queenside_castling_right = false;
+    bool black_kingside_castling_right = false;
+    bool black_queenside_castling_right = false;
     Color side_to_move = Color::White;
 
     // Bitboards
@@ -2094,6 +2114,11 @@ void starting_position(Position& p) {
     p.set_piece(Piece::Queen, get_index('d', 8), Color::Black);
 
     p.set_piece(Piece::King, get_index('e', 8), Color::Black);
+
+    p.white_kingside_castling_right = true;
+    p.white_queenside_castling_right = true;
+    p.black_kingside_castling_right = true;
+    p.black_queenside_castling_right = true;
 }
 
 void cmdl_game_loop() {
