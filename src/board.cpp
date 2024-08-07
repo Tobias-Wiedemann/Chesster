@@ -2165,6 +2165,91 @@ struct Position {
     }
 };
 
+bool is_consistant(Position &p) {
+std::string bbs = "";
+for (int rank = 7; rank >= 0; --rank) {
+    for (int file = 0; file < 8; ++file) {
+        int square = rank * 8 + file;
+        if (p.black_pawns & (1ULL << square)) {
+            bbs += "p ";
+        } else if (p.black_knights & (1ULL << square)) {
+            bbs += "n ";
+        } else if (p.black_bishops & (1ULL << square)) {
+            bbs += "b ";
+        } else if (p.black_rooks & (1ULL << square)) {
+            bbs += "r ";
+        } else if (p.black_queens & (1ULL << square)) {
+            bbs += "q ";
+        } else if (p.black_kings & (1ULL << square)) {
+            bbs += "k ";
+
+        } else if (p.white_pawns & (1ULL << square)) {
+            bbs += "P ";
+        } else if (p.white_knights & (1ULL << square)) {
+            bbs += "N ";
+        } else if (p.white_bishops & (1ULL << square)) {
+            bbs += "B ";
+        } else if (p.white_rooks & (1ULL << square)) {
+            bbs += "R ";
+        } else if (p.white_queens & (1ULL << square)) {
+            bbs += "Q ";
+        } else if (p.white_kings & (1ULL << square)) {
+            bbs += "K ";
+        } else {
+            bbs += ". ";
+        }
+    }
+    bbs += "\n";
+}
+
+std::string tbs = "";
+for (int rank = 8; rank >= 1; --rank) {
+    for (char file = 'a'; file <= 'h'; ++file) {
+        int index = get_index(file, rank);
+        auto piece = p.piece_table[index];
+        char res;
+        switch (piece) {
+            case Piece::Pawn:
+                res = 'p';
+                break;
+            case Piece::Rook:
+                res = 'r';
+                break;
+            case Piece::Knight:
+                res = 'n';
+                break;
+            case Piece::Bishop:
+                res = 'b';
+                break;
+            case Piece::Queen:
+                res = 'q';
+                break;
+            case Piece::King:
+                res = 'k';
+                break;
+            case Piece::Empty:
+                res = '.';
+                break;
+            default:
+                std::cout << "PANIC, invalid piece in 8x8\n";
+        }
+        if (p.color_table[index] == Color::White) {
+            res -= 32;
+        }
+        tbs += res;
+
+        tbs += " ";
+    }
+    tbs += "\n";
+}
+    std::cout << "bbs\n" << bbs;
+    std::cout << "\ntbs\n" << tbs;
+    return bbs == tbs;
+}
+
+
+
+
 void print_all_bitboards(Position &p) {
 
     std::cout << "white pawns\n";
@@ -2558,6 +2643,7 @@ uint64_t number_of_castles = 0;
 
 uint64_t perft(int depth, Position &p) {
 
+    assert(is_consistant(p));
 
     std::vector<Move> move_list = p.generate_moves();
 
@@ -2645,10 +2731,23 @@ int main() {
     Position p4("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
 
 
-    perft_up_to(3, p2);
+    perft_up_to(1, p2);
 
+/*
+    Position test("4k2r/8/8/8/8/8/8/4K3 b KQkq - 0 1");
 
+    print_full_board(test);
 
+    //Move m(60, 62, Move_Type::Short_Castle);
+    Move m(63, 61);
+
+    test.make_move(m);
+
+    print_full_board(test);
+
+    test.unmake_move();
+    print_full_board(test);
+*/
 
     std::cout << "\n";
 
