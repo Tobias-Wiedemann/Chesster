@@ -998,7 +998,15 @@ struct Position {
             set_piece(Piece::Empty, m.to, Color::Empty);
         }
 
+        if (m.type == Move_Type::Promotion) {
+            set_piece(Piece::Pawn, m.from, side_to_move);
+            set_piece(Piece::Empty, m.to, Color::Empty);
+        }
 
+        if (m.type == Move_Type::Capture_Promotion) {
+            set_piece(Piece::Pawn, m.from, side_to_move);
+            set_piece(m.captured_piece, m.to, side_to_move == Color::White ? Color::Black : Color::White);
+        }
 
     }
 
