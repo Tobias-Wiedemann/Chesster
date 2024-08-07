@@ -2292,6 +2292,7 @@ uint64_t number_of_captures = 0;
 uint64_t number_of_checks = 0;
 uint64_t number_of_checkmates = 0;
 uint64_t number_of_en_passent = 0;
+uint64_t number_of_promotions = 0;
 
 uint64_t perft(int depth, Position &p) {
 
@@ -2320,6 +2321,10 @@ uint64_t perft(int depth, Position &p) {
 
             number_of_en_passent += 
                 move_list[i].type == Move_Type::En_Passent ? 1 : 0;
+
+            number_of_promotions += 
+                move_list[i].type == Move_Type::Promotion ||
+                move_list[i].type == Move_Type::Capture_Promotion ? 1 : 0;
         }
         p.make_move(move_list[i]);
         nodes += perft(depth - 1, p);
@@ -2335,7 +2340,7 @@ void perft_up_to(int depth, Position p) {
         number_of_checks = 0;
         number_of_checkmates = 0;
         number_of_en_passent = 0;
-
+        number_of_promotions = 0;
 
         auto beg = std::chrono::high_resolution_clock::now();
         uint64_t nodes = perft(i, p);
@@ -2348,6 +2353,7 @@ void perft_up_to(int depth, Position p) {
         std::cout << "Perft on depth " << i << " took " << duration.count() << " microseconds\n";
         std::cout << "Nodes: " << nodes << "\n";
         std::cout << "captures: " << number_of_captures << "\n";
+        std::cout << "promotions: " << number_of_promotions << "\n";
         std::cout << "en passents: " << number_of_en_passent << "\n";
         std::cout << "checks: " << number_of_checks << "\n";
         std::cout << "checkmates: " << number_of_checkmates << "\n";
@@ -2371,7 +2377,7 @@ int main() {
     Position p4("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
 
 
-    perft_up_to(5, p3);
+    perft_up_to(6, p3);
 
 
 
