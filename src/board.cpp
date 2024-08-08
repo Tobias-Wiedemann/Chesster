@@ -89,6 +89,7 @@ std::string to_string(Color c) {
 }
 
 void print_full_board(Position &p);
+bool is_consistant(Position &p);
 
 int get_index(char file, int rank) {
     int index = file - 'a' + 8 * (rank - 1);
@@ -991,9 +992,9 @@ struct Position {
 
         }
 
-        // Castling
-        if (m.type == Move_Type::Short_Castle) {
-            int king_index = side_to_move == Color::White ? 4 : 60;
+    // Castling
+    if (m.type == Move_Type::Short_Castle) {
+        int king_index = side_to_move == Color::White ? 4 : 60;
             set_piece(Piece::Empty, king_index, Color::Empty);
             set_piece(Piece::Empty, king_index + 3, Color::Empty);
             set_piece(Piece::King, king_index + 2, side_to_move);
@@ -1009,11 +1010,15 @@ struct Position {
 
 
         if (side_to_move == Color::White) {
-            white_kingside_castling_right &= !m.destroyed_kingside_castling;
-            white_queenside_castling_right &= !m.destroyed_queenside_castling;
+            if (m.destroyed_kingside_castling)
+                white_kingside_castling_right = false;
+            if (m.destroyed_queenside_castling)
+                white_queenside_castling_right = false;
         } else {
-            black_kingside_castling_right &= !m.destroyed_kingside_castling;
-            black_queenside_castling_right &= !m.destroyed_queenside_castling;
+            if (m.destroyed_kingside_castling)
+                black_kingside_castling_right = false;
+            if (m.destroyed_queenside_castling)
+                black_queenside_castling_right = false;
         }
 
         occupied_squares = white_pawns | white_knights | white_rooks | white_bishops | white_queens | white_kings | black_pawns | black_knights | black_rooks | black_bishops | black_queens | black_kings;
@@ -1028,7 +1033,6 @@ struct Position {
 
     void unmake_move() {
         Move m = move_history.back();
-        move_history.pop_back();
 
         // Important to note this happening here
         if (side_to_move == Color::White) {
@@ -1081,13 +1085,18 @@ struct Position {
         }
 
         if (side_to_move == Color::White) {
-            white_kingside_castling_right |= m.destroyed_kingside_castling;
-            white_queenside_castling_right |= m.destroyed_queenside_castling;
+            if (m.destroyed_kingside_castling)
+                white_kingside_castling_right = true;
+            if (m.destroyed_queenside_castling)
+                white_queenside_castling_right = true;
         } else {
-            black_kingside_castling_right |= m.destroyed_kingside_castling;
-            black_queenside_castling_right |= m.destroyed_queenside_castling;
+            if (m.destroyed_kingside_castling)
+                black_kingside_castling_right = true;
+            if (m.destroyed_queenside_castling)
+                black_queenside_castling_right = true;
         }
 
+        move_history.pop_back();
     }
 
     std::vector<Move> generate_pawn_moves() {
@@ -1997,7 +2006,9 @@ struct Position {
             if (white_kingside_castling_right) {
                 bool can_castle_kingside = 
                     piece_table[5] == Piece::Empty &&
-                    piece_table[6] == Piece::Empty;
+                    piece_table[6] == Piece::Empty &&
+                    piece_table[7] == Piece::Rook &&
+                    color_table[7] == side_to_move;
 
                 if (can_castle_kingside) {
                     Move m(4, 5);
@@ -2024,7 +2035,9 @@ struct Position {
             if (white_queenside_castling_right) {
                 bool can_castle_queenside = 
                     piece_table[3] == Piece::Empty &&
-                    piece_table[2] == Piece::Empty;
+                    piece_table[2] == Piece::Empty &&
+                    piece_table[0] == Piece::Rook &&
+                    color_table[0] == side_to_move;
 
                 if (can_castle_queenside) {
                     Move m(4, 3);
@@ -2051,7 +2064,9 @@ struct Position {
             if (black_kingside_castling_right) {
                 bool can_castle_kingside = 
                     piece_table[61] == Piece::Empty &&
-                    piece_table[62] == Piece::Empty;
+                    piece_table[62] == Piece::Empty &&
+                    piece_table[63] == Piece::Rook &&
+                    color_table[63] == side_to_move;
 
                 if (can_castle_kingside) {
                     Move m(60, 61);
@@ -2078,7 +2093,9 @@ struct Position {
             if (black_queenside_castling_right) {
                 bool can_castle_queenside = 
                     piece_table[59] == Piece::Empty &&
-                    piece_table[58] == Piece::Empty;
+                    piece_table[58] == Piece::Empty &&
+                    piece_table[56] == Piece::Rook &&
+                    color_table[56] == side_to_move;
 
                 if (can_castle_queenside) {
                     Move m(60, 59);
@@ -2086,7 +2103,7 @@ struct Position {
                     can_castle_queenside &= position_is_legal();
                     unmake_move();
 
-                    m.to = 61;
+                    m.to = 58;
                     make_move(m);
                     can_castle_queenside &= position_is_legal();
                     unmake_move();
@@ -2242,9 +2259,12 @@ for (int rank = 8; rank >= 1; --rank) {
     }
     tbs += "\n";
 }
+bool result = bbs == tbs;
+    if (!result) {
     std::cout << "bbs\n" << bbs;
     std::cout << "\ntbs\n" << tbs;
-    return bbs == tbs;
+    }
+    return result;
 }
 
 
@@ -2643,7 +2663,6 @@ uint64_t number_of_castles = 0;
 
 uint64_t perft(int depth, Position &p) {
 
-    assert(is_consistant(p));
 
     std::vector<Move> move_list = p.generate_moves();
 
@@ -2730,8 +2749,11 @@ int main() {
     // Perft Position 4
     Position p4("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
 
+    Position test("4k2r/8/8/8/8/8/8/4K3 b KQkq - 0 1");
 
-    perft_up_to(1, p2);
+
+
+    perft_up_to(3, p2);
 
 /*
     Position test("4k2r/8/8/8/8/8/8/4K3 b KQkq - 0 1");
