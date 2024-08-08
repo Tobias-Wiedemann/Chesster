@@ -2002,6 +2002,10 @@ struct Position {
 
         // castling
         // filtered for legality already
+
+        if (is_check())
+            return res;
+
         if (side_to_move == Color::White) {
             if (white_kingside_castling_right) {
                 bool can_castle_kingside = 
