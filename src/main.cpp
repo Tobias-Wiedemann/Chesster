@@ -88,7 +88,13 @@ int main()
 
     Position test("4k2r/8/8/8/8/8/8/4K3 b KQkq - 0 1");
 
-    perft_up_to(3, p2);
+    Perft myp(p);
+
+    auto res = myp.run(1);
+
+    std::cout << "Nodes: " << res.number_of_nodes;
+
+//    perft_up_to(3, p2);
 
     /*
         Position test("4k2r/8/8/8/8/8/8/4K3 b KQkq - 0 1");
