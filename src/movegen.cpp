@@ -4,17 +4,16 @@
 #include "board.h"
 
 
-MoveGenerator::MoveGenerator(Position pos) : p(pos) {}
+MoveGenerator::MoveGenerator(Position &pos) : p(pos) {}
 
-std::vector<Move> MoveGenerator::generate_pawn_moves()
+std::vector<Move> & MoveGenerator::generate_pawn_moves(std::vector<Move> &res)
 {
-    return generate_pseudo_pawn_moves();
+    return generate_pseudo_pawn_moves(res);
     // clean them up afterwards
 }
 
-std::vector<Move> MoveGenerator::generate_pseudo_pawn_moves()
+std::vector<Move> & MoveGenerator::generate_pseudo_pawn_moves(std::vector<Move> &res)
 {
-    std::vector<Move> res;
 
     uint64_t white_pawns_starting_mask = 0x000000000000FF00ULL;
     uint64_t black_pawns_starting_mask = 0x00FF000000000000ULL;
@@ -213,13 +212,13 @@ std::vector<Move> MoveGenerator::generate_pseudo_pawn_moves()
     return res;
 }
 
-std::vector<Move> MoveGenerator::generate_knight_moves()
+std::vector<Move> & MoveGenerator::generate_knight_moves(std::vector<Move> &res)
 {
-    return generate_pseudo_knight_moves();
+    return generate_pseudo_knight_moves(res);
     // clean them up afterwards
 }
 
-std::vector<Move> MoveGenerator::generate_pseudo_knight_moves()
+std::vector<Move> & MoveGenerator::generate_pseudo_knight_moves(std::vector<Move> &res)
 {
     // knight mask
     std::vector<uint64_t> knight_mask(64, 0ULL);
@@ -288,7 +287,6 @@ std::vector<Move> MoveGenerator::generate_pseudo_knight_moves()
     knight_mask[62] = 0x0010A00000000000ULL;
     knight_mask[63] = 0x0020400000000000ULL;
 
-    std::vector<Move> res;
 
     uint64_t knights = p.side_to_move == Color::White ? p.white_knights : p.black_knights;
 
@@ -332,9 +330,9 @@ std::vector<Move> MoveGenerator::generate_pseudo_knight_moves()
     return res;
 }
 
-std::vector<Move> MoveGenerator::generate_rook_moves()
+std::vector<Move> & MoveGenerator::generate_rook_moves(std::vector<Move> &res)
 {
-    return generate_pseudo_rook_moves();
+    return generate_pseudo_rook_moves(res);
     // clean them up afterwards
 }
 
@@ -362,10 +360,8 @@ void MoveGenerator::rook_castling_right_helper(Move &m)
     }
 }
 
-std::vector<Move> MoveGenerator::generate_pseudo_rook_moves()
+std::vector<Move> & MoveGenerator::generate_pseudo_rook_moves(std::vector<Move> &res)
 {
-    std::vector<Move> res;
-
     uint64_t rooks = p.side_to_move == Color::White ? p.white_rooks : p.black_rooks;
 
     while (rooks != 0)
@@ -507,16 +503,14 @@ std::vector<Move> MoveGenerator::generate_pseudo_rook_moves()
     return res;
 }
 
-std::vector<Move> MoveGenerator::generate_bishop_moves()
+std::vector<Move> & MoveGenerator::generate_bishop_moves(std::vector<Move> &res)
 {
-    return generate_pseudo_bishop_moves();
+    return generate_pseudo_bishop_moves(res);
     // clean them up afterwards
 }
 
-std::vector<Move> MoveGenerator::generate_pseudo_bishop_moves()
+std::vector<Move> & MoveGenerator::generate_pseudo_bishop_moves(std::vector<Move> &res)
 {
-    std::vector<Move> res;
-
     uint64_t bishops = p.side_to_move == Color::White ? p.white_bishops : p.black_bishops;
 
     while (bishops != 0)
@@ -650,16 +644,14 @@ std::vector<Move> MoveGenerator::generate_pseudo_bishop_moves()
     return res;
 }
 
-std::vector<Move> MoveGenerator::generate_queen_moves()
+std::vector<Move> & MoveGenerator::generate_queen_moves(std::vector<Move> &res)
 {
-    return generate_pseudo_queen_moves();
+    return generate_pseudo_queen_moves(res);
     // clean them up afterwards
 }
 
-std::vector<Move> MoveGenerator::generate_pseudo_queen_moves()
+std::vector<Move> & MoveGenerator::generate_pseudo_queen_moves(std::vector<Move> &res)
 {
-    std::vector<Move> res;
-
     uint64_t queens = p.side_to_move == Color::White ? p.white_queens : p.black_queens;
 
     // Bishop pattern first, then rook pattern
@@ -924,13 +916,13 @@ std::vector<Move> MoveGenerator::generate_pseudo_queen_moves()
     return res;
 }
 
-std::vector<Move> MoveGenerator::generate_king_moves()
+std::vector<Move> & MoveGenerator::generate_king_moves(std::vector<Move> &res)
 {
-    return generate_pseudo_king_moves();
+    return generate_pseudo_king_moves(res);
     // clean them up afterwards
 }
 
-std::vector<Move> MoveGenerator::generate_pseudo_king_moves()
+std::vector<Move> & MoveGenerator::generate_pseudo_king_moves(std::vector<Move> &res)
 {
     // TODO: I included the square on which the king stands on. That's useless. Remove that for slight optimization
     std::vector<uint64_t> king_masks(64, 0ULL);
@@ -998,8 +990,6 @@ std::vector<Move> MoveGenerator::generate_pseudo_king_moves()
     king_masks[61] = 0x7070000000000000ULL;
     king_masks[62] = 0xE0E0000000000000ULL;
     king_masks[63] = 0xC0C0000000000000ULL;
-
-    std::vector<Move> res;
 
     uint64_t king = p.side_to_move == Color::White ? p.white_kings : p.black_kings;
     int index = fast_log_2(king);
@@ -1223,49 +1213,14 @@ std::vector<Move> MoveGenerator::generate_pseudo_king_moves()
 
 std::vector<Move> MoveGenerator::generate_moves()
 {
+    std::vector<Move> res;
 
-    std::vector<Move> pawn_moves = generate_pawn_moves();
-    for (auto m : pawn_moves)
-        if (p.piece_table[m.from] == Piece::Empty)
-            std::cout << "PAWNS BAD ";
-    std::vector<Move> knight_moves = generate_knight_moves();
-    for (auto m : knight_moves)
-        if (p.piece_table[m.from] == Piece::Empty)
-            std::cout << "KNIGHTS BAD ";
-    std::vector<Move> rook_moves = generate_rook_moves();
-    for (auto m : rook_moves)
-        if (p.piece_table[m.from] == Piece::Empty)
-            std::cout << "ROOKS BAD ";
-    std::vector<Move> bishop_moves = generate_bishop_moves();
-    for (auto m : bishop_moves)
-        if (p.piece_table[m.from] == Piece::Empty)
-            std::cout << "BISHOPS BAD ";
-    std::vector<Move> queen_moves = generate_queen_moves();
-    for (auto m : queen_moves)
-        if (p.piece_table[m.from] == Piece::Empty)
-            std::cout << "QUEENS BAD ";
-    std::vector<Move> king_moves = generate_king_moves();
-    for (auto m : king_moves)
-        if (p.piece_table[m.from] == Piece::Empty)
-            std::cout << "KING BAD ";
-
-    //        std::cout << std::endl;
-    std::vector<Move> res = pawn_moves;
-    res.insert(res.end(),
-               knight_moves.begin(),
-               knight_moves.end());
-    res.insert(res.end(),
-               rook_moves.begin(),
-               rook_moves.end());
-    res.insert(res.end(),
-               bishop_moves.begin(),
-               bishop_moves.end());
-    res.insert(res.end(),
-               queen_moves.begin(),
-               queen_moves.end());
-    res.insert(res.end(),
-               king_moves.begin(),
-               king_moves.end());
+    res = generate_pawn_moves(res);
+    res = generate_knight_moves(res);
+    res = generate_rook_moves(res);
+    res = generate_bishop_moves(res);
+    res = generate_queen_moves(res);
+    res = generate_king_moves(res);
 
     std::vector<Move> real_res;
     for (auto m : res)

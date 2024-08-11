@@ -7,33 +7,33 @@
 
 class MoveGenerator {
 public:
-    MoveGenerator(Position pos);
+    MoveGenerator(Position &pos);
 
     Position p;
 
-    std::vector<Move> generate_pawn_moves();
+    std::vector<Move> &generate_pawn_moves(std::vector<Move> &res);
 
-    std::vector<Move> generate_pseudo_pawn_moves();
+    std::vector<Move> &generate_pseudo_pawn_moves(std::vector<Move> &res);
 
-    std::vector<Move> generate_knight_moves();
+    std::vector<Move> &generate_knight_moves(std::vector<Move> &res);
 
-    std::vector<Move> generate_pseudo_knight_moves();
+    std::vector<Move> &generate_pseudo_knight_moves(std::vector<Move> &res);
 
-    std::vector<Move> generate_rook_moves();
+    std::vector<Move> &generate_rook_moves(std::vector<Move> &res);
 
-    std::vector<Move> generate_pseudo_rook_moves();
+    std::vector<Move> &generate_pseudo_rook_moves(std::vector<Move> &res);
 
-    std::vector<Move> generate_bishop_moves();
+    std::vector<Move> &generate_bishop_moves(std::vector<Move> &res);
 
-    std::vector<Move> generate_pseudo_bishop_moves();
+    std::vector<Move> &generate_pseudo_bishop_moves(std::vector<Move> &res);
 
-    std::vector<Move> generate_queen_moves();
+    std::vector<Move> &generate_queen_moves(std::vector<Move> &res);
 
-    std::vector<Move> generate_pseudo_queen_moves();
+    std::vector<Move> &generate_pseudo_queen_moves(std::vector<Move> &res);
 
-    std::vector<Move> generate_king_moves();
+    std::vector<Move> &generate_king_moves(std::vector<Move> &res);
 
-    std::vector<Move> generate_pseudo_king_moves();
+    std::vector<Move> &generate_pseudo_king_moves(std::vector<Move> &res);
 
     std::vector<Move> generate_moves();
 
