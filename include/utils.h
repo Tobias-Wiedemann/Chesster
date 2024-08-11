@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cassert>
-#include <vector>
 #include <iostream>
 #include <string>
 
@@ -156,3 +155,6 @@ void inline print_move(Move m)
 {
     std::cout << "\nFrom: " << m.from << " to: " << m.to << "\nPromotion: " << to_string(m.promotion) << "\nType: " << to_string(m.type) << "\nCaptured: " << to_string(m.captured_piece) << "\nDestroyed kingside castling: " << m.destroyed_kingside_castling << "\nDestroyed queenside castling: " << m.destroyed_queenside_castling << "\n";
 }
+
+
+

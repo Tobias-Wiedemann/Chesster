@@ -27,7 +27,7 @@ struct PerftResults {
 
 
     void print() const {
-        std::cout << "Nodes: " << number_of_nodes;
+        std::cout << "\nNodes: " << number_of_nodes;
         std::cout << "\nCaptures: " << number_of_captures;
         std::cout << "\nEn Passent: " << number_of_en_passent;
         std::cout << "\nCastles: " << number_of_castles;

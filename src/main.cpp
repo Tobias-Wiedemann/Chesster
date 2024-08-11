@@ -74,43 +74,27 @@ void uciloop()
 int main()
 {
 
-    // Starting Position
-    Position p("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    PerftResults reference;
+    reference.number_of_nodes = 4085603;
+    reference.number_of_captures = 757163;
+    reference.number_of_en_passent = 1929;
+    reference.number_of_castles = 128013;
+    reference.number_of_promotions = 15172;
+    reference.number_of_checks = 25523;
+    reference.number_of_checkmates = 43;
 
     // Perft Position 2
-    Position p2("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ");
-
-    // Perft Position 3
-    Position p3("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - ");
-
-    // Perft Position 4
-    Position p4("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
-
-    Position test("4k2r/8/8/8/8/8/8/4K3 b KQkq - 0 1");
+    Position p("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ");
 
     Perft myp(p);
 
-    auto res = myp.run(1);
+    PerftResults res = myp.run(4);
 
-    std::cout << "Nodes: " << res.number_of_nodes;
+    std::cout << "Should be: \n";
+    reference.print();
 
-//    perft_up_to(3, p2);
-
-    /*
-        Position test("4k2r/8/8/8/8/8/8/4K3 b KQkq - 0 1");
-
-        print_full_board(test);
-
-        //Move m(60, 62, Move_Type::Short_Castle);
-        Move m(63, 61);
-
-        test.make_move(m);
-
-        print_full_board(test);
-
-        test.unmake_move();
-        print_full_board(test);
-    */
+    std::cout << "Is actually: \n";
+    res.print();
 
     std::cout << "\n";
 

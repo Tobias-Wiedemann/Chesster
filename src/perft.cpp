@@ -3,6 +3,7 @@
 
 #include "board.h"
 #include "perft.h"
+#include "movegen.h"
 #include "utils.h"
 
 
@@ -20,8 +21,9 @@ PerftResults Perft::run(int depth) {
 }
 
 uint64_t Perft::run_wrapped(int depth) {
+    MoveGenerator movegen(p);
 
-    std::vector<Move> move_list = p.generate_moves();
+    std::vector<Move> move_list = movegen.generate_moves();
 
     if (depth == 0) {
         if (p.is_check()) {
@@ -70,9 +72,9 @@ void Perft::run_up_to(int depth, Position p) {
         auto beg = std::chrono::high_resolution_clock::now();
         res.number_of_nodes = run_wrapped(i);
         auto end = std::chrono::high_resolution_clock::now();
- 
+
         auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - beg);
- 
+
 
         std::cout << "\n";
         std::cout << "Perft on depth " << i << " took " << duration.count() << " microseconds\n";
