@@ -1,2 +1,5 @@
 out
 build/
+*.json
+.cache
+
