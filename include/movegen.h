@@ -39,5 +39,6 @@ public:
 
 private:
     void rook_castling_right_helper(Move &m);
+    bool is_move_valid(Move &m);
 };
 

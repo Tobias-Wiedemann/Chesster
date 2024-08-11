@@ -3,18 +3,19 @@
 #include "movegen.h"
 #include "board.h"
 
+bool MoveGenerator::is_move_valid(Move &m) {
+    bool res = false;
+    p.make_move(m);
+    if (p.position_is_legal())
+        res = true;
+    p.unmake_move();
+    return res;
+}
 
 MoveGenerator::MoveGenerator(Position &pos) : p(pos) {}
 
 std::vector<Move> & MoveGenerator::generate_pawn_moves(std::vector<Move> &res)
 {
-    return generate_pseudo_pawn_moves(res);
-    // clean them up afterwards
-}
-
-std::vector<Move> & MoveGenerator::generate_pseudo_pawn_moves(std::vector<Move> &res)
-{
-
     uint64_t white_pawns_starting_mask = 0x000000000000FF00ULL;
     uint64_t black_pawns_starting_mask = 0x00FF000000000000ULL;
 
@@ -46,19 +47,24 @@ std::vector<Move> & MoveGenerator::generate_pseudo_pawn_moves(std::vector<Move> 
         m.to = p.side_to_move == Color::White ? index + 8 : index - 8;
         if (m.to < 56 && m.to > 8)
         {
-            res.push_back(m);
+            if (is_move_valid(m))
+                res.push_back(m);
         }
         else
         {
             m.type = Move_Type::Promotion;
             m.promotion = Piece::Queen;
-            res.push_back(m);
+            if (is_move_valid(m))
+                res.push_back(m);
             m.promotion = Piece::Knight;
-            res.push_back(m);
+            if (is_move_valid(m))
+                res.push_back(m);
             m.promotion = Piece::Rook;
-            res.push_back(m);
+            if (is_move_valid(m))
+                res.push_back(m);
             m.promotion = Piece::Bishop;
-            res.push_back(m);
+            if (is_move_valid(m))
+                res.push_back(m);
         }
 
         pushable_pawns ^= 1ULL << index;
@@ -70,7 +76,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_pawn_moves(std::vector<Move> 
 
         Move m(index, index);
         m.to = p.side_to_move == Color::White ? index + 16 : index - 16;
-        res.push_back(m);
+        if (is_move_valid(m))
+            res.push_back(m);
 
         double_pushable_pawns ^= 1ULL << index;
     }
@@ -91,19 +98,24 @@ std::vector<Move> & MoveGenerator::generate_pseudo_pawn_moves(std::vector<Move> 
                 m.captured_piece = p.piece_table[attacked_index];
                 if (attacked_index < 56 && attacked_index > 8)
                 {
-                    res.push_back(m);
+                    if (is_move_valid(m))
+                        res.push_back(m);
                 }
                 else
                 {
                     m.type = Move_Type::Capture_Promotion;
                     m.promotion = Piece::Queen;
-                    res.push_back(m);
+                    if (is_move_valid(m))
+                        res.push_back(m);
                     m.promotion = Piece::Knight;
-                    res.push_back(m);
+                    if (is_move_valid(m))
+                        res.push_back(m);
                     m.promotion = Piece::Rook;
-                    res.push_back(m);
+                    if (is_move_valid(m))
+                        res.push_back(m);
                     m.promotion = Piece::Bishop;
-                    res.push_back(m);
+                    if (is_move_valid(m))
+                        res.push_back(m);
                 }
             }
         }
@@ -119,19 +131,24 @@ std::vector<Move> & MoveGenerator::generate_pseudo_pawn_moves(std::vector<Move> 
                 m.captured_piece = p.piece_table[attacked_index];
                 if (attacked_index < 56 && attacked_index > 8)
                 {
-                    res.push_back(m);
+                    if (is_move_valid(m))
+                        res.push_back(m);
                 }
                 else
                 {
                     m.type = Move_Type::Capture_Promotion;
                     m.promotion = Piece::Queen;
-                    res.push_back(m);
+                    if (is_move_valid(m))
+                        res.push_back(m);
                     m.promotion = Piece::Knight;
-                    res.push_back(m);
+                    if (is_move_valid(m))
+                        res.push_back(m);
                     m.promotion = Piece::Rook;
-                    res.push_back(m);
+                    if (is_move_valid(m))
+                        res.push_back(m);
                     m.promotion = Piece::Bishop;
-                    res.push_back(m);
+                    if (is_move_valid(m))
+                        res.push_back(m);
                 }
             }
         }
@@ -161,7 +178,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_pawn_moves(std::vector<Move> 
                     {
                         Move m(index, last_move.to + 8, Move_Type::En_Passent);
                         m.captured_piece = Piece::Pawn;
-                        res.push_back(m);
+                        if (is_move_valid(m))
+                            res.push_back(m);
                     }
                 }
                 if (last_move.to % 8 > 0)
@@ -172,7 +190,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_pawn_moves(std::vector<Move> 
                     {
                         Move m(index, last_move.to + 8, Move_Type::En_Passent);
                         m.captured_piece = Piece::Pawn;
-                        res.push_back(m);
+                        if (is_move_valid(m))
+                            res.push_back(m);
                     }
                 }
             }
@@ -191,7 +210,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_pawn_moves(std::vector<Move> 
                     {
                         Move m(index, last_move.to - 8, Move_Type::En_Passent);
                         m.captured_piece = Piece::Pawn;
-                        res.push_back(m);
+                        if (is_move_valid(m))
+                            res.push_back(m);
                     }
                 }
                 if (last_move.to % 8 > 0)
@@ -202,7 +222,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_pawn_moves(std::vector<Move> 
                     {
                         Move m(index, last_move.to - 8, Move_Type::En_Passent);
                         m.captured_piece = Piece::Pawn;
-                        res.push_back(m);
+                        if (is_move_valid(m))
+                            res.push_back(m);
                     }
                 }
             }
@@ -213,12 +234,6 @@ std::vector<Move> & MoveGenerator::generate_pseudo_pawn_moves(std::vector<Move> 
 }
 
 std::vector<Move> & MoveGenerator::generate_knight_moves(std::vector<Move> &res)
-{
-    return generate_pseudo_knight_moves(res);
-    // clean them up afterwards
-}
-
-std::vector<Move> & MoveGenerator::generate_pseudo_knight_moves(std::vector<Move> &res)
 {
     // knight mask
     std::vector<uint64_t> knight_mask(64, 0ULL);
@@ -308,7 +323,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_knight_moves(std::vector<Move
             if (p.piece_table[current_index] == Piece::Empty)
             {
                 Move m(index, current_index);
-                res.push_back(m);
+                if (is_move_valid(m))
+                    res.push_back(m);
             }
             else if (p.color_table[current_index] != p.side_to_move)
             {
@@ -319,7 +335,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_knight_moves(std::vector<Move
                     m.type = Move_Type::Capture;
                     m.captured_piece = p.piece_table[current_index];
                 }
-                res.push_back(m);
+                if (is_move_valid(m))
+                    res.push_back(m);
             }
             possible_squares ^= 1ULL << current_index;
         }
@@ -328,12 +345,6 @@ std::vector<Move> & MoveGenerator::generate_pseudo_knight_moves(std::vector<Move
     }
 
     return res;
-}
-
-std::vector<Move> & MoveGenerator::generate_rook_moves(std::vector<Move> &res)
-{
-    return generate_pseudo_rook_moves(res);
-    // clean them up afterwards
 }
 
 void MoveGenerator::rook_castling_right_helper(Move &m)
@@ -360,7 +371,7 @@ void MoveGenerator::rook_castling_right_helper(Move &m)
     }
 }
 
-std::vector<Move> & MoveGenerator::generate_pseudo_rook_moves(std::vector<Move> &res)
+std::vector<Move> & MoveGenerator::generate_rook_moves(std::vector<Move> &res)
 {
     uint64_t rooks = p.side_to_move == Color::White ? p.white_rooks : p.black_rooks;
 
@@ -395,7 +406,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_rook_moves(std::vector<Move> 
                             m.captured_piece = p.piece_table[current_index];
                         }
                         rook_castling_right_helper(m);
-                        res.push_back(m);
+                        if (is_move_valid(m))
+                            res.push_back(m);
                     }
                     down_steps = 0;
                 }
@@ -404,7 +416,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_rook_moves(std::vector<Move> 
                     // empty
                     Move m(index, current_index);
                     rook_castling_right_helper(m);
-                    res.push_back(m);
+                    if (is_move_valid(m))
+                        res.push_back(m);
                     down_steps--;
                 }
             }
@@ -424,7 +437,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_rook_moves(std::vector<Move> 
                             m.captured_piece = p.piece_table[current_index];
                         }
                         rook_castling_right_helper(m);
-                        res.push_back(m);
+                        if (is_move_valid(m))
+                            res.push_back(m);
                     }
                     up_steps = 0;
                 }
@@ -433,7 +447,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_rook_moves(std::vector<Move> 
                     // empty
                     Move m(index, current_index);
                     rook_castling_right_helper(m);
-                    res.push_back(m);
+                    if (is_move_valid(m))
+                        res.push_back(m);
                     up_steps--;
                 }
             }
@@ -453,7 +468,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_rook_moves(std::vector<Move> 
                             m.captured_piece = p.piece_table[current_index];
                         }
                         rook_castling_right_helper(m);
-                        res.push_back(m);
+                        if (is_move_valid(m))
+                            res.push_back(m);
                     }
                     left_steps = 0;
                 }
@@ -462,7 +478,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_rook_moves(std::vector<Move> 
                     // empty
                     Move m(index, current_index);
                     rook_castling_right_helper(m);
-                    res.push_back(m);
+                    if (is_move_valid(m))
+                        res.push_back(m);
                     left_steps--;
                 }
             }
@@ -482,7 +499,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_rook_moves(std::vector<Move> 
                             m.captured_piece = p.piece_table[current_index];
                         }
                         rook_castling_right_helper(m);
-                        res.push_back(m);
+                        if (is_move_valid(m))
+                            res.push_back(m);
                     }
                     right_steps = 0;
                 }
@@ -491,7 +509,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_rook_moves(std::vector<Move> 
                     // empty
                     Move m(index, current_index);
                     rook_castling_right_helper(m);
-                    res.push_back(m);
+                    if (is_move_valid(m))
+                        res.push_back(m);
                     right_steps--;
                 }
             }
@@ -504,12 +523,6 @@ std::vector<Move> & MoveGenerator::generate_pseudo_rook_moves(std::vector<Move> 
 }
 
 std::vector<Move> & MoveGenerator::generate_bishop_moves(std::vector<Move> &res)
-{
-    return generate_pseudo_bishop_moves(res);
-    // clean them up afterwards
-}
-
-std::vector<Move> & MoveGenerator::generate_pseudo_bishop_moves(std::vector<Move> &res)
 {
     uint64_t bishops = p.side_to_move == Color::White ? p.white_bishops : p.black_bishops;
 
@@ -543,7 +556,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_bishop_moves(std::vector<Move
                             m.type = Move_Type::Capture;
                             m.captured_piece = p.piece_table[current_index];
                         }
-                        res.push_back(m);
+                        if (is_move_valid(m))
+                            res.push_back(m);
                     }
                     left_down_steps = 0;
                 }
@@ -551,7 +565,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_bishop_moves(std::vector<Move
                 {
                     // empty
                     Move m(index, current_index);
-                    res.push_back(m);
+                    if (is_move_valid(m))
+                        res.push_back(m);
                     left_down_steps--;
                 }
             }
@@ -570,7 +585,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_bishop_moves(std::vector<Move
                             m.type = Move_Type::Capture;
                             m.captured_piece = p.piece_table[current_index];
                         }
-                        res.push_back(m);
+                        if (is_move_valid(m))
+                            res.push_back(m);
                     }
                     left_up_steps = 0;
                 }
@@ -578,7 +594,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_bishop_moves(std::vector<Move
                 {
                     // empty
                     Move m(index, current_index);
-                    res.push_back(m);
+                    if (is_move_valid(m))
+                        res.push_back(m);
                     left_up_steps--;
                 }
             }
@@ -597,7 +614,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_bishop_moves(std::vector<Move
                             m.type = Move_Type::Capture;
                             m.captured_piece = p.piece_table[current_index];
                         }
-                        res.push_back(m);
+                        if (is_move_valid(m))
+                            res.push_back(m);
                     }
                     right_down_steps = 0;
                 }
@@ -605,7 +623,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_bishop_moves(std::vector<Move
                 {
                     // empty
                     Move m(index, current_index);
-                    res.push_back(m);
+                    if (is_move_valid(m))
+                        res.push_back(m);
                     right_down_steps--;
                 }
             }
@@ -624,7 +643,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_bishop_moves(std::vector<Move
                             m.type = Move_Type::Capture;
                             m.captured_piece = p.piece_table[current_index];
                         }
-                        res.push_back(m);
+                        if (is_move_valid(m))
+                            res.push_back(m);
                     }
                     right_up_steps = 0;
                 }
@@ -632,7 +652,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_bishop_moves(std::vector<Move
                 {
                     // empty
                     Move m(index, current_index);
-                    res.push_back(m);
+                    if (is_move_valid(m))
+                        res.push_back(m);
                     right_up_steps--;
                 }
             }
@@ -645,12 +666,6 @@ std::vector<Move> & MoveGenerator::generate_pseudo_bishop_moves(std::vector<Move
 }
 
 std::vector<Move> & MoveGenerator::generate_queen_moves(std::vector<Move> &res)
-{
-    return generate_pseudo_queen_moves(res);
-    // clean them up afterwards
-}
-
-std::vector<Move> & MoveGenerator::generate_pseudo_queen_moves(std::vector<Move> &res)
 {
     uint64_t queens = p.side_to_move == Color::White ? p.white_queens : p.black_queens;
 
@@ -685,7 +700,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_queen_moves(std::vector<Move>
                             m.type = Move_Type::Capture;
                             m.captured_piece = p.piece_table[current_index];
                         }
-                        res.push_back(m);
+                        if (is_move_valid(m))
+                            res.push_back(m);
                     }
                     left_down_steps = 0;
                 }
@@ -693,7 +709,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_queen_moves(std::vector<Move>
                 {
                     // empty
                     Move m(index, current_index);
-                    res.push_back(m);
+                    if (is_move_valid(m))
+                        res.push_back(m);
                     left_down_steps--;
                 }
             }
@@ -712,7 +729,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_queen_moves(std::vector<Move>
                             m.type = Move_Type::Capture;
                             m.captured_piece = p.piece_table[current_index];
                         }
-                        res.push_back(m);
+                        if (is_move_valid(m))
+                            res.push_back(m);
                     }
                     left_up_steps = 0;
                 }
@@ -720,7 +738,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_queen_moves(std::vector<Move>
                 {
                     // empty
                     Move m(index, current_index);
-                    res.push_back(m);
+                    if (is_move_valid(m))
+                        res.push_back(m);
                     left_up_steps--;
                 }
             }
@@ -739,7 +758,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_queen_moves(std::vector<Move>
                             m.type = Move_Type::Capture;
                             m.captured_piece = p.piece_table[current_index];
                         }
-                        res.push_back(m);
+                        if (is_move_valid(m))
+                            res.push_back(m);
                     }
                     right_down_steps = 0;
                 }
@@ -747,7 +767,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_queen_moves(std::vector<Move>
                 {
                     // empty
                     Move m(index, current_index);
-                    res.push_back(m);
+                    if (is_move_valid(m))
+                        res.push_back(m);
                     right_down_steps--;
                 }
             }
@@ -766,7 +787,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_queen_moves(std::vector<Move>
                             m.type = Move_Type::Capture;
                             m.captured_piece = p.piece_table[current_index];
                         }
-                        res.push_back(m);
+                        if (is_move_valid(m))
+                            res.push_back(m);
                     }
                     right_up_steps = 0;
                 }
@@ -774,7 +796,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_queen_moves(std::vector<Move>
                 {
                     // empty
                     Move m(index, current_index);
-                    res.push_back(m);
+                    if (is_move_valid(m))
+                        res.push_back(m);
                     right_up_steps--;
                 }
             }
@@ -816,7 +839,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_queen_moves(std::vector<Move>
                             m.type = Move_Type::Capture;
                             m.captured_piece = p.piece_table[current_index];
                         }
-                        res.push_back(m);
+                        if (is_move_valid(m))
+                            res.push_back(m);
                     }
                     down_steps = 0;
                 }
@@ -824,7 +848,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_queen_moves(std::vector<Move>
                 {
                     // empty
                     Move m(index, current_index);
-                    res.push_back(m);
+                    if (is_move_valid(m))
+                        res.push_back(m);
                     down_steps--;
                 }
             }
@@ -843,7 +868,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_queen_moves(std::vector<Move>
                             m.type = Move_Type::Capture;
                             m.captured_piece = p.piece_table[current_index];
                         }
-                        res.push_back(m);
+                        if (is_move_valid(m))
+                            res.push_back(m);
                     }
                     up_steps = 0;
                 }
@@ -851,7 +877,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_queen_moves(std::vector<Move>
                 {
                     // empty
                     Move m(index, current_index);
-                    res.push_back(m);
+                    if (is_move_valid(m))
+                        res.push_back(m);
                     up_steps--;
                 }
             }
@@ -870,7 +897,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_queen_moves(std::vector<Move>
                             m.type = Move_Type::Capture;
                             m.captured_piece = p.piece_table[current_index];
                         }
-                        res.push_back(m);
+                        if (is_move_valid(m))
+                            res.push_back(m);
                     }
                     left_steps = 0;
                 }
@@ -878,7 +906,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_queen_moves(std::vector<Move>
                 {
                     // empty
                     Move m(index, current_index);
-                    res.push_back(m);
+                    if (is_move_valid(m))
+                        res.push_back(m);
                     left_steps--;
                 }
             }
@@ -897,7 +926,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_queen_moves(std::vector<Move>
                             m.type = Move_Type::Capture;
                             m.captured_piece = p.piece_table[current_index];
                         }
-                        res.push_back(m);
+                        if (is_move_valid(m))
+                            res.push_back(m);
                     }
                     right_steps = 0;
                 }
@@ -905,7 +935,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_queen_moves(std::vector<Move>
                 {
                     // empty
                     Move m(index, current_index);
-                    res.push_back(m);
+                    if (is_move_valid(m))
+                        res.push_back(m);
                     right_steps--;
                 }
             }
@@ -917,12 +948,6 @@ std::vector<Move> & MoveGenerator::generate_pseudo_queen_moves(std::vector<Move>
 }
 
 std::vector<Move> & MoveGenerator::generate_king_moves(std::vector<Move> &res)
-{
-    return generate_pseudo_king_moves(res);
-    // clean them up afterwards
-}
-
-std::vector<Move> & MoveGenerator::generate_pseudo_king_moves(std::vector<Move> &res)
 {
     // TODO: I included the square on which the king stands on. That's useless. Remove that for slight optimization
     std::vector<uint64_t> king_masks(64, 0ULL);
@@ -1027,7 +1052,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_king_moves(std::vector<Move> 
                 }
             }
 
-            res.push_back(m);
+            if (is_move_valid(m))
+                res.push_back(m);
         }
         else if (p.color_table[current_index] != p.side_to_move &&
                  p.color_table[current_index] != Color::Empty)
@@ -1060,7 +1086,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_king_moves(std::vector<Move> 
                 }
             }
 
-            res.push_back(m);
+            if (is_move_valid(m))
+                res.push_back(m);
         }
         moves ^= 1ULL << current_index;
     }
@@ -1102,7 +1129,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_king_moves(std::vector<Move> 
                 {
                     m.destroyed_queenside_castling = true;
                 }
-                res.push_back(m);
+                if (is_move_valid(m))
+                    res.push_back(m);
             }
         }
 
@@ -1135,7 +1163,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_king_moves(std::vector<Move> 
                 {
                     m.destroyed_kingside_castling = true;
                 }
-                res.push_back(m);
+                if (is_move_valid(m))
+                    res.push_back(m);
             }
         }
     }
@@ -1170,7 +1199,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_king_moves(std::vector<Move> 
                 {
                     m.destroyed_queenside_castling = true;
                 }
-                res.push_back(m);
+                if (is_move_valid(m))
+                    res.push_back(m);
             }
         }
 
@@ -1203,7 +1233,8 @@ std::vector<Move> & MoveGenerator::generate_pseudo_king_moves(std::vector<Move> 
                 {
                     m.destroyed_kingside_castling = true;
                 }
-                res.push_back(m);
+                if (is_move_valid(m))
+                    res.push_back(m);
             }
         }
     }
@@ -1222,13 +1253,5 @@ std::vector<Move> MoveGenerator::generate_moves()
     res = generate_queen_moves(res);
     res = generate_king_moves(res);
 
-    std::vector<Move> real_res;
-    for (auto m : res)
-    {
-        p.make_move(m);
-        if (p.position_is_legal())
-            real_res.push_back(m);
-        p.unmake_move();
-    }
-    return real_res;
+    return res;
 }
