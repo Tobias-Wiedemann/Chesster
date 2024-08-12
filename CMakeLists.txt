@@ -25,6 +25,10 @@ add_executable(perft_pos1_d3 src/board.cpp src/perft.cpp src/movegen.cpp tests/p
 add_executable(perft_pos1_d4 src/board.cpp src/perft.cpp src/movegen.cpp tests/perft_pos1_d4.cpp)
 add_executable(perft_pos1_d5 src/board.cpp src/perft.cpp src/movegen.cpp tests/perft_pos1_d5.cpp)
 
+add_executable(qperft_pos1_d5 src/board.cpp src/perft.cpp src/movegen.cpp tests/qperft_pos1_d5.cpp)
+add_executable(qperft_pos1_d6 src/board.cpp src/perft.cpp src/movegen.cpp tests/qperft_pos1_d6.cpp)
+add_executable(qperft_pos1_d7 src/board.cpp src/perft.cpp src/movegen.cpp tests/qperft_pos1_d7.cpp)
+
 add_executable(perft_pos2_d1 src/board.cpp src/perft.cpp src/movegen.cpp tests/perft_pos2_d1.cpp)
 add_executable(perft_pos2_d2 src/board.cpp src/perft.cpp src/movegen.cpp tests/perft_pos2_d2.cpp)
 add_executable(perft_pos2_d3 src/board.cpp src/perft.cpp src/movegen.cpp tests/perft_pos2_d3.cpp)
@@ -52,6 +56,10 @@ add_test(NAME perft_pos1_d2 COMMAND perft_pos1_d2)
 add_test(NAME perft_pos1_d3 COMMAND perft_pos1_d3)
 add_test(NAME perft_pos1_d4 COMMAND perft_pos1_d4)
 add_test(NAME perft_pos1_d5 COMMAND perft_pos1_d5)
+
+add_test(NAME qperft_pos1_d5 COMMAND qperft_pos1_d5)
+add_test(NAME qperft_pos1_d6 COMMAND qperft_pos1_d6)
+add_test(NAME qperft_pos1_d7 COMMAND qperft_pos1_d7)
 
 add_test(NAME perft_pos2_d1 COMMAND perft_pos2_d1)
 add_test(NAME perft_pos2_d2 COMMAND perft_pos2_d2)
