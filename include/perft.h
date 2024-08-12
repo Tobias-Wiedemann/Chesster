@@ -46,6 +46,7 @@ public:
     Position p;
     PerftResults res;
 
+    uint64_t run_fast(int depth);
 
     PerftResults run(int depth);
 

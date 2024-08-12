@@ -11,6 +11,26 @@ Perft::Perft(Position pos) {
         p = pos;
     }
 
+uint64_t Perft::run_fast(int depth) {
+    MoveGenerator movegen(p);
+
+    std::vector<Move> move_list = movegen.generate_moves();
+
+    if (depth == 0) {
+        return 1ULL;
+    }
+
+    uint64_t nodes = 0;
+
+    for (auto m : move_list) {
+        p.make_move(m);
+        nodes += run_fast(depth - 1);
+        p.unmake_move();
+    }
+
+    return nodes;
+}
+
 PerftResults Perft::run(int depth) {
 
     res = PerftResults();

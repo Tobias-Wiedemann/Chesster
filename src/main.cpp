@@ -73,30 +73,14 @@ void uciloop()
 
 int main()
 {
-
-    PerftResults reference;
-    reference.number_of_nodes = 4085603;
-    reference.number_of_captures = 757163;
-    reference.number_of_en_passent = 1929;
-    reference.number_of_castles = 128013;
-    reference.number_of_promotions = 15172;
-    reference.number_of_checks = 25523;
-    reference.number_of_checkmates = 43;
-
-    // Perft Position 2
-    Position p("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ");
+    // Starting Position
+    Position p("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 
     Perft myp(p);
 
-    PerftResults res = myp.run(4);
+    uint64_t res = myp.run_fast(5);
 
-    std::cout << "Should be: \n";
-    reference.print();
-
-    std::cout << "Is actually: \n";
-    res.print();
-
-    std::cout << "\n";
+    std::cout << "\nIs actually: " << res << "\n";
 
     return 0;
 }
