@@ -1,27 +1,64 @@
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 
 #include "board.h"
-#include "perft.h"
-// #include "utils.h"
 #include "movegen.h"
+#include "perft.h"
+#include "utils.h"
 
+Position p("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+MoveGenerator mg(p);
 // Mockup functions
 void handleSetOption(const std::string &optionName,
                      const std::string &optionValue) {
   // Implement setting options
 }
 
+void applyMove(const std::string &move) {
+  // Convert the move string to your Move structure and apply it
+  // For example, e2e4 -> Move(from=12, to=28)
+}
+
 void handlePosition(const std::string &positionData) {
-  // Implement setting up the board position
+  std::istringstream iss(positionData);
+  std::string token;
+  iss >> token; // position type
+
+  bool startpos_flag = false;
+  std::string fen = "";
+  if (token == "startpos") {
+    startpos_flag = true;
+    iss >> token;
+  } else {
+    while (iss >> token && token != "moves") {
+      fen += token + " ";
+    }
+  }
+  if (startpos_flag) {
+    fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+  }
+  p = Position(fen);
+  if (token == "moves") {
+    while (iss >> token) {
+      char file1 = token[0];
+      char file2 = token[2];
+      int rank1 = token[1] - '0';
+      int rank2 = token[3] - '0';
+      Move m(get_index(file1, rank1), get_index(file2, rank2));
+      p.make_move(m);
+    }
+  }
+  mg = MoveGenerator(p);
 }
 
 void handleGo(const std::string &goData) {
   // Implement move calculation logic
-  // std::cout << "info currmove e2e4 currmovenumber 1\n";
-  std::cout << "info depth 1 seldepth 0\ninfo score cp 63  depth 1 nodes 13 "
-               "time 15 pv b2b4\n";
+  std::vector<Move> moves = mg.generate_moves();
+  Move m = moves[rand() % moves.size()];
+  std::cout << "bestmove " << get_coords_from_index(m.from)
+            << get_coords_from_index(m.to) << "\n";
 }
 
 void uciloop() {
@@ -45,7 +82,8 @@ void uciloop() {
       handlePosition(positionData);
     } else if (input.rfind("go", 0) == 0) {
       // Parse go command
-      std::string goData = input.substr(3); // Extract go parameters
+      std::string goData =
+          input.size() > 2 ? input.substr(3) : ""; // Extract go parameters
       handleGo(goData);
     } else if (input == "quit") {
       break;
@@ -56,14 +94,6 @@ void uciloop() {
 }
 
 int main() {
-  // Starting Position
-  Position p("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-
-  Perft myp(p);
-
-  uint64_t res = myp.run_fast(5);
-
-  std::cout << "\nIs actually: " << res << "\n";
-
+  uciloop();
   return 0;
 }
