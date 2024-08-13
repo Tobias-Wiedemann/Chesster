@@ -2,6 +2,7 @@
 
 #include "board.h"
 #include "movegen.h"
+#include "attack_masks.h"
 
 bool MoveGenerator::is_move_valid(Move &m) {
   bool res = false;
@@ -206,73 +207,6 @@ std::vector<Move> &MoveGenerator::generate_pawn_moves(std::vector<Move> &res) {
 
 std::vector<Move> &
 MoveGenerator::generate_knight_moves(std::vector<Move> &res) {
-  // knight mask
-  std::vector<uint64_t> knight_mask(64, 0ULL);
-  knight_mask[0] = 0x0000000000020400ULL;
-  knight_mask[1] = 0x0000000000050800ULL;
-  knight_mask[2] = 0x00000000000A1100ULL;
-  knight_mask[3] = 0x0000000000142200ULL;
-  knight_mask[4] = 0x0000000000284400ULL;
-  knight_mask[5] = 0x0000000000508800ULL;
-  knight_mask[6] = 0x0000000000A01000ULL;
-  knight_mask[7] = 0x0000000000402000ULL;
-  knight_mask[8] = 0x0000000002040004ULL;
-  knight_mask[9] = 0x0000000005080008ULL;
-  knight_mask[10] = 0x000000000A110011ULL;
-  knight_mask[11] = 0x0000000014220022ULL;
-  knight_mask[12] = 0x0000000028440044ULL;
-  knight_mask[13] = 0x0000000050880088ULL;
-  knight_mask[14] = 0x00000000A0100010ULL;
-  knight_mask[15] = 0x0000000040200020ULL;
-  knight_mask[16] = 0x0000000204000402ULL;
-  knight_mask[17] = 0x0000000508000805ULL;
-  knight_mask[18] = 0x0000000A1100110AULL;
-  knight_mask[19] = 0x0000001422002214ULL;
-  knight_mask[20] = 0x0000002844004428ULL;
-  knight_mask[21] = 0x0000005088008850ULL;
-  knight_mask[22] = 0x000000A0100010A0ULL;
-  knight_mask[23] = 0x0000004020002040ULL;
-  knight_mask[24] = 0x0000020400040200ULL;
-  knight_mask[25] = 0x0000050800080500ULL;
-  knight_mask[26] = 0x00000A1100110A00ULL;
-  knight_mask[27] = 0x0000142200221400ULL;
-  knight_mask[28] = 0x0000284400442800ULL;
-  knight_mask[29] = 0x0000508800885000ULL;
-  knight_mask[30] = 0x0000A0100010A000ULL;
-  knight_mask[31] = 0x0000402000204000ULL;
-  knight_mask[32] = 0x0002040004020000ULL;
-  knight_mask[33] = 0x0005080008050000ULL;
-  knight_mask[34] = 0x000A1100110A0000ULL;
-  knight_mask[35] = 0x0014220022140000ULL;
-  knight_mask[36] = 0x0028440044280000ULL;
-  knight_mask[37] = 0x0050880088500000ULL;
-  knight_mask[38] = 0x00A0100010A00000ULL;
-  knight_mask[39] = 0x0040200020400000ULL;
-  knight_mask[40] = 0x0204000402000000ULL;
-  knight_mask[41] = 0x0508000805000000ULL;
-  knight_mask[42] = 0x0A1100110A000000ULL;
-  knight_mask[43] = 0x1422002214000000ULL;
-  knight_mask[44] = 0x2844004428000000ULL;
-  knight_mask[45] = 0x5088008850000000ULL;
-  knight_mask[46] = 0xA0100010A0000000ULL;
-  knight_mask[47] = 0x4020002040000000ULL;
-  knight_mask[48] = 0x0400040200000000ULL;
-  knight_mask[49] = 0x0800080500000000ULL;
-  knight_mask[50] = 0x1100110A00000000ULL;
-  knight_mask[51] = 0x2200221400000000ULL;
-  knight_mask[52] = 0x4400442800000000ULL;
-  knight_mask[53] = 0x8800885000000000ULL;
-  knight_mask[54] = 0x100010A000000000ULL;
-  knight_mask[55] = 0x2000204000000000ULL;
-  knight_mask[56] = 0x0004020000000000ULL;
-  knight_mask[57] = 0x0008050000000000ULL;
-  knight_mask[58] = 0x00110A0000000000ULL;
-  knight_mask[59] = 0x0022140000000000ULL;
-  knight_mask[60] = 0x0044280000000000ULL;
-  knight_mask[61] = 0x0088500000000000ULL;
-  knight_mask[62] = 0x0010A00000000000ULL;
-  knight_mask[63] = 0x0020400000000000ULL;
-
   uint64_t knights =
       p.side_to_move == Color::White ? p.white_knights : p.black_knights;
 
@@ -283,7 +217,7 @@ MoveGenerator::generate_knight_moves(std::vector<Move> &res) {
       std::cout << to_string(p.color_table[index]);
       std::cout << to_string(p.side_to_move);
     }
-    uint64_t possible_squares = knight_mask[index];
+    uint64_t possible_squares = knight_masks[index];
 
     while (possible_squares) {
       int current_index = fast_log_2(possible_squares);
