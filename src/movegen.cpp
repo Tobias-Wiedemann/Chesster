@@ -936,6 +936,8 @@ std::vector<Move> &MoveGenerator::generate_king_moves(std::vector<Move> &res) {
     return res;
 
   if (p.side_to_move == Color::White) {
+    if (p.piece_table[4] != Piece::King)
+      return res;
     if (p.white_kingside_castling_right) {
       bool can_castle_kingside = p.piece_table[5] == Piece::Empty &&
                                  p.piece_table[6] == Piece::Empty &&
@@ -994,6 +996,8 @@ std::vector<Move> &MoveGenerator::generate_king_moves(std::vector<Move> &res) {
       }
     }
   } else {
+    if (p.piece_table[60] != Piece::King)
+      return res;
     if (p.black_kingside_castling_right) {
       bool can_castle_kingside = p.piece_table[61] == Piece::Empty &&
                                  p.piece_table[62] == Piece::Empty &&

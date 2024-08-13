@@ -87,11 +87,29 @@ std::string inline to_string(Color c) {
   }
 }
 
+std::string inline to_string(Move m) {
+  return std::to_string(m.from) + std::to_string(m.to);
+}
+
 int inline get_index(char file, int rank) {
   int index = file - 'a' + 8 * (rank - 1);
   assert(index >= 0);
   assert(index < 64);
   return index;
+}
+
+std::string inline get_coords_from_index(int index) {
+  if (index < 0 || index >= 64) {
+    // Handle invalid index
+    return "Invalid index";
+  }
+
+  // Calculate file (column) and rank (row)
+  char file = 'a' + (index % 8); // File 'a' to 'h'
+  int rank = (index / 8) + 1;    // Rank 1 to 8
+
+  // Concatenate file and rank into a string
+  return std::string(1, file) + std::to_string(rank);
 }
 
 void inline print_coords_from_index(int index) {
