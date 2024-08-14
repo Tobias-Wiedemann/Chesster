@@ -58,7 +58,24 @@ void handleGo(const std::string &goData) {
   std::vector<Move> moves = mg.generate_moves();
   Move m = moves[rand() % moves.size()];
   std::cout << "bestmove " << get_coords_from_index(m.from)
-            << get_coords_from_index(m.to) << "\n";
+            << get_coords_from_index(m.to);
+  switch (m.promotion) {
+  case Piece::Queen:
+    std::cout << "q";
+    break;
+  case Piece::Knight:
+    std::cout << "n";
+    break;
+  case Piece::Rook:
+    std::cout << "r";
+    break;
+  case Piece::Bishop:
+    std::cout << "b";
+    break;
+  default:
+    break;
+  }
+  std::cout << "\n";
 }
 
 void uciloop() {
