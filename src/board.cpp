@@ -393,21 +393,27 @@ void Position::set_piece(Piece piece, int index, Color col) {
       switch (piece_table[index]) {
       case Piece::Pawn:
         white_pawns ^= bit;
+        empty_squares |= bit;
         break;
       case Piece::Rook:
         white_rooks ^= bit;
+        empty_squares |= bit;
         break;
       case Piece::Knight:
         white_knights ^= bit;
+        empty_squares |= bit;
         break;
       case Piece::Bishop:
         white_bishops ^= bit;
+        empty_squares |= bit;
         break;
       case Piece::Queen:
         white_queens ^= bit;
+        empty_squares |= bit;
         break;
       case Piece::King:
         white_kings ^= bit;
+        empty_squares |= bit;
         break;
       default:
         std::cout << "PIECE NOT FOUND 2 1";
@@ -417,21 +423,27 @@ void Position::set_piece(Piece piece, int index, Color col) {
       switch (piece_table[index]) {
       case Piece::Pawn:
         black_pawns ^= bit;
+        empty_squares |= bit;
         break;
       case Piece::Rook:
         black_rooks ^= bit;
+        empty_squares |= bit;
         break;
       case Piece::Knight:
         black_knights ^= bit;
+        empty_squares |= bit;
         break;
       case Piece::Bishop:
         black_bishops ^= bit;
+        empty_squares |= bit;
         break;
       case Piece::Queen:
         black_queens ^= bit;
+        empty_squares |= bit;
         break;
       case Piece::King:
         black_kings ^= bit;
+        empty_squares |= bit;
         break;
       default:
         std::cout << "PIECE NOT FOUND 3 1";
@@ -449,21 +461,27 @@ void Position::set_piece(Piece piece, int index, Color col) {
     switch (piece) {
     case Piece::Pawn:
       white_pawns |= bit;
+      empty_squares ^= bit;
       break;
     case Piece::Rook:
       white_rooks |= bit;
+      empty_squares ^= bit;
       break;
     case Piece::Knight:
       white_knights |= bit;
+      empty_squares ^= bit;
       break;
     case Piece::Bishop:
       white_bishops |= bit;
+      empty_squares ^= bit;
       break;
     case Piece::Queen:
       white_queens |= bit;
+      empty_squares ^= bit;
       break;
     case Piece::King:
       white_kings |= bit;
+      empty_squares ^= bit;
       break;
     case Piece::Empty:
       break;
@@ -475,21 +493,27 @@ void Position::set_piece(Piece piece, int index, Color col) {
     switch (piece) {
     case Piece::Pawn:
       black_pawns |= bit;
+      empty_squares ^= bit;
       break;
     case Piece::Rook:
       black_rooks |= bit;
+      empty_squares ^= bit;
       break;
     case Piece::Knight:
       black_knights |= bit;
+      empty_squares ^= bit;
       break;
     case Piece::Bishop:
       black_bishops |= bit;
+      empty_squares ^= bit;
       break;
     case Piece::Queen:
       black_queens |= bit;
+      empty_squares ^= bit;
       break;
     case Piece::King:
       black_kings |= bit;
+      empty_squares ^= bit;
       break;
     case Piece::Empty:
       break;
@@ -498,12 +522,6 @@ void Position::set_piece(Piece piece, int index, Color col) {
       return;
     }
   }
-
-  // Update combined Bitboards (lazily)
-  occupied_squares = white_pawns | white_knights | white_rooks | white_bishops |
-                     white_queens | white_kings | black_pawns | black_knights |
-                     black_rooks | black_bishops | black_queens | black_kings;
-  empty_squares = ~occupied_squares;
 }
 
 void Position::make_move(Move m) {
