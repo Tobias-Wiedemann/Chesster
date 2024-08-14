@@ -47,6 +47,28 @@ void handlePosition(const std::string &positionData) {
       int rank1 = token[1] - '0';
       int rank2 = token[3] - '0';
       Move m(get_index(file1, rank1), get_index(file2, rank2));
+      if (token.size() == 5) {
+        switch (token[4]) {
+          case 'q':
+            m.type = Move_Type::Promotion;
+            m.promotion = Piece::Queen;
+          break;
+          case 'n':
+            m.type = Move_Type::Promotion;
+            m.promotion = Piece::Knight;
+          break;
+          case 'r':
+            m.type = Move_Type::Promotion;
+            m.promotion = Piece::Rook;
+          break;
+          case 'b':
+            m.type = Move_Type::Promotion;
+            m.promotion = Piece::Bishop;
+          break;
+          default:
+          break;
+        }
+      }
       p.make_move(m);
     }
   }

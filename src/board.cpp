@@ -416,7 +416,7 @@ void Position::set_piece(Piece piece, int index, Color col) {
         empty_squares |= bit;
         break;
       default:
-        std::cout << "PIECE NOT FOUND 2 1";
+        std::cout << "PIECE NOT FOUND 2 1 index : " << index;
         return;
       }
     } else {
@@ -446,7 +446,7 @@ void Position::set_piece(Piece piece, int index, Color col) {
         empty_squares |= bit;
         break;
       default:
-        std::cout << "PIECE NOT FOUND 3 1";
+        std::cout << "PIECE NOT FOUND 3 1 index:" << index;
         return;
       }
     }
@@ -849,84 +849,9 @@ void print_full_board(Position &p) {
   }
 }
 
-Position starting_bitboards() {
-  Position p;
-  // White pieces
-  p.white_pawns = 0x000000000000FF00ULL;
-  p.white_knights = 0x0000000000000042ULL;
-  p.white_bishops = 0x0000000000000024ULL;
-  p.white_rooks = 0x0000000000000081ULL;
-  p.white_queens = 0x0000000000000008ULL;
-  p.white_kings = 0x0000000000000010ULL;
-
-  // Black pieces
-  p.black_pawns = 0x00FF000000000000ULL;
-  p.black_knights = 0x4200000000000000ULL;
-  p.black_bishops = 0x2400000000000000ULL;
-  p.black_rooks = 0x8100000000000000ULL;
-  p.black_queens = 0x0800000000000000ULL;
-  p.black_kings = 0x1000000000000000ULL;
-
-  return p;
-}
-
-void starting_position(Position &p) {
-
-  p.set_piece(Piece::Pawn, get_index('a', 2), Color::White);
-  p.set_piece(Piece::Pawn, get_index('b', 2), Color::White);
-  p.set_piece(Piece::Pawn, get_index('c', 2), Color::White);
-  p.set_piece(Piece::Pawn, get_index('d', 2), Color::White);
-  p.set_piece(Piece::Pawn, get_index('e', 2), Color::White);
-  p.set_piece(Piece::Pawn, get_index('f', 2), Color::White);
-  p.set_piece(Piece::Pawn, get_index('g', 2), Color::White);
-  p.set_piece(Piece::Pawn, get_index('h', 2), Color::White);
-
-  p.set_piece(Piece::Rook, get_index('a', 1), Color::White);
-  p.set_piece(Piece::Rook, get_index('h', 1), Color::White);
-
-  p.set_piece(Piece::Knight, get_index('b', 1), Color::White);
-  p.set_piece(Piece::Knight, get_index('g', 1), Color::White);
-
-  p.set_piece(Piece::Bishop, get_index('c', 1), Color::White);
-  p.set_piece(Piece::Bishop, get_index('f', 1), Color::White);
-
-  p.set_piece(Piece::Queen, get_index('d', 1), Color::White);
-
-  p.set_piece(Piece::King, get_index('e', 1), Color::White);
-
-  p.set_piece(Piece::Pawn, get_index('a', 7), Color::Black);
-  p.set_piece(Piece::Pawn, get_index('b', 7), Color::Black);
-  p.set_piece(Piece::Pawn, get_index('c', 7), Color::Black);
-  p.set_piece(Piece::Pawn, get_index('d', 7), Color::Black);
-  p.set_piece(Piece::Pawn, get_index('e', 7), Color::Black);
-  p.set_piece(Piece::Pawn, get_index('f', 7), Color::Black);
-  p.set_piece(Piece::Pawn, get_index('g', 7), Color::Black);
-  p.set_piece(Piece::Pawn, get_index('h', 7), Color::Black);
-
-  p.set_piece(Piece::Rook, get_index('a', 8), Color::Black);
-  p.set_piece(Piece::Rook, get_index('h', 8), Color::Black);
-
-  p.set_piece(Piece::Knight, get_index('b', 8), Color::Black);
-  p.set_piece(Piece::Knight, get_index('g', 8), Color::Black);
-
-  p.set_piece(Piece::Bishop, get_index('c', 8), Color::Black);
-  p.set_piece(Piece::Bishop, get_index('f', 8), Color::Black);
-
-  p.set_piece(Piece::Queen, get_index('d', 8), Color::Black);
-
-  p.set_piece(Piece::King, get_index('e', 8), Color::Black);
-
-  p.white_kingside_castling_right = true;
-  p.white_queenside_castling_right = true;
-  p.black_kingside_castling_right = true;
-  p.black_queenside_castling_right = true;
-}
-
 void cmdl_game_loop() {
 
-  Position p;
-  starting_position(p);
-
+  Position p("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
   print_full_board(p);
 
   char from;
