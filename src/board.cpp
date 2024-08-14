@@ -511,235 +511,38 @@ void Position::make_move(Move m) {
   Piece moving_piece = piece_table[m.from];
 
   // delete from initial square
-  piece_table[m.from] = Piece::Empty;
-  color_table[m.from] = Color::Empty;
-  if (side_to_move == Color::White) {
-    switch (moving_piece) {
-    case Piece::Pawn:
-      white_pawns ^= 1ULL << m.from;
-      break;
-    case Piece::Knight:
-      white_knights ^= 1ULL << m.from;
-      break;
-    case Piece::Rook:
-      white_rooks ^= 1ULL << m.from;
-      break;
-    case Piece::Bishop:
-      white_bishops ^= 1ULL << m.from;
-      break;
-    case Piece::Queen:
-      white_queens ^= 1ULL << m.from;
-      break;
-    case Piece::King:
-      white_kings ^= 1ULL << m.from;
-      break;
-    case Piece::Empty:
-      print_full_board(*this);
-      std::cout << m.from;
-      std::cout << "moving an empty square";
-      std::cout << m.to;
-      std::cout << "\nwhite ks castle" << white_kingside_castling_right;
-      std::cout << "\nwhite qs castle" << white_queenside_castling_right;
-      for (auto moves : move_history)
-        print_move(moves);
-      exit(1);
-      break;
-    }
-  } else {
-    switch (moving_piece) {
-    case Piece::Pawn:
-      black_pawns ^= 1ULL << m.from;
-      break;
-    case Piece::Knight:
-      black_knights ^= 1ULL << m.from;
-      break;
-    case Piece::Rook:
-      black_rooks ^= 1ULL << m.from;
-      break;
-    case Piece::Bishop:
-      black_bishops ^= 1ULL << m.from;
-      break;
-    case Piece::Queen:
-      black_queens ^= 1ULL << m.from;
-      break;
-    case Piece::King:
-      black_kings ^= 1ULL << m.from;
-      break;
-    case Piece::Empty:
-      print_full_board(*this);
-      std::cout << m.from;
-      std::cout << "moving an empty square";
-      std::cout << m.to;
-      std::cout << "\nblack ks castle" << black_kingside_castling_right;
-      std::cout << "\nblack qs castle" << black_queenside_castling_right;
-      for (auto moves : move_history)
-        print_move(moves);
-      exit(1);
-      break;
-    }
+  set_piece(Piece::Empty, m.from, Color::Empty);
+
+  if (moving_piece == Piece::Empty) {
+    print_full_board(*this);
+    std::cout << m.from;
+    std::cout << "moving an empty square";
+    std::cout << m.to;
+    std::cout << "\nwhite ks castle" << white_kingside_castling_right;
+    std::cout << "\nwhite qs castle" << white_queenside_castling_right;
+    std::cout << "\nblack ks castle" << black_kingside_castling_right;
+    std::cout << "\nblack qs castle" << black_queenside_castling_right;
+    for (auto moves : move_history)
+      print_move(moves);
+    exit(1);
   }
 
   // insert to new square
   if (m.type == Move_Type::Promotion || m.type == Move_Type::Capture_Promotion)
     moving_piece = m.promotion;
-  piece_table[m.to] = moving_piece;
-  color_table[m.to] = side_to_move;
-  if (side_to_move == Color::White) {
-    switch (moving_piece) {
-    case Piece::Pawn:
-      white_pawns ^= 1ULL << m.to;
-      break;
-    case Piece::Knight:
-      white_knights ^= 1ULL << m.to;
-      break;
-    case Piece::Rook:
-      white_rooks ^= 1ULL << m.to;
-      break;
-    case Piece::Bishop:
-      white_bishops ^= 1ULL << m.to;
-      break;
-    case Piece::Queen:
-      white_queens ^= 1ULL << m.to;
-      break;
-    case Piece::King:
-      white_kings ^= 1ULL << m.to;
-      break;
-    case Piece::Empty:
-      print_full_board(*this);
-      std::cout << m.to;
-      std::cout << "inserted nothing";
-      exit(1);
-      break;
-    }
-  } else {
-    switch (moving_piece) {
-    case Piece::Pawn:
-      black_pawns ^= 1ULL << m.to;
-      break;
-    case Piece::Knight:
-      black_knights ^= 1ULL << m.to;
-      break;
-    case Piece::Rook:
-      black_rooks ^= 1ULL << m.to;
-      break;
-    case Piece::Bishop:
-      black_bishops ^= 1ULL << m.to;
-      break;
-    case Piece::Queen:
-      black_queens ^= 1ULL << m.to;
-      break;
-    case Piece::King:
-      black_kings ^= 1ULL << m.to;
-      break;
-    case Piece::Empty:
-      print_full_board(*this);
-      std::cout << m.to;
-      std::cout << "inserted nothing";
-      exit(1);
-      break;
-    }
-  }
-
-  // remove a captured piece
-  if (m.type == Move_Type::Capture || m.type == Move_Type::Capture_Promotion) {
-    if (side_to_move == Color::Black) {
-      switch (m.captured_piece) {
-      case Piece::Pawn:
-        white_pawns ^= 1ULL << m.to;
-        break;
-      case Piece::Knight:
-        white_knights ^= 1ULL << m.to;
-        break;
-      case Piece::Rook:
-        white_rooks ^= 1ULL << m.to;
-        break;
-      case Piece::Bishop:
-        white_bishops ^= 1ULL << m.to;
-        break;
-      case Piece::Queen:
-        white_queens ^= 1ULL << m.to;
-        break;
-      case Piece::King:
-        white_kings ^= 1ULL << m.to;
-        break;
-      case Piece::Empty:
-        print_full_board(*this);
-        std::cout << m.from;
-        std::cout << to_string(m.type);
-        std::cout << m.to;
-        std::cout << to_string(side_to_move);
-        std::cout << "removing an empty square\n";
-        print_bitboard(1ULL << m.from);
-        std::cout << "\n";
-        print_bitboard(1ULL << m.to);
-
-        for (auto moves : move_history)
-          print_move(moves);
-        exit(1);
-        break;
-      }
-    } else {
-      switch (m.captured_piece) {
-      case Piece::Pawn:
-        black_pawns ^= 1ULL << m.to;
-        break;
-      case Piece::Knight:
-        black_knights ^= 1ULL << m.to;
-        break;
-      case Piece::Rook:
-        black_rooks ^= 1ULL << m.to;
-        break;
-      case Piece::Bishop:
-        black_bishops ^= 1ULL << m.to;
-        break;
-      case Piece::Queen:
-        black_queens ^= 1ULL << m.to;
-        break;
-      case Piece::King:
-        black_kings ^= 1ULL << m.to;
-        break;
-      case Piece::Empty:
-        print_full_board(*this);
-        std::cout << m.from;
-        std::cout << to_string(m.type);
-        std::cout << m.to;
-        std::cout << to_string(side_to_move);
-        std::cout << "removing an empty square\n";
-        print_bitboard(1ULL << m.from);
-        std::cout << "\n";
-        print_bitboard(1ULL << m.to);
-
-        for (auto moves : move_history)
-          print_move(moves);
-        exit(1);
-        break;
-      }
-    }
-  }
+  set_piece(moving_piece, m.to, side_to_move);
 
   // En Passent
   if (m.type == Move_Type::En_Passent) {
     int index_to_capture = side_to_move == Color::White ? m.to - 8 : m.to + 8;
-
-    if (side_to_move == Color::White) {
-      black_pawns ^= 1ULL << index_to_capture;
-    } else {
-      white_pawns ^= 1ULL << index_to_capture;
-    }
-
-    piece_table[index_to_capture] = Piece::Empty;
-    color_table[index_to_capture] = Color::Empty;
-  }
-
-  // Castling
-  if (m.type == Move_Type::Short_Castle) {
+    set_piece(Piece::Empty, index_to_capture, Color::Empty);
+  } else if (m.type == Move_Type::Short_Castle) {
     int king_index = side_to_move == Color::White ? 4 : 60;
     set_piece(Piece::Empty, king_index, Color::Empty);
     set_piece(Piece::Empty, king_index + 3, Color::Empty);
     set_piece(Piece::King, king_index + 2, side_to_move);
     set_piece(Piece::Rook, king_index + 1, side_to_move);
-  }
-  if (m.type == Move_Type::Long_Castle) {
+  } else if (m.type == Move_Type::Long_Castle) {
     int king_index = side_to_move == Color::White ? 4 : 60;
     set_piece(Piece::Empty, king_index, Color::Empty);
     set_piece(Piece::Empty, king_index - 4, Color::Empty);
@@ -758,11 +561,6 @@ void Position::make_move(Move m) {
     if (m.destroyed_queenside_castling)
       black_queenside_castling_right = false;
   }
-
-  occupied_squares = white_pawns | white_knights | white_rooks | white_bishops |
-                     white_queens | white_kings | black_pawns | black_knights |
-                     black_rooks | black_bishops | black_queens | black_kings;
-  empty_squares = ~occupied_squares;
 
   if (side_to_move == Color::White) {
     side_to_move = Color::Black;
@@ -784,43 +582,31 @@ void Position::unmake_move() {
   if (m.type == Move_Type::Regular) {
     set_piece(piece_table[m.to], m.from, side_to_move);
     set_piece(Piece::Empty, m.to, Color::Empty);
-  }
-
-  if (m.type == Move_Type::Capture) {
+  } else if (m.type == Move_Type::Capture) {
     set_piece(piece_table[m.to], m.from, side_to_move);
     set_piece(m.captured_piece, m.to,
               side_to_move == Color::White ? Color::Black : Color::White);
-  }
-
-  if (m.type == Move_Type::En_Passent) {
+  } else if (m.type == Move_Type::En_Passent) {
     set_piece(Piece::Pawn, m.from, side_to_move);
     int captured_pawn_index =
         side_to_move == Color::White ? m.to - 8 : m.to + 8;
     set_piece(Piece::Pawn, captured_pawn_index,
               side_to_move == Color::White ? Color::Black : Color::White);
     set_piece(Piece::Empty, m.to, Color::Empty);
-  }
-
-  if (m.type == Move_Type::Promotion) {
+  } else if (m.type == Move_Type::Promotion) {
     set_piece(Piece::Pawn, m.from, side_to_move);
     set_piece(Piece::Empty, m.to, Color::Empty);
-  }
-
-  if (m.type == Move_Type::Capture_Promotion) {
+  } else if (m.type == Move_Type::Capture_Promotion) {
     set_piece(Piece::Pawn, m.from, side_to_move);
     set_piece(m.captured_piece, m.to,
               side_to_move == Color::White ? Color::Black : Color::White);
-  }
-
-  // Castling
-  if (m.type == Move_Type::Short_Castle) {
+  } else if (m.type == Move_Type::Short_Castle) {
     int king_index = side_to_move == Color::White ? 6 : 62;
     set_piece(Piece::Empty, king_index, Color::Empty);
     set_piece(Piece::Empty, king_index - 1, Color::Empty);
     set_piece(Piece::King, king_index - 2, side_to_move);
     set_piece(Piece::Rook, king_index + 1, side_to_move);
-  }
-  if (m.type == Move_Type::Long_Castle) {
+  } else if (m.type == Move_Type::Long_Castle) {
     int king_index = side_to_move == Color::White ? 2 : 58;
     set_piece(Piece::Empty, king_index, Color::Empty);
     set_piece(Piece::Empty, king_index + 1, Color::Empty);
