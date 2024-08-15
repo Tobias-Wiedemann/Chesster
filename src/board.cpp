@@ -595,18 +595,6 @@ void Position::make_move(Move m) {
   }
 
   if (side_to_move == Color::White) {
-    if (m.destroyed_kingside_castling)
-      white_kingside_castling_right = false;
-    if (m.destroyed_queenside_castling)
-      white_queenside_castling_right = false;
-  } else {
-    if (m.destroyed_kingside_castling)
-      black_kingside_castling_right = false;
-    if (m.destroyed_queenside_castling)
-      black_queenside_castling_right = false;
-  }
-
-  if (side_to_move == Color::White) {
     side_to_move = Color::Black;
   } else {
     side_to_move = Color::White;
@@ -625,37 +613,40 @@ void Position::unmake_move() {
     side_to_move = Color::White;
   }
 
-  en_passent_square = m.previous_en_passent_square;
-  if (en_passent_square == m.to && piece_table[m.to] == Piece::Pawn) {
-    int captured_pawn_index =
-        side_to_move == Color::White ? m.to - 8 : m.to + 8;
-    set_piece(Piece::Pawn, captured_pawn_index,
-              side_to_move == Color::White ? Color::Black : Color::White);
-  }
+  if (m.castling == Castling::None) {
 
-  if (m.type == Move_Type::Regular) {
-    set_piece(piece_table[m.to], m.from, side_to_move);
-    set_piece(Piece::Empty, m.to, Color::Empty);
-  } else if (m.type == Move_Type::Capture) {
-    set_piece(piece_table[m.to], m.from, side_to_move);
-    set_piece(m.captured_piece, m.to,
-              side_to_move == Color::White ? Color::Black : Color::White);
-  } else if (m.type == Move_Type::En_Passent) {
-    set_piece(Piece::Pawn, m.from, side_to_move);
-    int captured_pawn_index =
-        side_to_move == Color::White ? m.to - 8 : m.to + 8;
-    set_piece(Piece::Pawn, captured_pawn_index,
-              side_to_move == Color::White ? Color::Black : Color::White);
-    set_piece(Piece::Empty, m.to, Color::Empty);
-  } else if (m.type == Move_Type::Promotion) {
-    set_piece(Piece::Pawn, m.from, side_to_move);
-    set_piece(Piece::Empty, m.to, Color::Empty);
-  } else if (m.type == Move_Type::Capture_Promotion) {
-    set_piece(Piece::Pawn, m.from, side_to_move);
-    set_piece(m.captured_piece, m.to,
-              side_to_move == Color::White ? Color::Black : Color::White);
+    en_passent_square = m.previous_en_passent_square;
+    if (en_passent_square == m.to && piece_table[m.to] == Piece::Pawn) {
+      int captured_pawn_index =
+          side_to_move == Color::White ? m.to - 8 : m.to + 8;
+      set_piece(Piece::Pawn, captured_pawn_index,
+                side_to_move == Color::White ? Color::Black : Color::White);
+    }
+
+    if (m.type == Move_Type::Regular) {
+      set_piece(piece_table[m.to], m.from, side_to_move);
+      set_piece(Piece::Empty, m.to, Color::Empty);
+    } else if (m.type == Move_Type::Capture) {
+      set_piece(piece_table[m.to], m.from, side_to_move);
+      set_piece(m.captured_piece, m.to,
+                side_to_move == Color::White ? Color::Black : Color::White);
+    } else if (m.type == Move_Type::En_Passent) {
+      set_piece(Piece::Pawn, m.from, side_to_move);
+      int captured_pawn_index =
+          side_to_move == Color::White ? m.to - 8 : m.to + 8;
+      set_piece(Piece::Pawn, captured_pawn_index,
+                side_to_move == Color::White ? Color::Black : Color::White);
+      set_piece(Piece::Empty, m.to, Color::Empty);
+    } else if (m.type == Move_Type::Promotion) {
+      set_piece(Piece::Pawn, m.from, side_to_move);
+      set_piece(Piece::Empty, m.to, Color::Empty);
+    } else if (m.type == Move_Type::Capture_Promotion) {
+      set_piece(Piece::Pawn, m.from, side_to_move);
+      set_piece(m.captured_piece, m.to,
+                side_to_move == Color::White ? Color::Black : Color::White);
+    }
+
   } else {
-
     switch (m.castling) {
     case Castling::WhiteShort:
       set_piece(Piece::Empty, 5, Color::Empty);
@@ -684,18 +675,6 @@ void Position::unmake_move() {
     case Castling::None:
       break;
     }
-  }
-
-  if (side_to_move == Color::White) {
-    if (m.destroyed_kingside_castling)
-      white_kingside_castling_right = true;
-    if (m.destroyed_queenside_castling)
-      white_queenside_castling_right = true;
-  } else {
-    if (m.destroyed_kingside_castling)
-      black_kingside_castling_right = true;
-    if (m.destroyed_queenside_castling)
-      black_queenside_castling_right = true;
   }
 }
 

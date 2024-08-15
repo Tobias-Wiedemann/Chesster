@@ -23,8 +23,8 @@ enum class Castling { WhiteShort, WhiteLong, BlackShort, BlackLong, None };
 struct Move {
   Move(int f, int t, Move_Type m = Move_Type::Regular, Piece p = Piece::Empty)
       : from(f), to(t), type(m), promotion(p), captured_piece(Piece::Empty),
-        destroyed_kingside_castling(false),
-        destroyed_queenside_castling(false), previous_en_passent_square(-1), castling(Castling::None) {}
+        destroyed_kingside_castling(false), destroyed_queenside_castling(false),
+        previous_en_passent_square(-1), castling(Castling::None) {}
   int from;
   int to;
   Piece promotion;
