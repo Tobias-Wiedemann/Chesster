@@ -2,6 +2,7 @@
 #include <sstream>
 
 #include "attack_masks.h"
+#include "utils.h"
 #include "board.h"
 
 Position::Position() {
@@ -528,9 +529,6 @@ void Position::make_move(Move m) {
   move_history.push_back(m);
   Piece moving_piece = piece_table[m.from];
 
-  // delete from initial square
-  set_piece(Piece::Empty, m.from, Color::Empty);
-
   if (moving_piece == Piece::Empty) {
     print_full_board(*this);
     std::cout << m.from;
@@ -545,8 +543,11 @@ void Position::make_move(Move m) {
     exit(1);
   }
 
+  // delete from initial square
+  set_piece(Piece::Empty, m.from, Color::Empty);
+
   // insert to new square
-  if (m.type == Move_Type::Promotion || m.type == Move_Type::Capture_Promotion)
+  if (m.promotion != Piece::Empty)
     moving_piece = m.promotion;
   set_piece(moving_piece, m.to, side_to_move);
 
@@ -554,18 +555,28 @@ void Position::make_move(Move m) {
   if (m.type == Move_Type::En_Passent) {
     int index_to_capture = side_to_move == Color::White ? m.to - 8 : m.to + 8;
     set_piece(Piece::Empty, index_to_capture, Color::Empty);
-  } else if (m.type == Move_Type::Short_Castle) {
-    int king_index = side_to_move == Color::White ? 4 : 60;
-    set_piece(Piece::Empty, king_index, Color::Empty);
-    set_piece(Piece::Empty, king_index + 3, Color::Empty);
-    set_piece(Piece::King, king_index + 2, side_to_move);
-    set_piece(Piece::Rook, king_index + 1, side_to_move);
-  } else if (m.type == Move_Type::Long_Castle) {
-    int king_index = side_to_move == Color::White ? 4 : 60;
-    set_piece(Piece::Empty, king_index, Color::Empty);
-    set_piece(Piece::Empty, king_index - 4, Color::Empty);
-    set_piece(Piece::King, king_index - 2, side_to_move);
-    set_piece(Piece::Rook, king_index - 1, side_to_move);
+  }
+
+  if (piece_table[m.to] == Piece::King) {
+    if (m.from == 4) {
+      if (m.to == 6) {
+        set_piece(Piece::Empty, 7, Color::Empty);
+        set_piece(Piece::Rook, 5, Color::White);
+      }
+      if (m.to == 2) {
+        set_piece(Piece::Empty, 0, Color::Empty);
+        set_piece(Piece::Rook, 3, Color::White);
+      }
+    } else if (m.from == 60) {
+      if (m.to == 62) {
+        set_piece(Piece::Empty, 63, Color::Empty);
+        set_piece(Piece::Rook, 61, Color::Black);
+      }
+      if (m.to == 58) {
+        set_piece(Piece::Empty, 56, Color::Empty);
+        set_piece(Piece::Rook, 59, Color::Black);
+      }
+    }
   }
 
   if (side_to_move == Color::White) {
