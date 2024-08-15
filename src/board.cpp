@@ -563,6 +563,7 @@ void Position::make_move(Move m) {
   // delete from initial square
   set_piece(Piece::Empty, m.from, Color::Empty);
 
+  m.captured_piece = piece_table[m.to];
   // insert to new square
   if (m.promotion != Piece::Empty)
     moving_piece = m.promotion;
@@ -623,22 +624,14 @@ void Position::unmake_move() {
                 side_to_move == Color::White ? Color::Black : Color::White);
     }
 
-    if (m.type == Move_Type::Regular ||
-    m.type == Move_Type::En_Passent) {
-      set_piece(piece_table[m.to], m.from, side_to_move);
-      set_piece(Piece::Empty, m.to, Color::Empty);
-    } else if (m.type == Move_Type::Capture) {
-      set_piece(piece_table[m.to], m.from, side_to_move);
+    Piece moved_piece = piece_table[m.to];
+    if (m.promotion != Piece::Empty)
+      moved_piece = Piece::Pawn;
+    set_piece(moved_piece, m.from, side_to_move);
+    set_piece(Piece::Empty, m.to, Color::Empty);
+    if (m.captured_piece != Piece::Empty)
       set_piece(m.captured_piece, m.to,
                 side_to_move == Color::White ? Color::Black : Color::White);
-    } else if (m.type == Move_Type::Promotion) {
-      set_piece(Piece::Pawn, m.from, side_to_move);
-      set_piece(Piece::Empty, m.to, Color::Empty);
-    } else if (m.type == Move_Type::Capture_Promotion) {
-      set_piece(Piece::Pawn, m.from, side_to_move);
-      set_piece(m.captured_piece, m.to,
-                side_to_move == Color::White ? Color::Black : Color::White);
-    }
 
   } else {
     switch (m.castling) {
