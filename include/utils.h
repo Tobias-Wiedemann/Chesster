@@ -18,20 +18,24 @@ enum class Move_Type {
   Capture_Promotion
 };
 
+enum class Castling { WhiteShort, WhiteLong, BlackShort, BlackLong, None };
+
 struct Move {
   Move(int f, int t, Move_Type m = Move_Type::Regular, Piece p = Piece::Empty)
       : from(f), to(t), type(m), promotion(p), captured_piece(Piece::Empty),
         destroyed_kingside_castling(false),
-        destroyed_queenside_castling(false) {}
+        destroyed_queenside_castling(false), previous_en_passent_square(-1), castling(Castling::None) {}
   int from;
   int to;
   Piece promotion;
-  Move_Type type;
   Piece captured_piece;
+  // new
+  int previous_en_passent_square;
+  Castling castling;
+  // soon to go
+  Move_Type type;
   bool destroyed_kingside_castling;
   bool destroyed_queenside_castling;
-
-  int previous_en_passent_square = -1;
 };
 
 std::string inline to_string(Move_Type m) {
