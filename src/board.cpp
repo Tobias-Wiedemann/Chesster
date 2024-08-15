@@ -930,4 +930,10 @@ bool is_en_passent(Position &p, Move &m) {
     return false;
   return p.en_passent_square == m.to;
 }
-bool is_castle(Position &p, Move &m);
+bool is_castle(Position &p, Move &m) {
+  if (m.from == 4 && p.piece_table[m.from] == Piece::King)
+    return m.to == 6 || m.to == 2;
+  if (m.from == 60 && p.piece_table[m.from] == Piece::King)
+    return m.to == 62 || m.to == 58;
+  return false;
+}

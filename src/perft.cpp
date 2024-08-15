@@ -54,31 +54,17 @@ uint64_t Perft::run_wrapped(int depth) {
 
   uint64_t nodes = 0ULL;
 
-  for (int i = 0; i < move_list.size(); i++) {
+  for (auto &m : move_list) {
     if (depth == 1) {
-      res.number_of_captures +=
-          move_list[i].type == Move_Type::Capture ||
-                  move_list[i].type == Move_Type::Capture_Promotion ||
-                  move_list[i].type == Move_Type::En_Passent
-              ? 1
-              : 0;
+      res.number_of_captures += is_capture(p, m);
 
-      res.number_of_en_passent +=
-          move_list[i].type == Move_Type::En_Passent ? 1 : 0;
+      res.number_of_en_passent += is_en_passent(p, m);
 
-      res.number_of_promotions +=
-          move_list[i].type == Move_Type::Promotion ||
-                  move_list[i].type == Move_Type::Capture_Promotion
-              ? 1
-              : 0;
+      res.number_of_promotions += m.promotion != Piece::Empty;
 
-      res.number_of_castles +=
-          move_list[i].type == Move_Type::Short_Castle ||
-                  move_list[i].type == Move_Type::Long_Castle
-              ? 1
-              : 0;
+      res.number_of_castles += is_castle(p, m);
     }
-    p.make_move(move_list[i]);
+    p.make_move(m);
     nodes += run_wrapped(depth - 1);
     p.unmake_move();
   }
