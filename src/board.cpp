@@ -573,19 +573,23 @@ void Position::make_move(Move m) {
       if (m.to == 6) {
         set_piece(Piece::Empty, 7, Color::Empty);
         set_piece(Piece::Rook, 5, Color::White);
+        m.castling = Castling::WhiteShort;
       }
       if (m.to == 2) {
         set_piece(Piece::Empty, 0, Color::Empty);
         set_piece(Piece::Rook, 3, Color::White);
+        m.castling = Castling::WhiteLong;
       }
     } else if (m.from == 60) {
       if (m.to == 62) {
         set_piece(Piece::Empty, 63, Color::Empty);
         set_piece(Piece::Rook, 61, Color::Black);
+        m.castling = Castling::BlackShort;
       }
       if (m.to == 58) {
         set_piece(Piece::Empty, 56, Color::Empty);
         set_piece(Piece::Rook, 59, Color::Black);
+        m.castling = Castling::BlackLong;
       }
     }
   }
@@ -650,18 +654,36 @@ void Position::unmake_move() {
     set_piece(Piece::Pawn, m.from, side_to_move);
     set_piece(m.captured_piece, m.to,
               side_to_move == Color::White ? Color::Black : Color::White);
-  } else if (m.type == Move_Type::Short_Castle) {
-    int king_index = side_to_move == Color::White ? 6 : 62;
-    set_piece(Piece::Empty, king_index, Color::Empty);
-    set_piece(Piece::Empty, king_index - 1, Color::Empty);
-    set_piece(Piece::King, king_index - 2, side_to_move);
-    set_piece(Piece::Rook, king_index + 1, side_to_move);
-  } else if (m.type == Move_Type::Long_Castle) {
-    int king_index = side_to_move == Color::White ? 2 : 58;
-    set_piece(Piece::Empty, king_index, Color::Empty);
-    set_piece(Piece::Empty, king_index + 1, Color::Empty);
-    set_piece(Piece::King, king_index + 2, side_to_move);
-    set_piece(Piece::Rook, king_index - 2, side_to_move);
+  } else {
+
+    switch (m.castling) {
+    case Castling::WhiteShort:
+      set_piece(Piece::Empty, 5, Color::Empty);
+      set_piece(Piece::Empty, 6, Color::Empty);
+      set_piece(Piece::King, 4, Color::White);
+      set_piece(Piece::Rook, 7, Color::White);
+      break;
+    case Castling::WhiteLong:
+      set_piece(Piece::Empty, 2, Color::Empty);
+      set_piece(Piece::Empty, 3, Color::Empty);
+      set_piece(Piece::King, 4, Color::White);
+      set_piece(Piece::Rook, 0, Color::White);
+      break;
+    case Castling::BlackShort:
+      set_piece(Piece::Empty, 61, Color::Empty);
+      set_piece(Piece::Empty, 62, Color::Empty);
+      set_piece(Piece::King, 60, Color::Black);
+      set_piece(Piece::Rook, 63, Color::Black);
+      break;
+    case Castling::BlackLong:
+      set_piece(Piece::Empty, 58, Color::Empty);
+      set_piece(Piece::Empty, 59, Color::Empty);
+      set_piece(Piece::King, 60, Color::Black);
+      set_piece(Piece::Rook, 56, Color::Black);
+      break;
+    case Castling::None:
+      break;
+    }
   }
 
   if (side_to_move == Color::White) {
