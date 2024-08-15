@@ -2,8 +2,8 @@
 #include <sstream>
 
 #include "attack_masks.h"
-#include "utils.h"
 #include "board.h"
+#include "utils.h"
 
 Position::Position() {
   piece_table.assign(64, Piece::Empty);
@@ -526,7 +526,6 @@ void Position::set_piece(Piece piece, int index, Color col) {
 }
 
 void Position::make_move(Move m) {
-  move_history.push_back(m);
   Piece moving_piece = piece_table[m.from];
 
   if (moving_piece == Piece::Empty) {
@@ -543,6 +542,24 @@ void Position::make_move(Move m) {
     exit(1);
   }
 
+  // En Passent
+  if (is_en_passent(*this, m)) {
+    int captured_pawn_index =
+        side_to_move == Color::White ? m.to - 8 : m.to + 8;
+    set_piece(Piece::Empty, captured_pawn_index, Color::Empty);
+  }
+
+  m.previous_en_passent_square = en_passent_square;
+  if (moving_piece == Piece::Pawn) {
+    if (std::abs(m.from - m.to) == 16) {
+      en_passent_square = m.from < m.to ? m.to - 8 : m.to + 8;
+    } else {
+      en_passent_square = -1;
+    }
+  } else {
+    en_passent_square = -1;
+  }
+
   // delete from initial square
   set_piece(Piece::Empty, m.from, Color::Empty);
 
@@ -550,12 +567,6 @@ void Position::make_move(Move m) {
   if (m.promotion != Piece::Empty)
     moving_piece = m.promotion;
   set_piece(moving_piece, m.to, side_to_move);
-
-  // En Passent
-  if (m.type == Move_Type::En_Passent) {
-    int index_to_capture = side_to_move == Color::White ? m.to - 8 : m.to + 8;
-    set_piece(Piece::Empty, index_to_capture, Color::Empty);
-  }
 
   if (piece_table[m.to] == Piece::King) {
     if (m.from == 4) {
@@ -596,16 +607,26 @@ void Position::make_move(Move m) {
   } else {
     side_to_move = Color::White;
   }
+  move_history.push_back(m);
 }
 
 void Position::unmake_move() {
   Move m = move_history.back();
+  move_history.pop_back();
 
   // Important to note this happening here
   if (side_to_move == Color::White) {
     side_to_move = Color::Black;
   } else {
     side_to_move = Color::White;
+  }
+
+  en_passent_square = m.previous_en_passent_square;
+  if (en_passent_square == m.to && piece_table[m.to] == Piece::Pawn) {
+    int captured_pawn_index =
+        side_to_move == Color::White ? m.to - 8 : m.to + 8;
+    set_piece(Piece::Pawn, captured_pawn_index,
+              side_to_move == Color::White ? Color::Black : Color::White);
   }
 
   if (m.type == Move_Type::Regular) {
@@ -654,8 +675,6 @@ void Position::unmake_move() {
     if (m.destroyed_queenside_castling)
       black_queenside_castling_right = true;
   }
-
-  move_history.pop_back();
 }
 
 bool is_consistant(Position &p) {
@@ -912,3 +931,15 @@ void go_through_all_king_masks() {
     std::cin >> s;
   }
 }
+
+bool is_capture(Position &p, Move &m) {
+  if (p.piece_table[m.to] != Piece::Empty)
+    return true;
+  return is_en_passent(p, m);
+}
+bool is_en_passent(Position &p, Move &m) {
+  if (p.piece_table[m.from] != Piece::Pawn)
+    return false;
+  return p.en_passent_square == m.to;
+}
+bool is_castle(Position &p, Move &m);

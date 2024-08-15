@@ -30,6 +30,8 @@ struct Move {
   Piece captured_piece;
   bool destroyed_kingside_castling;
   bool destroyed_queenside_castling;
+
+  int previous_en_passent_square = -1;
 };
 
 std::string inline to_string(Move_Type m) {

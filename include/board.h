@@ -42,6 +42,8 @@ struct Position {
 
   std::vector<Move> move_history;
 
+  int en_passent_square = -1;
+
   bool is_check();
 
   bool position_is_legal();
@@ -55,3 +57,8 @@ struct Position {
 
 void print_full_board(Position &p);
 bool is_consistant(Position &p);
+
+
+bool is_capture(Position &p, Move &m);
+bool is_en_passent(Position &p, Move &m);
+bool is_castle(Position &p, Move &m);

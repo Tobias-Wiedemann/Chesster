@@ -49,23 +49,23 @@ void handlePosition(const std::string &positionData) {
       Move m(get_index(file1, rank1), get_index(file2, rank2));
       if (token.size() == 5) {
         switch (token[4]) {
-          case 'q':
-            m.type = Move_Type::Promotion;
-            m.promotion = Piece::Queen;
+        case 'q':
+          m.type = Move_Type::Promotion;
+          m.promotion = Piece::Queen;
           break;
-          case 'n':
-            m.type = Move_Type::Promotion;
-            m.promotion = Piece::Knight;
+        case 'n':
+          m.type = Move_Type::Promotion;
+          m.promotion = Piece::Knight;
           break;
-          case 'r':
-            m.type = Move_Type::Promotion;
-            m.promotion = Piece::Rook;
+        case 'r':
+          m.type = Move_Type::Promotion;
+          m.promotion = Piece::Rook;
           break;
-          case 'b':
-            m.type = Move_Type::Promotion;
-            m.promotion = Piece::Bishop;
+        case 'b':
+          m.type = Move_Type::Promotion;
+          m.promotion = Piece::Bishop;
           break;
-          default:
+        default:
           break;
         }
       }
@@ -133,6 +133,33 @@ void uciloop() {
 }
 
 int main() {
-  uciloop();
+  // uciloop();
+
+  Position p(
+      "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ");
+  MoveGenerator mg(p);
+
+  Move m(8, 24);
+  std::cout << "Pre\n";
+  print_full_board(p);
+  std::cout << "EP: " << p.en_passent_square << "\n";
+  std::cout << "Is EP: " << is_en_passent(p, m) << "\n";
+  p.make_move(m);
+  m = Move(25, 16);
+  std::cout << "Pre\n";
+  print_full_board(p);
+  std::cout << "EP: " << p.en_passent_square << "\n";
+  std::cout << "Is EP: " << is_en_passent(p, m) << "\n";
+  p.make_move(m);
+  print_full_board(p);
+  std::cout << "EP: " << p.en_passent_square << "\n";
+  std::cout << "Post\n";
+  p.unmake_move();
+  print_full_board(p);
+  std::cout << "EP: " << p.en_passent_square << "\n";
+  p.unmake_move();
+  print_full_board(p);
+  std::cout << "EP: " << p.en_passent_square << "\n";
+
   return 0;
 }
