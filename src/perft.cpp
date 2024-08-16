@@ -16,6 +16,8 @@ uint64_t Perft::run_fast(int depth) {
   MoveGenerator movegen(p);
 
   std::vector<Move> move_list = movegen.generate_moves();
+  if (depth == 1)
+    return move_list.size();
 
   uint64_t nodes = 0;
 
