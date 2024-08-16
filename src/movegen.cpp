@@ -285,101 +285,46 @@ MoveGenerator::generate_bishop_moves(std::vector<Move> &res) {
     int right_down_steps = std::min(index / 8, 7 - (index % 8));
     int right_up_steps = std::min(7 - (index / 8), 7 - (index % 8));
 
-    // Important, go from inside outwards
-    int current_offset = 1;
-
-    while (left_down_steps || left_up_steps || right_down_steps ||
-           right_up_steps) {
-      if (left_down_steps) {
-        int current_index = index - current_offset * 9;
-        uint64_t current_square = (1ULL << current_index) & p.empty_squares;
-        if (current_square == 0) {
-          // hit something
-          if (p.color_table[current_index] != p.side_to_move) {
-            Move m(index, current_index);
-            if (p.color_table[current_index] != Color::Empty) {
-              m.captured_piece = p.piece_table[current_index];
-            }
-            if (is_move_valid(m))
-              res.push_back(m);
-          }
-          left_down_steps = 0;
-        } else {
-          // empty
-          Move m(index, current_index);
-          if (is_move_valid(m))
-            res.push_back(m);
-          left_down_steps--;
-        }
+    for (int offset = 1; offset <= left_down_steps; offset++) {
+      int current_index = index - offset * 9;
+      Move m(index, current_index);
+      if (p.color_table[current_index] != Color::Empty) {
+        offset = left_down_steps + 1;
       }
-      if (left_up_steps) {
-        int current_index = index + current_offset * 7;
-        uint64_t current_square = (1ULL << current_index) & p.empty_squares;
-        if (current_square == 0) {
-          // hit something
-          if (p.color_table[current_index] != p.side_to_move) {
-            Move m(index, current_index);
-            if (p.color_table[current_index] != Color::Empty) {
-              m.captured_piece = p.piece_table[current_index];
-            }
-            if (is_move_valid(m))
-              res.push_back(m);
-          }
-          left_up_steps = 0;
-        } else {
-          // empty
-          Move m(index, current_index);
-          if (is_move_valid(m))
-            res.push_back(m);
-          left_up_steps--;
-        }
-      }
-      if (right_down_steps) {
-        int current_index = index - current_offset * 7;
-        uint64_t current_square = (1ULL << current_index) & p.empty_squares;
-        if (current_square == 0) {
-          // hit something
-          if (p.color_table[current_index] != p.side_to_move) {
-            Move m(index, current_index);
-            if (p.color_table[current_index] != Color::Empty) {
-              m.captured_piece = p.piece_table[current_index];
-            }
-            if (is_move_valid(m))
-              res.push_back(m);
-          }
-          right_down_steps = 0;
-        } else {
-          // empty
-          Move m(index, current_index);
-          if (is_move_valid(m))
-            res.push_back(m);
-          right_down_steps--;
-        }
-      }
-      if (right_up_steps) {
-        int current_index = index + current_offset * 9;
-        uint64_t current_square = (1ULL << current_index) & p.empty_squares;
-        if (current_square == 0) {
-          // hit something
-          if (p.color_table[current_index] != p.side_to_move) {
-            Move m(index, current_index);
-            if (p.color_table[current_index] != Color::Empty) {
-              m.captured_piece = p.piece_table[current_index];
-            }
-            if (is_move_valid(m))
-              res.push_back(m);
-          }
-          right_up_steps = 0;
-        } else {
-          // empty
-          Move m(index, current_index);
-          if (is_move_valid(m))
-            res.push_back(m);
-          right_up_steps--;
-        }
-      }
-      current_offset++;
+      if (is_move_valid(m))
+        res.push_back(m);
     }
+
+    for (int offset = 1; offset <= left_up_steps; offset++) {
+      int current_index = index + offset * 7;
+      Move m(index, current_index);
+      if (p.color_table[current_index] != Color::Empty) {
+        offset = left_up_steps + 1;
+      }
+      if (is_move_valid(m))
+        res.push_back(m);
+    }
+
+    for (int offset = 1; offset <= right_down_steps; offset++) {
+      int current_index = index - offset * 7;
+      Move m(index, current_index);
+      if (p.color_table[current_index] != Color::Empty) {
+        offset = right_down_steps + 1;
+      }
+      if (is_move_valid(m))
+        res.push_back(m);
+    }
+
+    for (int offset = 1; offset <= right_up_steps; offset++) {
+      int current_index = index + offset * 9;
+      Move m(index, current_index);
+      if (p.color_table[current_index] != Color::Empty) {
+        offset = right_up_steps + 1;
+      }
+      if (is_move_valid(m))
+        res.push_back(m);
+    }
+
     bishops ^= 1ULL << index;
   }
 
