@@ -3,6 +3,7 @@
 
 #include "attack_masks.h"
 #include "board.h"
+#include "perft.h"
 #include "utils.h"
 
 Position::Position() {
@@ -214,186 +215,120 @@ bool Position::position_is_legal() {
   // first bishop style
 
   index = king_index;
-  // true until blocked in that direction
-  int left_down_steps = std::min(index / 8, index % 8);
-  int left_up_steps = std::min(7 - (index / 8), index % 8);
-  int right_down_steps = std::min(index / 8, 7 - (index % 8));
-  int right_up_steps = std::min(7 - (index / 8), 7 - (index % 8));
-
-  // Important, go from inside outwards
-  int current_offset = 1;
-
-  while (left_down_steps || left_up_steps || right_down_steps ||
-         right_up_steps) {
-    if (left_down_steps) {
-      int current_index = index - current_offset * 9;
-      uint64_t current_square = (1ULL << current_index) & empty_squares;
-      if (current_square == 0) {
-        // hit something
-        if (color_table[current_index] == side_to_move) {
-          // danger
-          if (piece_table[current_index] == Piece::Bishop ||
-              piece_table[current_index] == Piece::Queen) {
-            // dead
-            return false;
-          }
-        }
-        left_down_steps = 0;
-      } else {
-        // empty
-        left_down_steps--;
-      }
-    }
-    if (left_up_steps) {
-      int current_index = index + current_offset * 7;
-      uint64_t current_square = (1ULL << current_index) & empty_squares;
-      if (current_square == 0) {
-        // hit something
-        if (color_table[current_index] == side_to_move) {
-          // danger
-          if (piece_table[current_index] == Piece::Bishop ||
-              piece_table[current_index] == Piece::Queen) {
-            // dead
-            return false;
-          }
-        }
-        left_up_steps = 0;
-      } else {
-        // empty
-        left_up_steps--;
-      }
-    }
-    if (right_down_steps) {
-      int current_index = index - current_offset * 7;
-      uint64_t current_square = (1ULL << current_index) & empty_squares;
-      if (current_square == 0) {
-        // hit something
-        if (color_table[current_index] == side_to_move) {
-          // danger
-          if (piece_table[current_index] == Piece::Bishop ||
-              piece_table[current_index] == Piece::Queen) {
-            // dead
-            return false;
-          }
-        }
-        right_down_steps = 0;
-      } else {
-        // empty
-        right_down_steps--;
-      }
-    }
-    if (right_up_steps) {
-      int current_index = index + current_offset * 9;
-      uint64_t current_square = (1ULL << current_index) & empty_squares;
-      if (current_square == 0) {
-        // hit something
-        if (color_table[current_index] == side_to_move) {
-          // danger
-          if (piece_table[current_index] == Piece::Bishop ||
-              piece_table[current_index] == Piece::Queen) {
-            // dead
-            return false;
-          }
-        }
-        right_up_steps = 0;
-      } else {
-        // empty
-        right_up_steps--;
-      }
-    }
-    current_offset++;
-  }
-
-  // now rook style
-  index = king_index;
-
-  // true until blocked in that direction
   int down_steps = index / 8;
   int up_steps = 7 - down_steps;
   int left_steps = index % 8;
   int right_steps = 7 - left_steps;
 
-  // Important, go from inside outwards
-  current_offset = 1;
+  int left_down_steps = std::min(index / 8, index % 8);
+  int left_up_steps = std::min(7 - (index / 8), index % 8);
+  int right_down_steps = std::min(index / 8, 7 - (index % 8));
+  int right_up_steps = std::min(7 - (index / 8), 7 - (index % 8));
 
-  while (down_steps || up_steps || left_steps || right_steps) {
-    if (down_steps) {
-      int current_index = index - current_offset * 8;
-      uint64_t current_square = (1ULL << current_index) & empty_squares;
-      if (current_square == 0) {
-        // hit something
-        if (color_table[current_index] == side_to_move) {
-          // danger
-          if (piece_table[current_index] == Piece::Rook ||
-              piece_table[current_index] == Piece::Queen) {
-            // dead
-            return false;
-          }
-        }
-        down_steps = 0;
+  int current_index;
+
+  for (int offset = 1; offset <= left_steps; offset++) {
+    current_index = index - offset;
+    if (color_table[current_index] != Color::Empty) {
+      if (color_table[current_index] == side_to_move &&
+          (piece_table[current_index] == Piece::Queen ||
+           piece_table[current_index] == Piece::Rook)) {
+        return false;
       } else {
-        // empty
-        down_steps--;
+        offset = left_steps + 1;
       }
     }
-    if (up_steps) {
-      int current_index = index + current_offset * 8;
-      uint64_t current_square = (1ULL << current_index) & empty_squares;
-      if (current_square == 0) {
-        // hit something
-        if (color_table[current_index] == side_to_move) {
-          // danger
-          if (piece_table[current_index] == Piece::Rook ||
-              piece_table[current_index] == Piece::Queen) {
-            // dead
-            return false;
-          }
-        }
-        up_steps = 0;
+  }
+
+  for (int offset = 1; offset <= right_steps; offset++) {
+    current_index = index + offset;
+    if (color_table[current_index] != Color::Empty) {
+      if (color_table[current_index] == side_to_move &&
+          (piece_table[current_index] == Piece::Queen ||
+           piece_table[current_index] == Piece::Rook)) {
+        return false;
       } else {
-        // empty
-        up_steps--;
+        offset = right_steps + 1;
       }
     }
-    if (left_steps) {
-      int current_index = index - current_offset;
-      uint64_t current_square = (1ULL << current_index) & empty_squares;
-      if (current_square == 0) {
-        // hit something
-        if (color_table[current_index] == side_to_move) {
-          // danger
-          if (piece_table[current_index] == Piece::Rook ||
-              piece_table[current_index] == Piece::Queen) {
-            // dead
-            return false;
-          }
-        }
-        left_steps = 0;
+  }
+
+  for (int offset = 1; offset <= up_steps; offset++) {
+    current_index = index + offset * 8;
+    if (color_table[current_index] != Color::Empty) {
+      if (color_table[current_index] == side_to_move &&
+          (piece_table[current_index] == Piece::Queen ||
+           piece_table[current_index] == Piece::Rook)) {
+        return false;
       } else {
-        // empty
-        left_steps--;
+        offset = up_steps + 1;
       }
     }
-    if (right_steps) {
-      int current_index = index + current_offset;
-      uint64_t current_square = (1ULL << current_index) & empty_squares;
-      if (current_square == 0) {
-        // hit something
-        if (color_table[current_index] == side_to_move) {
-          // danger
-          if (piece_table[current_index] == Piece::Rook ||
-              piece_table[current_index] == Piece::Queen) {
-            // dead
-            return false;
-          }
-        }
-        right_steps = 0;
+  }
+
+  for (int offset = 1; offset <= down_steps; offset++) {
+    current_index = index - offset * 8;
+    if (color_table[current_index] != Color::Empty) {
+      if (color_table[current_index] == side_to_move &&
+          (piece_table[current_index] == Piece::Queen ||
+           piece_table[current_index] == Piece::Rook)) {
+        return false;
       } else {
-        // empty
-        right_steps--;
+        offset = down_steps + 1;
       }
     }
-    current_offset++;
+  }
+
+  for (int offset = 1; offset <= left_down_steps; offset++) {
+    current_index = index - offset * 9;
+    if (color_table[current_index] != Color::Empty) {
+      if (color_table[current_index] == side_to_move &&
+          (piece_table[current_index] == Piece::Queen ||
+           piece_table[current_index] == Piece::Bishop)) {
+        return false;
+      } else {
+        offset = left_down_steps + 1;
+      }
+    }
+  }
+
+  for (int offset = 1; offset <= left_up_steps; offset++) {
+    current_index = index + offset * 7;
+    if (color_table[current_index] != Color::Empty) {
+      if (color_table[current_index] == side_to_move &&
+          (piece_table[current_index] == Piece::Queen ||
+           piece_table[current_index] == Piece::Bishop)) {
+        return false;
+      } else {
+        offset = left_up_steps + 1;
+      }
+    }
+  }
+
+  for (int offset = 1; offset <= right_down_steps; offset++) {
+    current_index = index - offset * 7;
+    if (color_table[current_index] != Color::Empty) {
+      if (color_table[current_index] == side_to_move &&
+          (piece_table[current_index] == Piece::Queen ||
+           piece_table[current_index] == Piece::Bishop)) {
+        return false;
+      } else {
+        offset = right_down_steps + 1;
+      }
+    }
+  }
+
+  for (int offset = 1; offset <= right_up_steps; offset++) {
+    current_index = index + offset * 9;
+    if (color_table[current_index] != Color::Empty) {
+      if (color_table[current_index] == side_to_move &&
+          (piece_table[current_index] == Piece::Queen ||
+           piece_table[current_index] == Piece::Bishop)) {
+        return false;
+      } else {
+        offset = right_up_steps + 1;
+      }
+    }
   }
 
   return true;
