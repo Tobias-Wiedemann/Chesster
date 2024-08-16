@@ -133,33 +133,6 @@ void uciloop() {
 }
 
 int main() {
-  // uciloop();
-
-  Position p(
-      "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ");
-  MoveGenerator mg(p);
-
-  Move m(8, 24);
-  std::cout << "Pre\n";
-  print_full_board(p);
-  std::cout << "EP: " << p.en_passent_square << "\n";
-  std::cout << "Is EP: " << is_en_passent(p, m) << "\n";
-  p.make_move(m);
-  m = Move(25, 16);
-  std::cout << "Pre\n";
-  print_full_board(p);
-  std::cout << "EP: " << p.en_passent_square << "\n";
-  std::cout << "Is EP: " << is_en_passent(p, m) << "\n";
-  p.make_move(m);
-  print_full_board(p);
-  std::cout << "EP: " << p.en_passent_square << "\n";
-  std::cout << "Post\n";
-  p.unmake_move();
-  print_full_board(p);
-  std::cout << "EP: " << p.en_passent_square << "\n";
-  p.unmake_move();
-  print_full_board(p);
-  std::cout << "EP: " << p.en_passent_square << "\n";
-
+  uciloop();
   return 0;
 }
