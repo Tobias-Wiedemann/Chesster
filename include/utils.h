@@ -13,18 +13,13 @@ enum class Castling { WhiteShort, WhiteLong, BlackShort, BlackLong, None };
 struct Move {
   Move(int f, int t, Piece p = Piece::Empty)
       : from(f), to(t), promotion(p), captured_piece(Piece::Empty),
-        destroyed_kingside_castling(false), destroyed_queenside_castling(false),
         previous_en_passent_square(-1), castling(Castling::None) {}
   int from;
   int to;
   Piece promotion;
   Piece captured_piece;
-  // new
   int previous_en_passent_square;
   Castling castling;
-  // soon to go
-  bool destroyed_kingside_castling;
-  bool destroyed_queenside_castling;
 };
 
 std::string inline to_string(Piece p) {
@@ -117,9 +112,5 @@ int inline fast_log_2(double num) {
 void inline print_move(Move m) {
   std::cout << "\nFrom: " << m.from << " to: " << m.to
             << "\nPromotion: " << to_string(m.promotion)
-            << "\nCaptured: " << to_string(m.captured_piece)
-            << "\nDestroyed kingside castling: "
-            << m.destroyed_kingside_castling
-            << "\nDestroyed queenside castling: "
-            << m.destroyed_queenside_castling << "\n";
+            << "\nCaptured: " << to_string(m.captured_piece);
 }

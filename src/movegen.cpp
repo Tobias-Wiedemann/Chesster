@@ -210,21 +210,6 @@ MoveGenerator::generate_knight_moves(std::vector<Move> &res) {
   return res;
 }
 
-void MoveGenerator::rook_castling_right_helper(Move &m) {
-  if (p.white_kingside_castling_right && m.from == 7) {
-    m.destroyed_kingside_castling = true;
-  }
-  if (p.white_queenside_castling_right && m.from == 0) {
-    m.destroyed_queenside_castling = true;
-  }
-  if (p.black_kingside_castling_right && m.from == 63) {
-    m.destroyed_kingside_castling = true;
-  }
-  if (p.black_queenside_castling_right && m.from == 56) {
-    m.destroyed_queenside_castling = true;
-  }
-}
-
 std::vector<Move> &MoveGenerator::generate_rook_moves(std::vector<Move> &res) {
   uint64_t rooks =
       p.side_to_move == Color::White ? p.white_rooks : p.black_rooks;
@@ -252,7 +237,6 @@ std::vector<Move> &MoveGenerator::generate_rook_moves(std::vector<Move> &res) {
             if (p.color_table[current_index] != Color::Empty) {
               m.captured_piece = p.piece_table[current_index];
             }
-            rook_castling_right_helper(m);
             if (is_move_valid(m))
               res.push_back(m);
           }
@@ -260,7 +244,6 @@ std::vector<Move> &MoveGenerator::generate_rook_moves(std::vector<Move> &res) {
         } else {
           // empty
           Move m(index, current_index);
-          rook_castling_right_helper(m);
           if (is_move_valid(m))
             res.push_back(m);
           down_steps--;
@@ -276,7 +259,6 @@ std::vector<Move> &MoveGenerator::generate_rook_moves(std::vector<Move> &res) {
             if (p.color_table[current_index] != Color::Empty) {
               m.captured_piece = p.piece_table[current_index];
             }
-            rook_castling_right_helper(m);
             if (is_move_valid(m))
               res.push_back(m);
           }
@@ -284,7 +266,6 @@ std::vector<Move> &MoveGenerator::generate_rook_moves(std::vector<Move> &res) {
         } else {
           // empty
           Move m(index, current_index);
-          rook_castling_right_helper(m);
           if (is_move_valid(m))
             res.push_back(m);
           up_steps--;
@@ -300,7 +281,6 @@ std::vector<Move> &MoveGenerator::generate_rook_moves(std::vector<Move> &res) {
             if (p.color_table[current_index] != Color::Empty) {
               m.captured_piece = p.piece_table[current_index];
             }
-            rook_castling_right_helper(m);
             if (is_move_valid(m))
               res.push_back(m);
           }
@@ -308,7 +288,6 @@ std::vector<Move> &MoveGenerator::generate_rook_moves(std::vector<Move> &res) {
         } else {
           // empty
           Move m(index, current_index);
-          rook_castling_right_helper(m);
           if (is_move_valid(m))
             res.push_back(m);
           left_steps--;
@@ -324,7 +303,6 @@ std::vector<Move> &MoveGenerator::generate_rook_moves(std::vector<Move> &res) {
             if (p.color_table[current_index] != Color::Empty) {
               m.captured_piece = p.piece_table[current_index];
             }
-            rook_castling_right_helper(m);
             if (is_move_valid(m))
               res.push_back(m);
           }
@@ -332,7 +310,6 @@ std::vector<Move> &MoveGenerator::generate_rook_moves(std::vector<Move> &res) {
         } else {
           // empty
           Move m(index, current_index);
-          rook_castling_right_helper(m);
           if (is_move_valid(m))
             res.push_back(m);
           right_steps--;
@@ -764,23 +741,6 @@ std::vector<Move> &MoveGenerator::generate_king_moves(std::vector<Move> &res) {
     if (p.piece_table[current_index] == Piece::Empty) {
       Move m(index, current_index);
 
-      // castling right tracking
-      if (p.side_to_move == Color::White) {
-        if (p.white_kingside_castling_right) {
-          m.destroyed_kingside_castling = true;
-        }
-        if (p.white_queenside_castling_right) {
-          m.destroyed_queenside_castling = true;
-        }
-      } else {
-        if (p.black_kingside_castling_right) {
-          m.destroyed_kingside_castling = true;
-        }
-        if (p.black_queenside_castling_right) {
-          m.destroyed_queenside_castling = true;
-        }
-      }
-
       if (is_move_valid(m))
         res.push_back(m);
     } else if (p.color_table[current_index] != p.side_to_move &&
@@ -788,23 +748,6 @@ std::vector<Move> &MoveGenerator::generate_king_moves(std::vector<Move> &res) {
       // capture
       Move m(index, current_index);
       m.captured_piece = p.piece_table[current_index];
-
-      // castling right tracking
-      if (p.side_to_move == Color::White) {
-        if (p.white_kingside_castling_right) {
-          m.destroyed_kingside_castling = true;
-        }
-        if (p.white_queenside_castling_right) {
-          m.destroyed_queenside_castling = true;
-        }
-      } else {
-        if (p.black_kingside_castling_right) {
-          m.destroyed_kingside_castling = true;
-        }
-        if (p.black_queenside_castling_right) {
-          m.destroyed_queenside_castling = true;
-        }
-      }
 
       if (is_move_valid(m))
         res.push_back(m);
@@ -841,10 +784,6 @@ std::vector<Move> &MoveGenerator::generate_king_moves(std::vector<Move> &res) {
 
       if (can_castle_kingside) {
         Move m(4, 6);
-        m.destroyed_kingside_castling = true;
-        if (p.white_queenside_castling_right) {
-          m.destroyed_queenside_castling = true;
-        }
         if (is_move_valid(m))
           res.push_back(m);
       }
@@ -870,10 +809,6 @@ std::vector<Move> &MoveGenerator::generate_king_moves(std::vector<Move> &res) {
 
       if (can_castle_queenside) {
         Move m(4, 2);
-        m.destroyed_queenside_castling = true;
-        if (p.white_kingside_castling_right) {
-          m.destroyed_kingside_castling = true;
-        }
         if (is_move_valid(m))
           res.push_back(m);
       }
@@ -901,10 +836,6 @@ std::vector<Move> &MoveGenerator::generate_king_moves(std::vector<Move> &res) {
 
       if (can_castle_kingside) {
         Move m(60, 62);
-        m.destroyed_kingside_castling = true;
-        if (p.black_queenside_castling_right) {
-          m.destroyed_queenside_castling = true;
-        }
         if (is_move_valid(m))
           res.push_back(m);
       }
@@ -930,10 +861,6 @@ std::vector<Move> &MoveGenerator::generate_king_moves(std::vector<Move> &res) {
 
       if (can_castle_queenside) {
         Move m(60, 58);
-        m.destroyed_queenside_castling = true;
-        if (p.black_kingside_castling_right) {
-          m.destroyed_kingside_castling = true;
-        }
         if (is_move_valid(m))
           res.push_back(m);
       }
