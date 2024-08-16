@@ -1,8 +1,10 @@
+#include <csignal>
 #include <vector>
 
+#include "attack_masks.h"
 #include "board.h"
 #include "movegen.h"
-#include "attack_masks.h"
+#include "utils.h"
 
 bool MoveGenerator::is_move_valid(Move &m) {
   bool res = false;
@@ -145,59 +147,26 @@ std::vector<Move> &MoveGenerator::generate_pawn_moves(std::vector<Move> &res) {
   }
 
   // En Passent
-  if (p.move_history.size() > 0) {
-    Move last_move = p.move_history.back();
-    if (last_move.type == Move_Type::Regular &&
-        p.piece_table[last_move.to] == Piece::Pawn) {
-      // capture black pawn
-      if (last_move.to >= 32 && last_move.to <= 39 && last_move.from >= 48 &&
-          last_move.from <= 55) {
 
-        if (last_move.to % 8 < 7) {
-          int index = last_move.to + 1;
-          if (p.piece_table[index] == Piece::Pawn &&
-              p.color_table[index] == p.side_to_move) {
-            Move m(index, last_move.to + 8, Move_Type::En_Passent);
-            m.captured_piece = Piece::Pawn;
-            if (is_move_valid(m))
-              res.push_back(m);
-          }
-        }
-        if (last_move.to % 8 > 0) {
-          int index = last_move.to - 1;
-          if (p.piece_table[index] == Piece::Pawn &&
-              p.color_table[index] == p.side_to_move) {
-            Move m(index, last_move.to + 8, Move_Type::En_Passent);
-            m.captured_piece = Piece::Pawn;
-            if (is_move_valid(m))
-              res.push_back(m);
-          }
-        }
+  if (p.en_passent_square != -1) {
+    if (p.en_passent_square % 8 < 7) {
+      int from_index = p.side_to_move == Color::White ? p.en_passent_square - 7
+                                                      : p.en_passent_square + 9;
+      if (p.piece_table[from_index] == Piece::Pawn &&
+          p.color_table[from_index] == p.side_to_move) {
+        Move m(from_index, p.en_passent_square);
+        if (is_move_valid(m))
+          res.push_back(m);
       }
-      // capture white pawn
-      if (last_move.to >= 24 && last_move.to <= 31 && last_move.from >= 8 &&
-          last_move.from <= 15) {
-
-        if (last_move.to % 8 < 7) {
-          int index = last_move.to + 1;
-          if (p.piece_table[index] == Piece::Pawn &&
-              p.color_table[index] == p.side_to_move) {
-            Move m(index, last_move.to - 8, Move_Type::En_Passent);
-            m.captured_piece = Piece::Pawn;
-            if (is_move_valid(m))
-              res.push_back(m);
-          }
-        }
-        if (last_move.to % 8 > 0) {
-          int index = last_move.to - 1;
-          if (p.piece_table[index] == Piece::Pawn &&
-              p.color_table[index] == p.side_to_move) {
-            Move m(index, last_move.to - 8, Move_Type::En_Passent);
-            m.captured_piece = Piece::Pawn;
-            if (is_move_valid(m))
-              res.push_back(m);
-          }
-        }
+    }
+    if (p.en_passent_square % 8 > 0) {
+      int from_index = p.side_to_move == Color::White ? p.en_passent_square - 9
+                                                      : p.en_passent_square + 7;
+      if (p.piece_table[from_index] == Piece::Pawn &&
+          p.color_table[from_index] == p.side_to_move) {
+        Move m(from_index, p.en_passent_square);
+        if (is_move_valid(m))
+          res.push_back(m);
       }
     }
   }

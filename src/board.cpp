@@ -156,7 +156,8 @@ bool Position::position_is_legal() {
   // Test if side_to_move could capture the king
 
   uint64_t king = side_to_move == Color::Black ? white_kings : black_kings;
-  uint64_t enemy_king = side_to_move == Color::White ? white_kings : black_kings;
+  uint64_t enemy_king =
+      side_to_move == Color::White ? white_kings : black_kings;
 
   int king_index = fast_log_2(king);
   int enemy_king_index = fast_log_2(enemy_king);
@@ -171,7 +172,6 @@ bool Position::position_is_legal() {
 
     enemy_king_moves ^= 1ULL << current_enemy_index;
   }
-
 
   // Pawns
   int index = king_index;
@@ -628,9 +628,10 @@ void Position::unmake_move() {
     side_to_move = Color::White;
   }
 
+  en_passent_square = m.previous_en_passent_square;
+
   if (m.castling == Castling::None) {
 
-    en_passent_square = m.previous_en_passent_square;
     if (en_passent_square == m.to && piece_table[m.to] == Piece::Pawn) {
       int captured_pawn_index =
           side_to_move == Color::White ? m.to - 8 : m.to + 8;
