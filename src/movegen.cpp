@@ -219,14 +219,15 @@ std::vector<Move> &MoveGenerator::generate_rook_moves(std::vector<Move> &res) {
   while (rooks != 0) {
     int index = fast_log_2(rooks);
 
-    // true until blocked in that direction
     int down_steps = index / 8;
     int up_steps = 7 - down_steps;
     int left_steps = index % 8;
     int right_steps = 7 - left_steps;
 
+    int current_index;
+
     for (int offset = 1; offset <= left_steps; offset++) {
-      int current_index = index - offset;
+      current_index = index - offset;
       Move m(index, current_index);
       if (p.color_table[current_index] != Color::Empty) {
         offset = left_steps + 1;
@@ -236,7 +237,7 @@ std::vector<Move> &MoveGenerator::generate_rook_moves(std::vector<Move> &res) {
     }
 
     for (int offset = 1; offset <= right_steps; offset++) {
-      int current_index = index + offset;
+      current_index = index + offset;
       Move m(index, current_index);
       if (p.color_table[current_index] != Color::Empty) {
         offset = right_steps + 1;
@@ -246,7 +247,7 @@ std::vector<Move> &MoveGenerator::generate_rook_moves(std::vector<Move> &res) {
     }
 
     for (int offset = 1; offset <= up_steps; offset++) {
-      int current_index = index + offset * 8;
+      current_index = index + offset * 8;
       Move m(index, current_index);
       if (p.color_table[current_index] != Color::Empty) {
         offset = up_steps + 1;
@@ -256,7 +257,7 @@ std::vector<Move> &MoveGenerator::generate_rook_moves(std::vector<Move> &res) {
     }
 
     for (int offset = 1; offset <= down_steps; offset++) {
-      int current_index = index - offset * 8;
+      current_index = index - offset * 8;
       Move m(index, current_index);
       if (p.color_table[current_index] != Color::Empty) {
         offset = down_steps + 1;
@@ -279,14 +280,15 @@ MoveGenerator::generate_bishop_moves(std::vector<Move> &res) {
   while (bishops != 0) {
     int index = fast_log_2(bishops);
 
-    // true until blocked in that direction
     int left_down_steps = std::min(index / 8, index % 8);
     int left_up_steps = std::min(7 - (index / 8), index % 8);
     int right_down_steps = std::min(index / 8, 7 - (index % 8));
     int right_up_steps = std::min(7 - (index / 8), 7 - (index % 8));
 
+    int current_index;
+
     for (int offset = 1; offset <= left_down_steps; offset++) {
-      int current_index = index - offset * 9;
+      current_index = index - offset * 9;
       Move m(index, current_index);
       if (p.color_table[current_index] != Color::Empty) {
         offset = left_down_steps + 1;
@@ -296,7 +298,7 @@ MoveGenerator::generate_bishop_moves(std::vector<Move> &res) {
     }
 
     for (int offset = 1; offset <= left_up_steps; offset++) {
-      int current_index = index + offset * 7;
+      current_index = index + offset * 7;
       Move m(index, current_index);
       if (p.color_table[current_index] != Color::Empty) {
         offset = left_up_steps + 1;
@@ -306,7 +308,7 @@ MoveGenerator::generate_bishop_moves(std::vector<Move> &res) {
     }
 
     for (int offset = 1; offset <= right_down_steps; offset++) {
-      int current_index = index - offset * 7;
+      current_index = index - offset * 7;
       Move m(index, current_index);
       if (p.color_table[current_index] != Color::Empty) {
         offset = right_down_steps + 1;
@@ -316,7 +318,7 @@ MoveGenerator::generate_bishop_moves(std::vector<Move> &res) {
     }
 
     for (int offset = 1; offset <= right_up_steps; offset++) {
-      int current_index = index + offset * 9;
+      current_index = index + offset * 9;
       Move m(index, current_index);
       if (p.color_table[current_index] != Color::Empty) {
         offset = right_up_steps + 1;
@@ -339,216 +341,98 @@ std::vector<Move> &MoveGenerator::generate_queen_moves(std::vector<Move> &res) {
   while (queens != 0) {
     int index = fast_log_2(queens);
 
-    // true until blocked in that direction
-    int left_down_steps = std::min(index / 8, index % 8);
-    int left_up_steps = std::min(7 - (index / 8), index % 8);
-    int right_down_steps = std::min(index / 8, 7 - (index % 8));
-    int right_up_steps = std::min(7 - (index / 8), 7 - (index % 8));
-
-    // Important, go from inside outwards
-    int current_offset = 1;
-
-    while (left_down_steps || left_up_steps || right_down_steps ||
-           right_up_steps) {
-      if (left_down_steps) {
-        int current_index = index - current_offset * 9;
-        uint64_t current_square = (1ULL << current_index) & p.empty_squares;
-        if (current_square == 0) {
-          // hit something
-          if (p.color_table[current_index] != p.side_to_move) {
-            Move m(index, current_index);
-            if (p.color_table[current_index] != Color::Empty) {
-              m.captured_piece = p.piece_table[current_index];
-            }
-            if (is_move_valid(m))
-              res.push_back(m);
-          }
-          left_down_steps = 0;
-        } else {
-          // empty
-          Move m(index, current_index);
-          if (is_move_valid(m))
-            res.push_back(m);
-          left_down_steps--;
-        }
-      }
-      if (left_up_steps) {
-        int current_index = index + current_offset * 7;
-        uint64_t current_square = (1ULL << current_index) & p.empty_squares;
-        if (current_square == 0) {
-          // hit something
-          if (p.color_table[current_index] != p.side_to_move) {
-            Move m(index, current_index);
-            if (p.color_table[current_index] != Color::Empty) {
-              m.captured_piece = p.piece_table[current_index];
-            }
-            if (is_move_valid(m))
-              res.push_back(m);
-          }
-          left_up_steps = 0;
-        } else {
-          // empty
-          Move m(index, current_index);
-          if (is_move_valid(m))
-            res.push_back(m);
-          left_up_steps--;
-        }
-      }
-      if (right_down_steps) {
-        int current_index = index - current_offset * 7;
-        uint64_t current_square = (1ULL << current_index) & p.empty_squares;
-        if (current_square == 0) {
-          // hit something
-          if (p.color_table[current_index] != p.side_to_move) {
-            Move m(index, current_index);
-            if (p.color_table[current_index] != Color::Empty) {
-              m.captured_piece = p.piece_table[current_index];
-            }
-            if (is_move_valid(m))
-              res.push_back(m);
-          }
-          right_down_steps = 0;
-        } else {
-          // empty
-          Move m(index, current_index);
-          if (is_move_valid(m))
-            res.push_back(m);
-          right_down_steps--;
-        }
-      }
-      if (right_up_steps) {
-        int current_index = index + current_offset * 9;
-        uint64_t current_square = (1ULL << current_index) & p.empty_squares;
-        if (current_square == 0) {
-          // hit something
-          if (p.color_table[current_index] != p.side_to_move) {
-            Move m(index, current_index);
-            if (p.color_table[current_index] != Color::Empty) {
-              m.captured_piece = p.piece_table[current_index];
-            }
-            if (is_move_valid(m))
-              res.push_back(m);
-          }
-          right_up_steps = 0;
-        } else {
-          // empty
-          Move m(index, current_index);
-          if (is_move_valid(m))
-            res.push_back(m);
-          right_up_steps--;
-        }
-      }
-      current_offset++;
-    }
-    queens ^= 1ULL << index;
-  }
-
-  // resetting for rook pattern
-  queens = p.side_to_move == Color::White ? p.white_queens : p.black_queens;
-
-  while (queens != 0) {
-    int index = fast_log_2(queens);
-
-    // true until blocked in that direction
     int down_steps = index / 8;
     int up_steps = 7 - down_steps;
     int left_steps = index % 8;
     int right_steps = 7 - left_steps;
 
-    // Important, go from inside outwards
-    int current_offset = 1;
+    int left_down_steps = std::min(index / 8, index % 8);
+    int left_up_steps = std::min(7 - (index / 8), index % 8);
+    int right_down_steps = std::min(index / 8, 7 - (index % 8));
+    int right_up_steps = std::min(7 - (index / 8), 7 - (index % 8));
 
-    while (down_steps || up_steps || left_steps || right_steps) {
-      if (down_steps) {
-        int current_index = index - current_offset * 8;
-        uint64_t current_square = (1ULL << current_index) & p.empty_squares;
-        if (current_square == 0) {
-          // hit something
-          if (p.color_table[current_index] != p.side_to_move) {
-            Move m(index, current_index);
-            if (p.color_table[current_index] != Color::Empty) {
-              m.captured_piece = p.piece_table[current_index];
-            }
-            if (is_move_valid(m))
-              res.push_back(m);
-          }
-          down_steps = 0;
-        } else {
-          // empty
-          Move m(index, current_index);
-          if (is_move_valid(m))
-            res.push_back(m);
-          down_steps--;
-        }
+    int current_index;
+
+    for (int offset = 1; offset <= left_steps; offset++) {
+      current_index = index - offset;
+      Move m(index, current_index);
+      if (p.color_table[current_index] != Color::Empty) {
+        offset = left_steps + 1;
       }
-      if (up_steps) {
-        int current_index = index + current_offset * 8;
-        uint64_t current_square = (1ULL << current_index) & p.empty_squares;
-        if (current_square == 0) {
-          // hit something
-          if (p.color_table[current_index] != p.side_to_move) {
-            Move m(index, current_index);
-            if (p.color_table[current_index] != Color::Empty) {
-              m.captured_piece = p.piece_table[current_index];
-            }
-            if (is_move_valid(m))
-              res.push_back(m);
-          }
-          up_steps = 0;
-        } else {
-          // empty
-          Move m(index, current_index);
-          if (is_move_valid(m))
-            res.push_back(m);
-          up_steps--;
-        }
-      }
-      if (left_steps) {
-        int current_index = index - current_offset;
-        uint64_t current_square = (1ULL << current_index) & p.empty_squares;
-        if (current_square == 0) {
-          // hit something
-          if (p.color_table[current_index] != p.side_to_move) {
-            Move m(index, current_index);
-            if (p.color_table[current_index] != Color::Empty) {
-              m.captured_piece = p.piece_table[current_index];
-            }
-            if (is_move_valid(m))
-              res.push_back(m);
-          }
-          left_steps = 0;
-        } else {
-          // empty
-          Move m(index, current_index);
-          if (is_move_valid(m))
-            res.push_back(m);
-          left_steps--;
-        }
-      }
-      if (right_steps) {
-        int current_index = index + current_offset;
-        uint64_t current_square = (1ULL << current_index) & p.empty_squares;
-        if (current_square == 0) {
-          // hit something
-          if (p.color_table[current_index] != p.side_to_move) {
-            Move m(index, current_index);
-            if (p.color_table[current_index] != Color::Empty) {
-              m.captured_piece = p.piece_table[current_index];
-            }
-            if (is_move_valid(m))
-              res.push_back(m);
-          }
-          right_steps = 0;
-        } else {
-          // empty
-          Move m(index, current_index);
-          if (is_move_valid(m))
-            res.push_back(m);
-          right_steps--;
-        }
-      }
-      current_offset++;
+      if (is_move_valid(m))
+        res.push_back(m);
     }
+
+    for (int offset = 1; offset <= right_steps; offset++) {
+      current_index = index + offset;
+      Move m(index, current_index);
+      if (p.color_table[current_index] != Color::Empty) {
+        offset = right_steps + 1;
+      }
+      if (is_move_valid(m))
+        res.push_back(m);
+    }
+
+    for (int offset = 1; offset <= up_steps; offset++) {
+      current_index = index + offset * 8;
+      Move m(index, current_index);
+      if (p.color_table[current_index] != Color::Empty) {
+        offset = up_steps + 1;
+      }
+      if (is_move_valid(m))
+        res.push_back(m);
+    }
+
+    for (int offset = 1; offset <= down_steps; offset++) {
+      current_index = index - offset * 8;
+      Move m(index, current_index);
+      if (p.color_table[current_index] != Color::Empty) {
+        offset = down_steps + 1;
+      }
+      if (is_move_valid(m))
+        res.push_back(m);
+    }
+
+    for (int offset = 1; offset <= left_down_steps; offset++) {
+      current_index = index - offset * 9;
+      Move m(index, current_index);
+      if (p.color_table[current_index] != Color::Empty) {
+        offset = left_down_steps + 1;
+      }
+      if (is_move_valid(m))
+        res.push_back(m);
+    }
+
+    for (int offset = 1; offset <= left_up_steps; offset++) {
+      current_index = index + offset * 7;
+      Move m(index, current_index);
+      if (p.color_table[current_index] != Color::Empty) {
+        offset = left_up_steps + 1;
+      }
+      if (is_move_valid(m))
+        res.push_back(m);
+    }
+
+    for (int offset = 1; offset <= right_down_steps; offset++) {
+      current_index = index - offset * 7;
+      Move m(index, current_index);
+      if (p.color_table[current_index] != Color::Empty) {
+        offset = right_down_steps + 1;
+      }
+      if (is_move_valid(m))
+        res.push_back(m);
+    }
+
+    for (int offset = 1; offset <= right_up_steps; offset++) {
+      current_index = index + offset * 9;
+      Move m(index, current_index);
+      if (p.color_table[current_index] != Color::Empty) {
+        offset = right_up_steps + 1;
+      }
+      if (is_move_valid(m))
+        res.push_back(m);
+    }
+
     queens ^= 1ULL << index;
   }
   return res;
