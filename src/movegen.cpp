@@ -52,7 +52,6 @@ std::vector<Move> &MoveGenerator::generate_pawn_moves(std::vector<Move> &res) {
       if (is_move_valid(m))
         res.push_back(m);
     } else {
-      m.type = Move_Type::Promotion;
       m.promotion = Piece::Queen;
       if (is_move_valid(m))
         res.push_back(m);
@@ -91,13 +90,12 @@ std::vector<Move> &MoveGenerator::generate_pawn_moves(std::vector<Move> &res) {
           p.side_to_move == Color::White ? index + 9 : index - 7;
       if (p.piece_table[attacked_index] != Piece::Empty &&
           p.color_table[attacked_index] != p.side_to_move) {
-        Move m(index, attacked_index, Move_Type::Capture);
+        Move m(index, attacked_index);
         m.captured_piece = p.piece_table[attacked_index];
         if (attacked_index < 56 && attacked_index > 8) {
           if (is_move_valid(m))
             res.push_back(m);
         } else {
-          m.type = Move_Type::Capture_Promotion;
           m.promotion = Piece::Queen;
           if (is_move_valid(m))
             res.push_back(m);
@@ -120,13 +118,12 @@ std::vector<Move> &MoveGenerator::generate_pawn_moves(std::vector<Move> &res) {
           p.side_to_move == Color::White ? index + 7 : index - 9;
       if (p.piece_table[attacked_index] != Piece::Empty &&
           p.color_table[attacked_index] != p.side_to_move) {
-        Move m(index, attacked_index, Move_Type::Capture);
+        Move m(index, attacked_index);
         m.captured_piece = p.piece_table[attacked_index];
         if (attacked_index < 56 && attacked_index > 8) {
           if (is_move_valid(m))
             res.push_back(m);
         } else {
-          m.type = Move_Type::Capture_Promotion;
           m.promotion = Piece::Queen;
           if (is_move_valid(m))
             res.push_back(m);
@@ -199,7 +196,6 @@ MoveGenerator::generate_knight_moves(std::vector<Move> &res) {
         // capture
         Move m(index, current_index);
         if (p.color_table[current_index] != Color::Empty) {
-          m.type = Move_Type::Capture;
           m.captured_piece = p.piece_table[current_index];
         }
         if (is_move_valid(m))
@@ -254,7 +250,6 @@ std::vector<Move> &MoveGenerator::generate_rook_moves(std::vector<Move> &res) {
           if (p.color_table[current_index] != p.side_to_move) {
             Move m(index, current_index);
             if (p.color_table[current_index] != Color::Empty) {
-              m.type = Move_Type::Capture;
               m.captured_piece = p.piece_table[current_index];
             }
             rook_castling_right_helper(m);
@@ -279,7 +274,6 @@ std::vector<Move> &MoveGenerator::generate_rook_moves(std::vector<Move> &res) {
           if (p.color_table[current_index] != p.side_to_move) {
             Move m(index, current_index);
             if (p.color_table[current_index] != Color::Empty) {
-              m.type = Move_Type::Capture;
               m.captured_piece = p.piece_table[current_index];
             }
             rook_castling_right_helper(m);
@@ -304,7 +298,6 @@ std::vector<Move> &MoveGenerator::generate_rook_moves(std::vector<Move> &res) {
           if (p.color_table[current_index] != p.side_to_move) {
             Move m(index, current_index);
             if (p.color_table[current_index] != Color::Empty) {
-              m.type = Move_Type::Capture;
               m.captured_piece = p.piece_table[current_index];
             }
             rook_castling_right_helper(m);
@@ -329,7 +322,6 @@ std::vector<Move> &MoveGenerator::generate_rook_moves(std::vector<Move> &res) {
           if (p.color_table[current_index] != p.side_to_move) {
             Move m(index, current_index);
             if (p.color_table[current_index] != Color::Empty) {
-              m.type = Move_Type::Capture;
               m.captured_piece = p.piece_table[current_index];
             }
             rook_castling_right_helper(m);
@@ -381,7 +373,6 @@ MoveGenerator::generate_bishop_moves(std::vector<Move> &res) {
           if (p.color_table[current_index] != p.side_to_move) {
             Move m(index, current_index);
             if (p.color_table[current_index] != Color::Empty) {
-              m.type = Move_Type::Capture;
               m.captured_piece = p.piece_table[current_index];
             }
             if (is_move_valid(m))
@@ -404,7 +395,6 @@ MoveGenerator::generate_bishop_moves(std::vector<Move> &res) {
           if (p.color_table[current_index] != p.side_to_move) {
             Move m(index, current_index);
             if (p.color_table[current_index] != Color::Empty) {
-              m.type = Move_Type::Capture;
               m.captured_piece = p.piece_table[current_index];
             }
             if (is_move_valid(m))
@@ -427,7 +417,6 @@ MoveGenerator::generate_bishop_moves(std::vector<Move> &res) {
           if (p.color_table[current_index] != p.side_to_move) {
             Move m(index, current_index);
             if (p.color_table[current_index] != Color::Empty) {
-              m.type = Move_Type::Capture;
               m.captured_piece = p.piece_table[current_index];
             }
             if (is_move_valid(m))
@@ -450,7 +439,6 @@ MoveGenerator::generate_bishop_moves(std::vector<Move> &res) {
           if (p.color_table[current_index] != p.side_to_move) {
             Move m(index, current_index);
             if (p.color_table[current_index] != Color::Empty) {
-              m.type = Move_Type::Capture;
               m.captured_piece = p.piece_table[current_index];
             }
             if (is_move_valid(m))
@@ -500,7 +488,6 @@ std::vector<Move> &MoveGenerator::generate_queen_moves(std::vector<Move> &res) {
           if (p.color_table[current_index] != p.side_to_move) {
             Move m(index, current_index);
             if (p.color_table[current_index] != Color::Empty) {
-              m.type = Move_Type::Capture;
               m.captured_piece = p.piece_table[current_index];
             }
             if (is_move_valid(m))
@@ -523,7 +510,6 @@ std::vector<Move> &MoveGenerator::generate_queen_moves(std::vector<Move> &res) {
           if (p.color_table[current_index] != p.side_to_move) {
             Move m(index, current_index);
             if (p.color_table[current_index] != Color::Empty) {
-              m.type = Move_Type::Capture;
               m.captured_piece = p.piece_table[current_index];
             }
             if (is_move_valid(m))
@@ -546,7 +532,6 @@ std::vector<Move> &MoveGenerator::generate_queen_moves(std::vector<Move> &res) {
           if (p.color_table[current_index] != p.side_to_move) {
             Move m(index, current_index);
             if (p.color_table[current_index] != Color::Empty) {
-              m.type = Move_Type::Capture;
               m.captured_piece = p.piece_table[current_index];
             }
             if (is_move_valid(m))
@@ -569,7 +554,6 @@ std::vector<Move> &MoveGenerator::generate_queen_moves(std::vector<Move> &res) {
           if (p.color_table[current_index] != p.side_to_move) {
             Move m(index, current_index);
             if (p.color_table[current_index] != Color::Empty) {
-              m.type = Move_Type::Capture;
               m.captured_piece = p.piece_table[current_index];
             }
             if (is_move_valid(m))
@@ -613,7 +597,6 @@ std::vector<Move> &MoveGenerator::generate_queen_moves(std::vector<Move> &res) {
           if (p.color_table[current_index] != p.side_to_move) {
             Move m(index, current_index);
             if (p.color_table[current_index] != Color::Empty) {
-              m.type = Move_Type::Capture;
               m.captured_piece = p.piece_table[current_index];
             }
             if (is_move_valid(m))
@@ -636,7 +619,6 @@ std::vector<Move> &MoveGenerator::generate_queen_moves(std::vector<Move> &res) {
           if (p.color_table[current_index] != p.side_to_move) {
             Move m(index, current_index);
             if (p.color_table[current_index] != Color::Empty) {
-              m.type = Move_Type::Capture;
               m.captured_piece = p.piece_table[current_index];
             }
             if (is_move_valid(m))
@@ -659,7 +641,6 @@ std::vector<Move> &MoveGenerator::generate_queen_moves(std::vector<Move> &res) {
           if (p.color_table[current_index] != p.side_to_move) {
             Move m(index, current_index);
             if (p.color_table[current_index] != Color::Empty) {
-              m.type = Move_Type::Capture;
               m.captured_piece = p.piece_table[current_index];
             }
             if (is_move_valid(m))
@@ -682,7 +663,6 @@ std::vector<Move> &MoveGenerator::generate_queen_moves(std::vector<Move> &res) {
           if (p.color_table[current_index] != p.side_to_move) {
             Move m(index, current_index);
             if (p.color_table[current_index] != Color::Empty) {
-              m.type = Move_Type::Capture;
               m.captured_piece = p.piece_table[current_index];
             }
             if (is_move_valid(m))
@@ -806,7 +786,7 @@ std::vector<Move> &MoveGenerator::generate_king_moves(std::vector<Move> &res) {
     } else if (p.color_table[current_index] != p.side_to_move &&
                p.color_table[current_index] != Color::Empty) {
       // capture
-      Move m(index, current_index, Move_Type::Capture);
+      Move m(index, current_index);
       m.captured_piece = p.piece_table[current_index];
 
       // castling right tracking
@@ -860,7 +840,7 @@ std::vector<Move> &MoveGenerator::generate_king_moves(std::vector<Move> &res) {
       }
 
       if (can_castle_kingside) {
-        Move m(4, 6, Move_Type::Short_Castle);
+        Move m(4, 6);
         m.destroyed_kingside_castling = true;
         if (p.white_queenside_castling_right) {
           m.destroyed_queenside_castling = true;
@@ -889,7 +869,7 @@ std::vector<Move> &MoveGenerator::generate_king_moves(std::vector<Move> &res) {
       }
 
       if (can_castle_queenside) {
-        Move m(4, 2, Move_Type::Long_Castle);
+        Move m(4, 2);
         m.destroyed_queenside_castling = true;
         if (p.white_kingside_castling_right) {
           m.destroyed_kingside_castling = true;
@@ -920,7 +900,7 @@ std::vector<Move> &MoveGenerator::generate_king_moves(std::vector<Move> &res) {
       }
 
       if (can_castle_kingside) {
-        Move m(60, 62, Move_Type::Short_Castle);
+        Move m(60, 62);
         m.destroyed_kingside_castling = true;
         if (p.black_queenside_castling_right) {
           m.destroyed_queenside_castling = true;
@@ -949,7 +929,7 @@ std::vector<Move> &MoveGenerator::generate_king_moves(std::vector<Move> &res) {
       }
 
       if (can_castle_queenside) {
-        Move m(60, 58, Move_Type::Long_Castle);
+        Move m(60, 58);
         m.destroyed_queenside_castling = true;
         if (p.black_kingside_castling_right) {
           m.destroyed_kingside_castling = true;
