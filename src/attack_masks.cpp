@@ -28,6 +28,8 @@ std::vector<uint64_t> knight_masks = {
     0x0020400000000000ULL,
 };
 
+// TODO: I included the square on which the king stands on. That's useless.
+// Remove that for slight optimization
 std::vector<uint64_t> king_masks = {
     0x0000000000000303ULL, 0x0000000000000707ULL, 0x0000000000000E0EULL,
     0x0000000000001C1CULL, 0x0000000000003838ULL, 0x0000000000007070ULL,
@@ -52,4 +54,3 @@ std::vector<uint64_t> king_masks = {
     0x3838000000000000ULL, 0x7070000000000000ULL, 0xE0E0000000000000ULL,
     0xC0C0000000000000ULL,
 };
-
