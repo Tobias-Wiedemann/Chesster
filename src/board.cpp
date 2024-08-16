@@ -524,22 +524,26 @@ void Position::make_move(Move m) {
         set_piece(Piece::Empty, 7, Color::Empty);
         set_piece(Piece::Rook, 5, Color::White);
         m.castling = Castling::WhiteShort;
+        white_kingside_castling_right = false;
       }
       if (m.to == 2) {
         set_piece(Piece::Empty, 0, Color::Empty);
         set_piece(Piece::Rook, 3, Color::White);
         m.castling = Castling::WhiteLong;
+        white_queenside_castling_right = false;
       }
     } else if (m.from == 60) {
       if (m.to == 62) {
         set_piece(Piece::Empty, 63, Color::Empty);
         set_piece(Piece::Rook, 61, Color::Black);
         m.castling = Castling::BlackShort;
+        black_kingside_castling_right = false;
       }
       if (m.to == 58) {
         set_piece(Piece::Empty, 56, Color::Empty);
         set_piece(Piece::Rook, 59, Color::Black);
         m.castling = Castling::BlackLong;
+        black_queenside_castling_right = false;
       }
     }
   }
@@ -590,24 +594,28 @@ void Position::unmake_move() {
       set_piece(Piece::Empty, 6, Color::Empty);
       set_piece(Piece::King, 4, Color::White);
       set_piece(Piece::Rook, 7, Color::White);
+      white_kingside_castling_right = true;
       break;
     case Castling::WhiteLong:
       set_piece(Piece::Empty, 2, Color::Empty);
       set_piece(Piece::Empty, 3, Color::Empty);
       set_piece(Piece::King, 4, Color::White);
       set_piece(Piece::Rook, 0, Color::White);
+      white_queenside_castling_right = true;
       break;
     case Castling::BlackShort:
       set_piece(Piece::Empty, 61, Color::Empty);
       set_piece(Piece::Empty, 62, Color::Empty);
       set_piece(Piece::King, 60, Color::Black);
       set_piece(Piece::Rook, 63, Color::Black);
+      black_kingside_castling_right = true;
       break;
     case Castling::BlackLong:
       set_piece(Piece::Empty, 58, Color::Empty);
       set_piece(Piece::Empty, 59, Color::Empty);
       set_piece(Piece::King, 60, Color::Black);
       set_piece(Piece::Rook, 56, Color::Black);
+      black_queenside_castling_right = true;
       break;
     case Castling::None:
       break;
