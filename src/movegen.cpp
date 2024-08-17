@@ -50,7 +50,7 @@ std::vector<Move> &MoveGenerator::generate_pawn_moves(std::vector<Move> &res) {
 
     Move m(index, index);
     m.to = p.side_to_move == Color::White ? index + 8 : index - 8;
-    if (m.to < 56 && m.to > 8) {
+    if (m.to < 56 && m.to > 7) {
       if (is_move_valid(m))
         res.push_back(m);
     } else {

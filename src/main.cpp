@@ -134,11 +134,11 @@ int main() {
   // Position p("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
   Position p(
       "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -");
-  Move m(8, 24);
+  Move m(8, 16);
   p.make_move(m);
-  m = Move(25, 17);
+  m = Move(25, 16);
   p.make_move(m);
-  m = Move(18, 8);
+  m = Move(9, 17);
   p.make_move(m);
 
   Perft myp(p);
