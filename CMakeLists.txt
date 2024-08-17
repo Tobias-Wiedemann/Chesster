@@ -33,7 +33,8 @@ add_executable(perft_pos2_d1 src/board.cpp src/perft.cpp src/movegen.cpp src/att
 add_executable(perft_pos2_d2 src/board.cpp src/perft.cpp src/movegen.cpp src/attack_masks.cpp tests/perft_pos2_d2.cpp)
 add_executable(perft_pos2_d3 src/board.cpp src/perft.cpp src/movegen.cpp src/attack_masks.cpp tests/perft_pos2_d3.cpp)
 add_executable(perft_pos2_d4 src/board.cpp src/perft.cpp src/movegen.cpp src/attack_masks.cpp tests/perft_pos2_d4.cpp)
-add_executable(perft_pos2_d5 src/board.cpp src/perft.cpp src/movegen.cpp src/attack_masks.cpp tests/perft_pos2_d5.cpp)
+
+add_executable(qperft_pos2_d5 src/board.cpp src/perft.cpp src/movegen.cpp src/attack_masks.cpp tests/qperft_pos2_d5.cpp)
 
 add_executable(perft_pos3_d1 src/board.cpp src/perft.cpp src/movegen.cpp src/attack_masks.cpp tests/perft_pos3_d1.cpp)
 add_executable(perft_pos3_d2 src/board.cpp src/perft.cpp src/movegen.cpp src/attack_masks.cpp tests/perft_pos3_d2.cpp)
@@ -65,7 +66,8 @@ add_test(NAME perft_pos2_d1 COMMAND perft_pos2_d1)
 add_test(NAME perft_pos2_d2 COMMAND perft_pos2_d2)
 add_test(NAME perft_pos2_d3 COMMAND perft_pos2_d3)
 add_test(NAME perft_pos2_d4 COMMAND perft_pos2_d4)
-add_test(NAME perft_pos2_d5 COMMAND perft_pos2_d5)
+
+add_test(NAME qperft_pos2_d5 COMMAND qperft_pos2_d5)
 
 add_test(NAME perft_pos3_d1 COMMAND perft_pos3_d1)
 add_test(NAME perft_pos3_d2 COMMAND perft_pos3_d2)

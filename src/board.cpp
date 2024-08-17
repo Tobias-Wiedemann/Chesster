@@ -491,6 +491,49 @@ void Position::make_move(Move m) {
     exit(1);
   }
 
+  // Castling right tracking
+  if (moving_piece == Piece::King) {
+    if (side_to_move == Color::White) {
+      m.king_destroyed_short_castle = white_kingside_castling_right;
+      m.king_destroyed_long_castle = white_queenside_castling_right;
+      white_kingside_castling_right = false;
+      white_queenside_castling_right = false;
+    } else {
+      m.king_destroyed_short_castle = black_kingside_castling_right;
+      m.king_destroyed_long_castle = black_queenside_castling_right;
+      black_kingside_castling_right = false;
+      black_queenside_castling_right = false;
+    }
+  } else if (moving_piece == Piece::Rook) {
+    if (side_to_move == Color::White) {
+      if (white_kingside_castling_right) {
+        if (m.from == 7) {
+          m.rook_destroyed_castle = true;
+          white_kingside_castling_right = false;
+        }
+      }
+      if (white_queenside_castling_right) {
+        if (m.from == 0) {
+          m.rook_destroyed_castle = true;
+          white_queenside_castling_right = false;
+        }
+      }
+    } else {
+      if (black_kingside_castling_right) {
+        if (m.from == 63) {
+          m.rook_destroyed_castle = true;
+          black_kingside_castling_right = false;
+        }
+      }
+      if (black_queenside_castling_right) {
+        if (m.from == 56) {
+          m.rook_destroyed_castle = true;
+          black_queenside_castling_right = false;
+        }
+      }
+    }
+  }
+
   // En Passent
   if (is_en_passent(*this, m)) {
     int captured_pawn_index =
@@ -565,6 +608,36 @@ void Position::unmake_move() {
     side_to_move = Color::Black;
   } else {
     side_to_move = Color::White;
+  }
+
+  if (m.king_destroyed_short_castle) {
+    if (side_to_move == Color::White) {
+      white_kingside_castling_right = true;
+    } else {
+      black_kingside_castling_right = true;
+    }
+  }
+  if (m.king_destroyed_long_castle) {
+    if (side_to_move == Color::White) {
+      white_queenside_castling_right = true;
+    } else {
+      black_queenside_castling_right = true;
+    }
+  }
+  if (m.rook_destroyed_castle) {
+    if (side_to_move == Color::White) {
+      if (m.from == 7) {
+        white_kingside_castling_right = true;
+      } else {
+        white_queenside_castling_right = true;
+      }
+    } else {
+      if (m.from == 63) {
+        black_kingside_castling_right = true;
+      } else {
+        black_queenside_castling_right = true;
+      }
+    }
   }
 
   en_passent_square = m.previous_en_passent_square;

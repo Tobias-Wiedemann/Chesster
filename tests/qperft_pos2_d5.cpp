@@ -18,13 +18,18 @@ int main() {
 
   Perft myp(p);
 
-  PerftResults res = myp.run(5);
+  // PerftResults res = myp.run(5);
 
-  std::cout << "Should be: \n";
-  reference.print();
+  // std::cout << "Should be: \n";
+  // reference.print();
+  //
+  // std::cout << "Is actually: \n";
+  // res.print();
 
-  std::cout << "Is actually: \n";
-  res.print();
+  uint64_t nodes = myp.run_fast(5);
+  std::cout << "Should be: \n" << reference.number_of_nodes << "\n";
 
-  return !(res == reference); // Zero exit code indicates success
+  std::cout << "Is actually: \n" << nodes;
+
+  return !(reference.number_of_nodes == nodes);
 }

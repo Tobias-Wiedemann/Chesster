@@ -134,21 +134,24 @@ int main() {
   // Position p("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
   Position p(
       "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -");
-  Move m(8, 16);
+  std::cout << p.white_queenside_castling_right << "\n";
+  Move m(0, 1);
   p.make_move(m);
-  m = Move(25, 16);
+  std::cout << p.white_queenside_castling_right << "\n";
+  m = Move(25, 17);
   p.make_move(m);
-  m = Move(9, 17);
+  std::cout << p.white_queenside_castling_right << "\n";
+  m = Move(1, 0);
   p.make_move(m);
+  std::cout << p.white_queenside_castling_right << "\n";
 
   Perft myp(p);
 
-  PerftResults res = myp.run(1);
-
-  if (res.number_of_nodes == myp.run_debug(1))
-    std::cout << "consistant";
-  std::cout << " it is\n";
-  std::cout << "\nleaf nodes: " << res.number_of_nodes << "\n";
-
+  // uint64_t res = myp.run_debug(5);
+  // uint64_t ref = 193690690;
+  //
+  // std::cout << "\nshould be: " << ref << "\n";
+  // std::cout << "\nleaf nodes: " << res << "\n";
+  //
   return 0;
 }
