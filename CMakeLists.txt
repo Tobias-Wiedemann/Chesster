@@ -48,6 +48,19 @@ add_executable(perft_pos4_d3 src/board.cpp src/perft.cpp src/movegen.cpp src/att
 add_executable(perft_pos4_d4 src/board.cpp src/perft.cpp src/movegen.cpp src/attack_masks.cpp tests/perft_pos4_d4.cpp)
 add_executable(perft_pos4_d5 src/board.cpp src/perft.cpp src/movegen.cpp src/attack_masks.cpp tests/perft_pos4_d5.cpp)
 
+add_executable(qperft_pos5_d1 src/board.cpp src/perft.cpp src/movegen.cpp src/attack_masks.cpp tests/qperft_pos5_d1.cpp)
+add_executable(qperft_pos5_d2 src/board.cpp src/perft.cpp src/movegen.cpp src/attack_masks.cpp tests/qperft_pos5_d2.cpp)
+add_executable(qperft_pos5_d3 src/board.cpp src/perft.cpp src/movegen.cpp src/attack_masks.cpp tests/qperft_pos5_d3.cpp)
+add_executable(qperft_pos5_d4 src/board.cpp src/perft.cpp src/movegen.cpp src/attack_masks.cpp tests/qperft_pos5_d4.cpp)
+add_executable(qperft_pos5_d5 src/board.cpp src/perft.cpp src/movegen.cpp src/attack_masks.cpp tests/qperft_pos5_d5.cpp)
+
+add_executable(qperft_pos6_d1 src/board.cpp src/perft.cpp src/movegen.cpp src/attack_masks.cpp tests/qperft_pos6_d1.cpp)
+add_executable(qperft_pos6_d2 src/board.cpp src/perft.cpp src/movegen.cpp src/attack_masks.cpp tests/qperft_pos6_d2.cpp)
+add_executable(qperft_pos6_d3 src/board.cpp src/perft.cpp src/movegen.cpp src/attack_masks.cpp tests/qperft_pos6_d3.cpp)
+add_executable(qperft_pos6_d4 src/board.cpp src/perft.cpp src/movegen.cpp src/attack_masks.cpp tests/qperft_pos6_d4.cpp)
+add_executable(qperft_pos6_d5 src/board.cpp src/perft.cpp src/movegen.cpp src/attack_masks.cpp tests/qperft_pos6_d5.cpp)
+
+
 # Enable testing with CTest
 enable_testing()
 
@@ -80,4 +93,16 @@ add_test(NAME perft_pos4_d2 COMMAND perft_pos4_d2)
 add_test(NAME perft_pos4_d3 COMMAND perft_pos4_d3)
 add_test(NAME perft_pos4_d4 COMMAND perft_pos4_d4)
 add_test(NAME perft_pos4_d5 COMMAND perft_pos4_d5)
+
+add_test(NAME qperft_pos5_d1 COMMAND qperft_pos5_d1)
+add_test(NAME qperft_pos5_d2 COMMAND qperft_pos5_d2)
+add_test(NAME qperft_pos5_d3 COMMAND qperft_pos5_d3)
+add_test(NAME qperft_pos5_d4 COMMAND qperft_pos5_d4)
+add_test(NAME qperft_pos5_d5 COMMAND qperft_pos5_d5)
+
+add_test(NAME qperft_pos6_d1 COMMAND qperft_pos6_d1)
+add_test(NAME qperft_pos6_d2 COMMAND qperft_pos6_d2)
+add_test(NAME qperft_pos6_d3 COMMAND qperft_pos6_d3)
+add_test(NAME qperft_pos6_d4 COMMAND qperft_pos6_d4)
+add_test(NAME qperft_pos6_d5 COMMAND qperft_pos6_d5)
 
