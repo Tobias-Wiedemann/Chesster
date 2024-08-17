@@ -501,6 +501,7 @@ std::vector<Move> &MoveGenerator::generate_king_moves(std::vector<Move> &res) {
     if (p.white_queenside_castling_right) {
       bool can_castle_queenside = p.piece_table[3] == Piece::Empty &&
                                   p.piece_table[2] == Piece::Empty &&
+                                  p.piece_table[1] == Piece::Empty &&
                                   p.piece_table[0] == Piece::Rook &&
                                   p.color_table[0] == p.side_to_move;
 
@@ -553,6 +554,7 @@ std::vector<Move> &MoveGenerator::generate_king_moves(std::vector<Move> &res) {
     if (p.black_queenside_castling_right) {
       bool can_castle_queenside = p.piece_table[59] == Piece::Empty &&
                                   p.piece_table[58] == Piece::Empty &&
+                                  p.piece_table[57] == Piece::Empty &&
                                   p.piece_table[56] == Piece::Rook &&
                                   p.color_table[56] == p.side_to_move;
 

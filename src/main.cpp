@@ -129,6 +129,21 @@ void uciloop() {
 }
 
 int main() {
-  uciloop();
+  // uciloop();
+  // r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -
+  // Position p("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+  Position p(
+      "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -");
+  Move m(0, 0);
+
+  Perft myp(p);
+
+  PerftResults res = myp.run(3);
+
+  if (res.number_of_nodes == myp.run_debug(3))
+    std::cout << "consistant";
+  std::cout << " it is\n";
+  std::cout << "\nleaf nodes: " << res.number_of_nodes << "\n";
+
   return 0;
 }

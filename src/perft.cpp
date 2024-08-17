@@ -30,6 +30,22 @@ uint64_t Perft::run_fast(int depth) {
   return nodes;
 }
 
+uint64_t Perft::run_debug(int depth) {
+  MoveGenerator movegen(p);
+  std::vector<Move> move_list = movegen.generate_moves();
+
+  uint64_t nodes = 0;
+  for (auto m : move_list) {
+    p.make_move(m);
+    uint64_t local_nodes = run_fast(depth - 1);
+    nodes += local_nodes;
+    print_move_compact(m);
+    std::cout << ": " << local_nodes << "\n";
+    p.unmake_move();
+  }
+  return nodes;
+}
+
 PerftResults Perft::run(int depth) {
 
   res = PerftResults();

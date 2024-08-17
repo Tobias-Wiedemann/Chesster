@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <iostream>
 
+#include "board.h"
+
 struct Move;
 struct Position;
 
@@ -45,6 +47,8 @@ public:
   PerftResults res;
 
   uint64_t run_fast(int depth);
+
+  uint64_t run_debug(int depth);
 
   PerftResults run(int depth);
 
