@@ -7,7 +7,7 @@ int main() {
   reference.number_of_nodes = 43238;
   reference.number_of_captures = 3348;
   reference.number_of_en_passent = 123;
-  reference.number_of_castles = 2;
+  reference.number_of_castles = 0;
   reference.number_of_promotions = 0;
   reference.number_of_checks = 1680;
   reference.number_of_checkmates = 17;
