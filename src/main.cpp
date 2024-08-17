@@ -134,13 +134,18 @@ int main() {
   // Position p("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
   Position p(
       "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -");
-  Move m(0, 0);
+  Move m(8, 24);
+  p.make_move(m);
+  m = Move(25, 17);
+  p.make_move(m);
+  m = Move(18, 8);
+  p.make_move(m);
 
   Perft myp(p);
 
-  PerftResults res = myp.run(3);
+  PerftResults res = myp.run(1);
 
-  if (res.number_of_nodes == myp.run_debug(3))
+  if (res.number_of_nodes == myp.run_debug(1))
     std::cout << "consistant";
   std::cout << " it is\n";
   std::cout << "\nleaf nodes: " << res.number_of_nodes << "\n";

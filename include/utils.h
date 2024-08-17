@@ -117,15 +117,19 @@ void inline print_move(Move m) {
 
 void inline print_move_compact(Move m) {
   std::cout << get_coords_from_index(m.from) << get_coords_from_index(m.to);
-  switch (m.captured_piece) {
+  switch (m.promotion) {
   case Piece::Rook:
     std::cout << "r";
+    break;
   case Piece::Knight:
     std::cout << "n";
+    break;
   case Piece::Bishop:
     std::cout << "b";
+    break;
   case Piece::Queen:
     std::cout << "q";
+    break;
   default:
     break;
   }

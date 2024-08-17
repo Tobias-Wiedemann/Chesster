@@ -94,7 +94,7 @@ std::vector<Move> &MoveGenerator::generate_pawn_moves(std::vector<Move> &res) {
           p.color_table[attacked_index] != p.side_to_move) {
         Move m(index, attacked_index);
         m.captured_piece = p.piece_table[attacked_index];
-        if (attacked_index < 56 && attacked_index > 8) {
+        if (attacked_index < 56 && attacked_index > 7) {
           if (is_move_valid(m))
             res.push_back(m);
         } else {
@@ -122,7 +122,7 @@ std::vector<Move> &MoveGenerator::generate_pawn_moves(std::vector<Move> &res) {
           p.color_table[attacked_index] != p.side_to_move) {
         Move m(index, attacked_index);
         m.captured_piece = p.piece_table[attacked_index];
-        if (attacked_index < 56 && attacked_index > 8) {
+        if (attacked_index < 56 && attacked_index > 7) {
           if (is_move_valid(m))
             res.push_back(m);
         } else {
