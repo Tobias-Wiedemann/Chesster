@@ -4,11 +4,13 @@
 #include <vector>
 
 #include "board.h"
+#include "evaluate.h"
 #include "movegen.h"
 #include "perft.h"
 #include "utils.h"
 
 Position p("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+// Position p("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - ");
 MoveGenerator mg(p);
 // Mockup functions
 void handleSetOption(const std::string &optionName,
@@ -74,7 +76,17 @@ void handlePosition(const std::string &positionData) {
 void handleGo(const std::string &goData) {
   // Implement move calculation logic
   std::vector<Move> moves = mg.generate_moves();
-  Move m = moves[rand() % moves.size()];
+  int best_index;
+  int best_score = -1000;
+  for (int i = 0; i < moves.size(); i++) {
+    p.make_move(moves[i]);
+    if (evaluate(p) > best_score) {
+      best_score = evaluate(p);
+      best_index = i;
+    }
+    p.unmake_move();
+  }
+  Move m = moves[best_index];
   std::cout << "bestmove " << get_coords_from_index(m.from)
             << get_coords_from_index(m.to);
   switch (m.promotion) {
@@ -101,7 +113,7 @@ void uciloop() {
   while (true) {
     std::getline(std::cin, input);
     if (input == "uci") {
-      std::cout << "id name DummyChessEngine\n";
+      std::cout << "id name TakeItAll\n";
       std::cout << "id author MyName\n";
       std::cout << "uciok\n";
     } else if (input == "isready") {
@@ -130,5 +142,12 @@ void uciloop() {
 
 int main() {
   uciloop();
+  // auto moves = mg.generate_moves();
+  // for (auto m : moves) {
+  //   print_move_compact(m);
+  //   p.make_move(m);
+  //   std::cout << " " << evaluate(p) << "\n";
+  //   p.unmake_move();
+  // }
   return 0;
 }
