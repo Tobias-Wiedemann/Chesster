@@ -542,9 +542,7 @@ void Position::make_move(Move m) {
     set_piece(Piece::Empty, captured_pawn_index, Color::Empty);
   }
 
-  if (en_passent_square != -1) {
-    m.set_previous_en_passant_square(en_passent_square);
-  }
+  m.set_previous_en_passant_square(en_passent_square);
   if (moving_piece == Piece::Pawn) {
     // TODO: Confirm this is not broken
     if (std::abs((int)m.get_from() - (int)m.get_to()) == 16) {
@@ -645,11 +643,7 @@ void Position::unmake_move() {
     }
   }
 
-  if (m.previous_en_passant_square_existed()) {
-    en_passent_square = m.get_previous_en_passant_square();
-  } else {
-    en_passent_square = -1;
-  }
+  en_passent_square = m.get_previous_en_passant_square();
 
   if (m.get_castling() == Castling::None) {
 

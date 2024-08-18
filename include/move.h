@@ -8,7 +8,11 @@ public:
       : m(0), from(f), to(t), promotion(promotion),
         captured_piece(Piece::Empty), previous_en_passent_square(-1),
         castling(Castling::None), rook_destroyed_castle(false),
-        king_destroyed_short_castle(false), king_destroyed_long_castle(false) {}
+        king_destroyed_short_castle(false), king_destroyed_long_castle(false) {
+    set_from(f);
+    set_to(t);
+    set_promotion(promotion);
+  }
 
   uint32_t get_from() const;
   void set_from(uint32_t from);
