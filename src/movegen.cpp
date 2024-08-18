@@ -3,11 +3,12 @@
 
 #include "attack_masks.h"
 #include "board.h"
+#include "move.h"
 #include "movegen.h"
 #include "utils.h"
 
 bool MoveGenerator::is_move_valid(Move &m) {
-  if (p.side_to_move == p.color_table[m.to])
+  if (p.side_to_move == p.color_table[m.get_to()])
     return false;
   bool res = false;
   p.make_move(m);
@@ -49,21 +50,21 @@ std::vector<Move> &MoveGenerator::generate_pawn_moves(std::vector<Move> &res) {
     int index = fast_log_2(pushable_pawns);
 
     Move m(index, index);
-    m.to = p.side_to_move == Color::White ? index + 8 : index - 8;
-    if (m.to < 56 && m.to > 7) {
+    m.set_to(p.side_to_move == Color::White ? index + 8 : index - 8);
+    if (m.get_to() < 56 && m.get_to() > 7) {
       if (is_move_valid(m))
         res.push_back(m);
     } else {
-      m.promotion = Piece::Queen;
+      m.set_promotion(Piece::Queen);
       if (is_move_valid(m))
         res.push_back(m);
-      m.promotion = Piece::Knight;
+      m.set_promotion(Piece::Knight);
       if (is_move_valid(m))
         res.push_back(m);
-      m.promotion = Piece::Rook;
+      m.set_promotion(Piece::Rook);
       if (is_move_valid(m))
         res.push_back(m);
-      m.promotion = Piece::Bishop;
+      m.set_promotion(Piece::Bishop);
       if (is_move_valid(m))
         res.push_back(m);
     }
@@ -75,7 +76,7 @@ std::vector<Move> &MoveGenerator::generate_pawn_moves(std::vector<Move> &res) {
     int index = fast_log_2(double_pushable_pawns);
 
     Move m(index, index);
-    m.to = p.side_to_move == Color::White ? index + 16 : index - 16;
+    m.set_to(p.side_to_move == Color::White ? index + 16 : index - 16);
     if (is_move_valid(m))
       res.push_back(m);
 
@@ -93,21 +94,21 @@ std::vector<Move> &MoveGenerator::generate_pawn_moves(std::vector<Move> &res) {
       if (p.piece_table[attacked_index] != Piece::Empty &&
           p.color_table[attacked_index] != p.side_to_move) {
         Move m(index, attacked_index);
-        m.captured_piece = p.piece_table[attacked_index];
+        m.set_captured_piece(p.piece_table[attacked_index]);
         if (attacked_index < 56 && attacked_index > 7) {
           if (is_move_valid(m))
             res.push_back(m);
         } else {
-          m.promotion = Piece::Queen;
+          m.set_promotion(Piece::Queen);
           if (is_move_valid(m))
             res.push_back(m);
-          m.promotion = Piece::Knight;
+          m.set_promotion(Piece::Knight);
           if (is_move_valid(m))
             res.push_back(m);
-          m.promotion = Piece::Rook;
+          m.set_promotion(Piece::Rook);
           if (is_move_valid(m))
             res.push_back(m);
-          m.promotion = Piece::Bishop;
+          m.set_promotion(Piece::Bishop);
           if (is_move_valid(m))
             res.push_back(m);
         }
@@ -121,21 +122,21 @@ std::vector<Move> &MoveGenerator::generate_pawn_moves(std::vector<Move> &res) {
       if (p.piece_table[attacked_index] != Piece::Empty &&
           p.color_table[attacked_index] != p.side_to_move) {
         Move m(index, attacked_index);
-        m.captured_piece = p.piece_table[attacked_index];
+        m.set_captured_piece(p.piece_table[attacked_index]);
         if (attacked_index < 56 && attacked_index > 7) {
           if (is_move_valid(m))
             res.push_back(m);
         } else {
-          m.promotion = Piece::Queen;
+          m.set_promotion(Piece::Queen);
           if (is_move_valid(m))
             res.push_back(m);
-          m.promotion = Piece::Knight;
+          m.set_promotion(Piece::Knight);
           if (is_move_valid(m))
             res.push_back(m);
-          m.promotion = Piece::Rook;
+          m.set_promotion(Piece::Rook);
           if (is_move_valid(m))
             res.push_back(m);
-          m.promotion = Piece::Bishop;
+          m.set_promotion(Piece::Bishop);
           if (is_move_valid(m))
             res.push_back(m);
         }
@@ -198,7 +199,7 @@ MoveGenerator::generate_knight_moves(std::vector<Move> &res) {
         // capture
         Move m(index, current_index);
         if (p.color_table[current_index] != Color::Empty) {
-          m.captured_piece = p.piece_table[current_index];
+          m.set_captured_piece(p.piece_table[current_index]);
         }
         if (is_move_valid(m))
           res.push_back(m);
@@ -456,7 +457,7 @@ std::vector<Move> &MoveGenerator::generate_king_moves(std::vector<Move> &res) {
                p.color_table[current_index] != Color::Empty) {
       // capture
       Move m(index, current_index);
-      m.captured_piece = p.piece_table[current_index];
+      m.set_captured_piece(p.piece_table[current_index]);
 
       if (is_move_valid(m))
         res.push_back(m);
@@ -485,7 +486,7 @@ std::vector<Move> &MoveGenerator::generate_king_moves(std::vector<Move> &res) {
         can_castle_kingside &= p.position_is_legal();
         p.unmake_move();
 
-        m.to = 6;
+        m.set_to(6);
         p.make_move(m);
         can_castle_kingside &= p.position_is_legal();
         p.unmake_move();
@@ -511,7 +512,7 @@ std::vector<Move> &MoveGenerator::generate_king_moves(std::vector<Move> &res) {
         can_castle_queenside &= p.position_is_legal();
         p.unmake_move();
 
-        m.to = 2;
+        m.set_to(2);
         p.make_move(m);
         can_castle_queenside &= p.position_is_legal();
         p.unmake_move();
@@ -538,7 +539,7 @@ std::vector<Move> &MoveGenerator::generate_king_moves(std::vector<Move> &res) {
         can_castle_kingside &= p.position_is_legal();
         p.unmake_move();
 
-        m.to = 62;
+        m.set_to(62);
         p.make_move(m);
         can_castle_kingside &= p.position_is_legal();
         p.unmake_move();
@@ -564,7 +565,7 @@ std::vector<Move> &MoveGenerator::generate_king_moves(std::vector<Move> &res) {
         can_castle_queenside &= p.position_is_legal();
         p.unmake_move();
 
-        m.to = 58;
+        m.set_to(58);
         p.make_move(m);
         can_castle_queenside &= p.position_is_legal();
         p.unmake_move();

@@ -3,6 +3,7 @@
 
 #include "attack_masks.h"
 #include "board.h"
+#include "move.h"
 #include "perft.h"
 #include "utils.h"
 
@@ -475,13 +476,13 @@ void Position::set_piece(Piece piece, int index, Color col) {
 }
 
 void Position::make_move(Move m) {
-  Piece moving_piece = piece_table[m.from];
+  Piece moving_piece = piece_table[m.get_from()];
 
   if (moving_piece == Piece::Empty) {
     print_full_board(*this);
-    std::cout << m.from;
+    std::cout << m.get_from();
     std::cout << "moving an empty square";
-    std::cout << m.to;
+    std::cout << m.get_to();
     std::cout << "\nwhite ks castle" << white_kingside_castling_right;
     std::cout << "\nwhite qs castle" << white_queenside_castling_right;
     std::cout << "\nblack ks castle" << black_kingside_castling_right;
@@ -494,40 +495,40 @@ void Position::make_move(Move m) {
   // Castling right tracking
   if (moving_piece == Piece::King) {
     if (side_to_move == Color::White) {
-      m.king_destroyed_short_castle = white_kingside_castling_right;
-      m.king_destroyed_long_castle = white_queenside_castling_right;
+      m.set_king_destroyed_short_castle(white_kingside_castling_right);
+      m.set_king_destroyed_long_castle(white_queenside_castling_right);
       white_kingside_castling_right = false;
       white_queenside_castling_right = false;
     } else {
-      m.king_destroyed_short_castle = black_kingside_castling_right;
-      m.king_destroyed_long_castle = black_queenside_castling_right;
+      m.set_king_destroyed_short_castle(black_kingside_castling_right);
+      m.set_king_destroyed_long_castle(black_queenside_castling_right);
       black_kingside_castling_right = false;
       black_queenside_castling_right = false;
     }
   } else if (moving_piece == Piece::Rook) {
     if (side_to_move == Color::White) {
       if (white_kingside_castling_right) {
-        if (m.from == 7) {
-          m.rook_destroyed_castle = true;
+        if (m.get_from() == 7) {
+          m.set_rook_destroyed_castle(true);
           white_kingside_castling_right = false;
         }
       }
       if (white_queenside_castling_right) {
-        if (m.from == 0) {
-          m.rook_destroyed_castle = true;
+        if (m.get_from() == 0) {
+          m.set_rook_destroyed_castle(true);
           white_queenside_castling_right = false;
         }
       }
     } else {
       if (black_kingside_castling_right) {
-        if (m.from == 63) {
-          m.rook_destroyed_castle = true;
+        if (m.get_from() == 63) {
+          m.set_rook_destroyed_castle(true);
           black_kingside_castling_right = false;
         }
       }
       if (black_queenside_castling_right) {
-        if (m.from == 56) {
-          m.rook_destroyed_castle = true;
+        if (m.get_from() == 56) {
+          m.set_rook_destroyed_castle(true);
           black_queenside_castling_right = false;
         }
       }
@@ -537,14 +538,18 @@ void Position::make_move(Move m) {
   // En Passent
   if (is_en_passent(*this, m)) {
     int captured_pawn_index =
-        side_to_move == Color::White ? m.to - 8 : m.to + 8;
+        side_to_move == Color::White ? m.get_to() - 8 : m.get_to() + 8;
     set_piece(Piece::Empty, captured_pawn_index, Color::Empty);
   }
 
-  m.previous_en_passent_square = en_passent_square;
+  if (en_passent_square != -1) {
+    m.set_previous_en_passant_square(en_passent_square);
+  }
   if (moving_piece == Piece::Pawn) {
-    if (std::abs(m.from - m.to) == 16) {
-      en_passent_square = m.from < m.to ? m.to - 8 : m.to + 8;
+    // TODO: Confirm this is not broken
+    if (std::abs((int)m.get_from() - (int)m.get_to()) == 16) {
+      en_passent_square =
+          m.get_from() < m.get_to() ? m.get_to() - 8 : m.get_to() + 8;
     } else {
       en_passent_square = -1;
     }
@@ -553,39 +558,39 @@ void Position::make_move(Move m) {
   }
 
   // delete from initial square
-  set_piece(Piece::Empty, m.from, Color::Empty);
+  set_piece(Piece::Empty, m.get_from(), Color::Empty);
 
-  m.captured_piece = piece_table[m.to];
+  m.set_captured_piece(piece_table[m.get_to()]);
   // insert to new square
-  if (m.promotion != Piece::Empty)
-    moving_piece = m.promotion;
-  set_piece(moving_piece, m.to, side_to_move);
+  if (m.get_promotion() != Piece::Empty)
+    moving_piece = m.get_promotion();
+  set_piece(moving_piece, m.get_to(), side_to_move);
 
-  if (piece_table[m.to] == Piece::King) {
-    if (m.from == 4) {
-      if (m.to == 6) {
+  if (piece_table[m.get_to()] == Piece::King) {
+    if (m.get_from() == 4) {
+      if (m.get_to() == 6) {
         set_piece(Piece::Empty, 7, Color::Empty);
         set_piece(Piece::Rook, 5, Color::White);
-        m.castling = Castling::WhiteShort;
+        m.set_castling(Castling::WhiteShort);
         white_kingside_castling_right = false;
       }
-      if (m.to == 2) {
+      if (m.get_to() == 2) {
         set_piece(Piece::Empty, 0, Color::Empty);
         set_piece(Piece::Rook, 3, Color::White);
-        m.castling = Castling::WhiteLong;
+        m.set_castling(Castling::WhiteLong);
         white_queenside_castling_right = false;
       }
-    } else if (m.from == 60) {
-      if (m.to == 62) {
+    } else if (m.get_from() == 60) {
+      if (m.get_to() == 62) {
         set_piece(Piece::Empty, 63, Color::Empty);
         set_piece(Piece::Rook, 61, Color::Black);
-        m.castling = Castling::BlackShort;
+        m.set_castling(Castling::BlackShort);
         black_kingside_castling_right = false;
       }
-      if (m.to == 58) {
+      if (m.get_to() == 58) {
         set_piece(Piece::Empty, 56, Color::Empty);
         set_piece(Piece::Rook, 59, Color::Black);
-        m.castling = Castling::BlackLong;
+        m.set_castling(Castling::BlackLong);
         black_queenside_castling_right = false;
       }
     }
@@ -610,29 +615,29 @@ void Position::unmake_move() {
     side_to_move = Color::White;
   }
 
-  if (m.king_destroyed_short_castle) {
+  if (m.is_king_destroyed_short_castle()) {
     if (side_to_move == Color::White) {
       white_kingside_castling_right = true;
     } else {
       black_kingside_castling_right = true;
     }
   }
-  if (m.king_destroyed_long_castle) {
+  if (m.is_king_destroyed_long_castle()) {
     if (side_to_move == Color::White) {
       white_queenside_castling_right = true;
     } else {
       black_queenside_castling_right = true;
     }
   }
-  if (m.rook_destroyed_castle) {
+  if (m.is_rook_destroyed_castle()) {
     if (side_to_move == Color::White) {
-      if (m.from == 7) {
+      if (m.get_from() == 7) {
         white_kingside_castling_right = true;
       } else {
         white_queenside_castling_right = true;
       }
     } else {
-      if (m.from == 63) {
+      if (m.get_from() == 63) {
         black_kingside_castling_right = true;
       } else {
         black_queenside_castling_right = true;
@@ -640,28 +645,33 @@ void Position::unmake_move() {
     }
   }
 
-  en_passent_square = m.previous_en_passent_square;
+  if (m.previous_en_passant_square_existed()) {
+    en_passent_square = m.get_previous_en_passant_square();
+  } else {
+    en_passent_square = -1;
+  }
 
-  if (m.castling == Castling::None) {
+  if (m.get_castling() == Castling::None) {
 
-    if (en_passent_square == m.to && piece_table[m.to] == Piece::Pawn) {
+    if (en_passent_square == m.get_to() &&
+        piece_table[m.get_to()] == Piece::Pawn) {
       int captured_pawn_index =
-          side_to_move == Color::White ? m.to - 8 : m.to + 8;
+          side_to_move == Color::White ? m.get_to() - 8 : m.get_to() + 8;
       set_piece(Piece::Pawn, captured_pawn_index,
                 side_to_move == Color::White ? Color::Black : Color::White);
     }
 
-    Piece moved_piece = piece_table[m.to];
-    if (m.promotion != Piece::Empty)
+    Piece moved_piece = piece_table[m.get_to()];
+    if (m.get_promotion() != Piece::Empty)
       moved_piece = Piece::Pawn;
-    set_piece(moved_piece, m.from, side_to_move);
-    set_piece(Piece::Empty, m.to, Color::Empty);
-    if (m.captured_piece != Piece::Empty)
-      set_piece(m.captured_piece, m.to,
+    set_piece(moved_piece, m.get_from(), side_to_move);
+    set_piece(Piece::Empty, m.get_to(), Color::Empty);
+    if (m.get_captured_piece() != Piece::Empty)
+      set_piece(m.get_captured_piece(), m.get_to(),
                 side_to_move == Color::White ? Color::Black : Color::White);
 
   } else {
-    switch (m.castling) {
+    switch (m.get_castling()) {
     case Castling::WhiteShort:
       set_piece(Piece::Empty, 5, Color::Empty);
       set_piece(Piece::Empty, 6, Color::Empty);
@@ -952,19 +962,19 @@ void go_through_all_king_masks() {
 }
 
 bool is_capture(Position &p, Move &m) {
-  if (p.piece_table[m.to] != Piece::Empty)
+  if (p.piece_table[m.get_to()] != Piece::Empty)
     return true;
   return is_en_passent(p, m);
 }
 bool is_en_passent(Position &p, Move &m) {
-  if (p.piece_table[m.from] != Piece::Pawn)
+  if (p.piece_table[m.get_from()] != Piece::Pawn)
     return false;
-  return p.en_passent_square == m.to;
+  return p.en_passent_square == m.get_to();
 }
 bool is_castle(Position &p, Move &m) {
-  if (m.from == 4 && p.piece_table[m.from] == Piece::King)
-    return m.to == 6 || m.to == 2;
-  if (m.from == 60 && p.piece_table[m.from] == Piece::King)
-    return m.to == 62 || m.to == 58;
+  if (m.get_from() == 4 && p.piece_table[m.get_from()] == Piece::King)
+    return m.get_to() == 6 || m.get_to() == 2;
+  if (m.get_from() == 60 && p.piece_table[m.get_from()] == Piece::King)
+    return m.get_to() == 62 || m.get_to() == 58;
   return false;
 }

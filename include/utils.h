@@ -10,23 +10,6 @@ enum class Color { White, Black, Empty };
 
 enum class Castling { WhiteShort, WhiteLong, BlackShort, BlackLong, None };
 
-struct Move {
-  Move(int f, int t, Piece p = Piece::Empty)
-      : from(f), to(t), promotion(p), captured_piece(Piece::Empty),
-        previous_en_passent_square(-1), castling(Castling::None),
-        rook_destroyed_castle(false), king_destroyed_short_castle(false),
-        king_destroyed_long_castle(false) {}
-  int from;
-  int to;
-  Piece promotion;
-  Piece captured_piece;
-  int previous_en_passent_square;
-  Castling castling;
-  bool rook_destroyed_castle;
-  bool king_destroyed_short_castle;
-  bool king_destroyed_long_castle;
-};
-
 std::string inline to_string(Piece p) {
   switch (p) {
   case Piece::Pawn:
@@ -59,10 +42,6 @@ std::string inline to_string(Color c) {
   default:
     return "Color NOT FOUND";
   }
-}
-
-std::string inline to_string(Move m) {
-  return std::to_string(m.from) + std::to_string(m.to);
 }
 
 int inline get_index(char file, int rank) {
@@ -112,30 +91,4 @@ union long_double {
 int inline fast_log_2(double num) {
   union long_double x = {num};
   return ((x.y >> 52) + 1) & 0x3ff;
-}
-
-void inline print_move(Move m) {
-  std::cout << "\nFrom: " << m.from << " to: " << m.to
-            << "\nPromotion: " << to_string(m.promotion)
-            << "\nCaptured: " << to_string(m.captured_piece);
-}
-
-void inline print_move_compact(Move m) {
-  std::cout << get_coords_from_index(m.from) << get_coords_from_index(m.to);
-  switch (m.promotion) {
-  case Piece::Rook:
-    std::cout << "r";
-    break;
-  case Piece::Knight:
-    std::cout << "n";
-    break;
-  case Piece::Bishop:
-    std::cout << "b";
-    break;
-  case Piece::Queen:
-    std::cout << "q";
-    break;
-  default:
-    break;
-  }
 }

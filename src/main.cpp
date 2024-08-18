@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "board.h"
+#include "move.h"
 #include "movegen.h"
 #include "perft.h"
 #include "utils.h"
@@ -50,16 +51,16 @@ void handlePosition(const std::string &positionData) {
       if (token.size() == 5) {
         switch (token[4]) {
         case 'q':
-          m.promotion = Piece::Queen;
+          m.set_promotion(Piece::Queen);
           break;
         case 'n':
-          m.promotion = Piece::Knight;
+          m.set_promotion(Piece::Knight);
           break;
         case 'r':
-          m.promotion = Piece::Rook;
+          m.set_promotion(Piece::Rook);
           break;
         case 'b':
-          m.promotion = Piece::Bishop;
+          m.set_promotion(Piece::Bishop);
           break;
         default:
           break;
@@ -75,9 +76,9 @@ void handleGo(const std::string &goData) {
   // Implement move calculation logic
   std::vector<Move> moves = mg.generate_moves();
   Move m = moves[rand() % moves.size()];
-  std::cout << "bestmove " << get_coords_from_index(m.from)
-            << get_coords_from_index(m.to);
-  switch (m.promotion) {
+  std::cout << "bestmove " << get_coords_from_index(m.get_from())
+            << get_coords_from_index(m.get_to());
+  switch (m.get_promotion()) {
   case Piece::Queen:
     std::cout << "q";
     break;

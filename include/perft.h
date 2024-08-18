@@ -4,8 +4,8 @@
 #include <iostream>
 
 #include "board.h"
+#include "move.h"
 
-struct Move;
 struct Position;
 
 struct PerftResults {

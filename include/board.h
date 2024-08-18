@@ -4,6 +4,8 @@
 
 #include "utils.h"
 
+class Move;
+
 struct Position {
   Position();
 
@@ -57,7 +59,6 @@ struct Position {
 
 void print_full_board(Position &p);
 bool is_consistant(Position &p);
-
 
 bool is_capture(Position &p, Move &m);
 bool is_en_passent(Position &p, Move &m);

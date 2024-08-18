@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "board.h"
+#include "move.h"
 #include "movegen.h"
 #include "perft.h"
 #include "utils.h"
@@ -78,7 +79,7 @@ uint64_t Perft::run_wrapped(int depth) {
 
       res.number_of_en_passent += is_en_passent(p, m);
 
-      res.number_of_promotions += m.promotion != Piece::Empty;
+      res.number_of_promotions += m.get_promotion() != Piece::Empty;
 
       res.number_of_castles += is_castle(p, m);
     }
