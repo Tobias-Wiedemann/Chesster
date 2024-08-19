@@ -1,4 +1,5 @@
 #include <iostream>
+#include <search.h>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -73,18 +74,8 @@ void handlePosition(const std::string &positionData) {
 
 void handleGo(const std::string &goData) {
   // Implement move calculation logic
-  std::vector<Move> moves = generate_moves(p);
-  int best_index;
-  int best_score = -1000;
-  for (int i = 0; i < moves.size(); i++) {
-    p.make_move(moves[i]);
-    if (evaluate(p) > best_score) {
-      best_score = evaluate(p);
-      best_index = i;
-    }
-    p.unmake_move();
-  }
-  Move m = moves[best_index];
+  Move m = search(p, 1);
+
   std::cout << "bestmove " << get_coords_from_index(m.from)
             << get_coords_from_index(m.to);
   switch (m.promotion) {

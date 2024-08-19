@@ -23,8 +23,6 @@ int evaluate_material(Position &p) {
   int res = 0;
 
   for (int i = 0; i < 64; i++) {
-    // std::cout << to_string(p.piece_table[i]) << " " <<
-    // to_string(p.color_table[i]) << "\n";
 
     if (p.color_table[i] == Color::Empty)
       continue;
@@ -42,8 +40,10 @@ int evaluate_material(Position &p) {
 int evaluate(Position &p) {
   int res = 0;
 
-  res += evaluate_material(p);
+  if (p.side_to_move == Color::White)
+    res += evaluate_material(p);
+  else
+    res -= evaluate_material(p);
 
   return res;
-  return p.side_to_move == Color::White ? res : -res;
 }
