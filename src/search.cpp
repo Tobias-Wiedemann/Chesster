@@ -11,6 +11,12 @@ int negamax(Position &p, int depth, Move &best_move, int starting_depth) {
   int max = -1000000;
 
   std::vector<Move> moves = generate_moves(p);
+  if (moves.size() == 0) {
+    // basicly checks for mate
+    if (p.position_is_legal())
+      return max + 1;
+    return 0;
+  }
   for (auto &m : moves) {
     p.make_move(m);
     int score = -negamax(p, depth - 1, best_move, starting_depth);
