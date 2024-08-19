@@ -74,7 +74,7 @@ void handlePosition(const std::string &positionData) {
 
 void handleGo(const std::string &goData) {
   // Implement move calculation logic
-  Move m = search(p, 1);
+  Move m = search(p, 3);
 
   std::cout << "bestmove " << get_coords_from_index(m.from)
             << get_coords_from_index(m.to);
@@ -102,7 +102,7 @@ void uciloop() {
   while (true) {
     std::getline(std::cin, input);
     if (input == "uci") {
-      std::cout << "id name TakeItAll\n";
+      std::cout << "id name TakeEvenMore\n";
       std::cout << "id author MyName\n";
       std::cout << "uciok\n";
     } else if (input == "isready") {

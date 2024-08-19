@@ -5,7 +5,6 @@
 #include "utils.h"
 
 int negamax(Position &p, int depth, Move &best_move, int starting_depth) {
-  print_full_board(p);
   if (depth == 0)
     return evaluate(p);
 
@@ -16,8 +15,6 @@ int negamax(Position &p, int depth, Move &best_move, int starting_depth) {
     p.make_move(m);
     int score = -negamax(p, depth - 1, best_move, starting_depth);
     p.unmake_move();
-
-    std::cout << score << "\n";
 
     if (score > max) {
       max = score;
