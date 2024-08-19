@@ -6,7 +6,7 @@
 #include "movegen.h"
 #include "utils.h"
 
-bool MoveGenerator::is_move_valid(Move &m) {
+bool is_move_valid(Move &m, Position &p) {
   if (p.side_to_move == p.color_table[m.to])
     return false;
   bool res = false;
@@ -17,9 +17,7 @@ bool MoveGenerator::is_move_valid(Move &m) {
   return res;
 }
 
-MoveGenerator::MoveGenerator(Position &pos) : p(pos) {}
-
-std::vector<Move> &MoveGenerator::generate_pawn_moves(std::vector<Move> &res) {
+std::vector<Move> &generate_pawn_moves(std::vector<Move> &res, Position &p) {
   uint64_t white_pawns_starting_mask = 0x000000000000FF00ULL;
   uint64_t black_pawns_starting_mask = 0x00FF000000000000ULL;
 
@@ -51,20 +49,20 @@ std::vector<Move> &MoveGenerator::generate_pawn_moves(std::vector<Move> &res) {
     Move m(index, index);
     m.to = p.side_to_move == Color::White ? index + 8 : index - 8;
     if (m.to < 56 && m.to > 7) {
-      if (is_move_valid(m))
+      if (is_move_valid(m, p))
         res.push_back(m);
     } else {
       m.promotion = Piece::Queen;
-      if (is_move_valid(m))
+      if (is_move_valid(m, p))
         res.push_back(m);
       m.promotion = Piece::Knight;
-      if (is_move_valid(m))
+      if (is_move_valid(m, p))
         res.push_back(m);
       m.promotion = Piece::Rook;
-      if (is_move_valid(m))
+      if (is_move_valid(m, p))
         res.push_back(m);
       m.promotion = Piece::Bishop;
-      if (is_move_valid(m))
+      if (is_move_valid(m, p))
         res.push_back(m);
     }
 
@@ -76,7 +74,7 @@ std::vector<Move> &MoveGenerator::generate_pawn_moves(std::vector<Move> &res) {
 
     Move m(index, index);
     m.to = p.side_to_move == Color::White ? index + 16 : index - 16;
-    if (is_move_valid(m))
+    if (is_move_valid(m, p))
       res.push_back(m);
 
     double_pushable_pawns ^= 1ULL << index;
@@ -95,20 +93,20 @@ std::vector<Move> &MoveGenerator::generate_pawn_moves(std::vector<Move> &res) {
         Move m(index, attacked_index);
         m.captured_piece = p.piece_table[attacked_index];
         if (attacked_index < 56 && attacked_index > 7) {
-          if (is_move_valid(m))
+          if (is_move_valid(m, p))
             res.push_back(m);
         } else {
           m.promotion = Piece::Queen;
-          if (is_move_valid(m))
+          if (is_move_valid(m, p))
             res.push_back(m);
           m.promotion = Piece::Knight;
-          if (is_move_valid(m))
+          if (is_move_valid(m, p))
             res.push_back(m);
           m.promotion = Piece::Rook;
-          if (is_move_valid(m))
+          if (is_move_valid(m, p))
             res.push_back(m);
           m.promotion = Piece::Bishop;
-          if (is_move_valid(m))
+          if (is_move_valid(m, p))
             res.push_back(m);
         }
       }
@@ -123,20 +121,20 @@ std::vector<Move> &MoveGenerator::generate_pawn_moves(std::vector<Move> &res) {
         Move m(index, attacked_index);
         m.captured_piece = p.piece_table[attacked_index];
         if (attacked_index < 56 && attacked_index > 7) {
-          if (is_move_valid(m))
+          if (is_move_valid(m, p))
             res.push_back(m);
         } else {
           m.promotion = Piece::Queen;
-          if (is_move_valid(m))
+          if (is_move_valid(m, p))
             res.push_back(m);
           m.promotion = Piece::Knight;
-          if (is_move_valid(m))
+          if (is_move_valid(m, p))
             res.push_back(m);
           m.promotion = Piece::Rook;
-          if (is_move_valid(m))
+          if (is_move_valid(m, p))
             res.push_back(m);
           m.promotion = Piece::Bishop;
-          if (is_move_valid(m))
+          if (is_move_valid(m, p))
             res.push_back(m);
         }
       }
@@ -154,7 +152,7 @@ std::vector<Move> &MoveGenerator::generate_pawn_moves(std::vector<Move> &res) {
       if (p.piece_table[from_index] == Piece::Pawn &&
           p.color_table[from_index] == p.side_to_move) {
         Move m(from_index, p.en_passent_square);
-        if (is_move_valid(m))
+        if (is_move_valid(m, p))
           res.push_back(m);
       }
     }
@@ -164,7 +162,7 @@ std::vector<Move> &MoveGenerator::generate_pawn_moves(std::vector<Move> &res) {
       if (p.piece_table[from_index] == Piece::Pawn &&
           p.color_table[from_index] == p.side_to_move) {
         Move m(from_index, p.en_passent_square);
-        if (is_move_valid(m))
+        if (is_move_valid(m, p))
           res.push_back(m);
       }
     }
@@ -173,8 +171,7 @@ std::vector<Move> &MoveGenerator::generate_pawn_moves(std::vector<Move> &res) {
   return res;
 }
 
-std::vector<Move> &
-MoveGenerator::generate_knight_moves(std::vector<Move> &res) {
+std::vector<Move> &generate_knight_moves(std::vector<Move> &res, Position &p) {
   uint64_t knights =
       p.side_to_move == Color::White ? p.white_knights : p.black_knights;
 
@@ -192,7 +189,7 @@ MoveGenerator::generate_knight_moves(std::vector<Move> &res) {
 
       if (p.piece_table[current_index] == Piece::Empty) {
         Move m(index, current_index);
-        if (is_move_valid(m))
+        if (is_move_valid(m, p))
           res.push_back(m);
       } else if (p.color_table[current_index] != p.side_to_move) {
         // capture
@@ -200,7 +197,7 @@ MoveGenerator::generate_knight_moves(std::vector<Move> &res) {
         if (p.color_table[current_index] != Color::Empty) {
           m.captured_piece = p.piece_table[current_index];
         }
-        if (is_move_valid(m))
+        if (is_move_valid(m, p))
           res.push_back(m);
       }
       possible_squares ^= 1ULL << current_index;
@@ -212,7 +209,7 @@ MoveGenerator::generate_knight_moves(std::vector<Move> &res) {
   return res;
 }
 
-std::vector<Move> &MoveGenerator::generate_rook_moves(std::vector<Move> &res) {
+std::vector<Move> &generate_rook_moves(std::vector<Move> &res, Position &p) {
   uint64_t rooks =
       p.side_to_move == Color::White ? p.white_rooks : p.black_rooks;
 
@@ -232,7 +229,7 @@ std::vector<Move> &MoveGenerator::generate_rook_moves(std::vector<Move> &res) {
       if (p.color_table[current_index] != Color::Empty) {
         offset = left_steps + 1;
       }
-      if (is_move_valid(m))
+      if (is_move_valid(m, p))
         res.push_back(m);
     }
 
@@ -242,7 +239,7 @@ std::vector<Move> &MoveGenerator::generate_rook_moves(std::vector<Move> &res) {
       if (p.color_table[current_index] != Color::Empty) {
         offset = right_steps + 1;
       }
-      if (is_move_valid(m))
+      if (is_move_valid(m, p))
         res.push_back(m);
     }
 
@@ -252,7 +249,7 @@ std::vector<Move> &MoveGenerator::generate_rook_moves(std::vector<Move> &res) {
       if (p.color_table[current_index] != Color::Empty) {
         offset = up_steps + 1;
       }
-      if (is_move_valid(m))
+      if (is_move_valid(m, p))
         res.push_back(m);
     }
 
@@ -262,7 +259,7 @@ std::vector<Move> &MoveGenerator::generate_rook_moves(std::vector<Move> &res) {
       if (p.color_table[current_index] != Color::Empty) {
         offset = down_steps + 1;
       }
-      if (is_move_valid(m))
+      if (is_move_valid(m, p))
         res.push_back(m);
     }
 
@@ -272,8 +269,7 @@ std::vector<Move> &MoveGenerator::generate_rook_moves(std::vector<Move> &res) {
   return res;
 }
 
-std::vector<Move> &
-MoveGenerator::generate_bishop_moves(std::vector<Move> &res) {
+std::vector<Move> &generate_bishop_moves(std::vector<Move> &res, Position &p) {
   uint64_t bishops =
       p.side_to_move == Color::White ? p.white_bishops : p.black_bishops;
 
@@ -293,7 +289,7 @@ MoveGenerator::generate_bishop_moves(std::vector<Move> &res) {
       if (p.color_table[current_index] != Color::Empty) {
         offset = left_down_steps + 1;
       }
-      if (is_move_valid(m))
+      if (is_move_valid(m, p))
         res.push_back(m);
     }
 
@@ -303,7 +299,7 @@ MoveGenerator::generate_bishop_moves(std::vector<Move> &res) {
       if (p.color_table[current_index] != Color::Empty) {
         offset = left_up_steps + 1;
       }
-      if (is_move_valid(m))
+      if (is_move_valid(m, p))
         res.push_back(m);
     }
 
@@ -313,7 +309,7 @@ MoveGenerator::generate_bishop_moves(std::vector<Move> &res) {
       if (p.color_table[current_index] != Color::Empty) {
         offset = right_down_steps + 1;
       }
-      if (is_move_valid(m))
+      if (is_move_valid(m, p))
         res.push_back(m);
     }
 
@@ -323,7 +319,7 @@ MoveGenerator::generate_bishop_moves(std::vector<Move> &res) {
       if (p.color_table[current_index] != Color::Empty) {
         offset = right_up_steps + 1;
       }
-      if (is_move_valid(m))
+      if (is_move_valid(m, p))
         res.push_back(m);
     }
 
@@ -333,7 +329,7 @@ MoveGenerator::generate_bishop_moves(std::vector<Move> &res) {
   return res;
 }
 
-std::vector<Move> &MoveGenerator::generate_queen_moves(std::vector<Move> &res) {
+std::vector<Move> &generate_queen_moves(std::vector<Move> &res, Position &p) {
   uint64_t queens =
       p.side_to_move == Color::White ? p.white_queens : p.black_queens;
 
@@ -359,7 +355,7 @@ std::vector<Move> &MoveGenerator::generate_queen_moves(std::vector<Move> &res) {
       if (p.color_table[current_index] != Color::Empty) {
         offset = left_steps + 1;
       }
-      if (is_move_valid(m))
+      if (is_move_valid(m, p))
         res.push_back(m);
     }
 
@@ -369,7 +365,7 @@ std::vector<Move> &MoveGenerator::generate_queen_moves(std::vector<Move> &res) {
       if (p.color_table[current_index] != Color::Empty) {
         offset = right_steps + 1;
       }
-      if (is_move_valid(m))
+      if (is_move_valid(m, p))
         res.push_back(m);
     }
 
@@ -379,7 +375,7 @@ std::vector<Move> &MoveGenerator::generate_queen_moves(std::vector<Move> &res) {
       if (p.color_table[current_index] != Color::Empty) {
         offset = up_steps + 1;
       }
-      if (is_move_valid(m))
+      if (is_move_valid(m, p))
         res.push_back(m);
     }
 
@@ -389,7 +385,7 @@ std::vector<Move> &MoveGenerator::generate_queen_moves(std::vector<Move> &res) {
       if (p.color_table[current_index] != Color::Empty) {
         offset = down_steps + 1;
       }
-      if (is_move_valid(m))
+      if (is_move_valid(m, p))
         res.push_back(m);
     }
 
@@ -399,7 +395,7 @@ std::vector<Move> &MoveGenerator::generate_queen_moves(std::vector<Move> &res) {
       if (p.color_table[current_index] != Color::Empty) {
         offset = left_down_steps + 1;
       }
-      if (is_move_valid(m))
+      if (is_move_valid(m, p))
         res.push_back(m);
     }
 
@@ -409,7 +405,7 @@ std::vector<Move> &MoveGenerator::generate_queen_moves(std::vector<Move> &res) {
       if (p.color_table[current_index] != Color::Empty) {
         offset = left_up_steps + 1;
       }
-      if (is_move_valid(m))
+      if (is_move_valid(m, p))
         res.push_back(m);
     }
 
@@ -419,7 +415,7 @@ std::vector<Move> &MoveGenerator::generate_queen_moves(std::vector<Move> &res) {
       if (p.color_table[current_index] != Color::Empty) {
         offset = right_down_steps + 1;
       }
-      if (is_move_valid(m))
+      if (is_move_valid(m, p))
         res.push_back(m);
     }
 
@@ -429,7 +425,7 @@ std::vector<Move> &MoveGenerator::generate_queen_moves(std::vector<Move> &res) {
       if (p.color_table[current_index] != Color::Empty) {
         offset = right_up_steps + 1;
       }
-      if (is_move_valid(m))
+      if (is_move_valid(m, p))
         res.push_back(m);
     }
 
@@ -438,7 +434,7 @@ std::vector<Move> &MoveGenerator::generate_queen_moves(std::vector<Move> &res) {
   return res;
 }
 
-std::vector<Move> &MoveGenerator::generate_king_moves(std::vector<Move> &res) {
+std::vector<Move> &generate_king_moves(std::vector<Move> &res, Position &p) {
   uint64_t king =
       p.side_to_move == Color::White ? p.white_kings : p.black_kings;
   int index = fast_log_2(king);
@@ -450,7 +446,7 @@ std::vector<Move> &MoveGenerator::generate_king_moves(std::vector<Move> &res) {
     if (p.piece_table[current_index] == Piece::Empty) {
       Move m(index, current_index);
 
-      if (is_move_valid(m))
+      if (is_move_valid(m, p))
         res.push_back(m);
     } else if (p.color_table[current_index] != p.side_to_move &&
                p.color_table[current_index] != Color::Empty) {
@@ -458,7 +454,7 @@ std::vector<Move> &MoveGenerator::generate_king_moves(std::vector<Move> &res) {
       Move m(index, current_index);
       m.captured_piece = p.piece_table[current_index];
 
-      if (is_move_valid(m))
+      if (is_move_valid(m, p))
         res.push_back(m);
     }
     moves ^= 1ULL << current_index;
@@ -493,7 +489,7 @@ std::vector<Move> &MoveGenerator::generate_king_moves(std::vector<Move> &res) {
 
       if (can_castle_kingside) {
         Move m(4, 6);
-        if (is_move_valid(m))
+        if (is_move_valid(m, p))
           res.push_back(m);
       }
     }
@@ -519,7 +515,7 @@ std::vector<Move> &MoveGenerator::generate_king_moves(std::vector<Move> &res) {
 
       if (can_castle_queenside) {
         Move m(4, 2);
-        if (is_move_valid(m))
+        if (is_move_valid(m, p))
           res.push_back(m);
       }
     }
@@ -546,7 +542,7 @@ std::vector<Move> &MoveGenerator::generate_king_moves(std::vector<Move> &res) {
 
       if (can_castle_kingside) {
         Move m(60, 62);
-        if (is_move_valid(m))
+        if (is_move_valid(m, p))
           res.push_back(m);
       }
     }
@@ -572,7 +568,7 @@ std::vector<Move> &MoveGenerator::generate_king_moves(std::vector<Move> &res) {
 
       if (can_castle_queenside) {
         Move m(60, 58);
-        if (is_move_valid(m))
+        if (is_move_valid(m, p))
           res.push_back(m);
       }
     }
@@ -581,15 +577,15 @@ std::vector<Move> &MoveGenerator::generate_king_moves(std::vector<Move> &res) {
   return res;
 }
 
-std::vector<Move> MoveGenerator::generate_moves() {
+std::vector<Move> generate_moves(Position &p) {
   std::vector<Move> res;
 
-  res = generate_pawn_moves(res);
-  res = generate_knight_moves(res);
-  res = generate_rook_moves(res);
-  res = generate_bishop_moves(res);
-  res = generate_queen_moves(res);
-  res = generate_king_moves(res);
+  res = generate_pawn_moves(res, p);
+  res = generate_knight_moves(res, p);
+  res = generate_rook_moves(res, p);
+  res = generate_bishop_moves(res, p);
+  res = generate_queen_moves(res, p);
+  res = generate_king_moves(res, p);
 
   return res;
 }

@@ -11,7 +11,6 @@
 
 Position p("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 // Position p("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - ");
-MoveGenerator mg(p);
 // Mockup functions
 void handleSetOption(const std::string &optionName,
                      const std::string &optionValue) {
@@ -70,12 +69,11 @@ void handlePosition(const std::string &positionData) {
       p.make_move(m);
     }
   }
-  mg = MoveGenerator(p);
 }
 
 void handleGo(const std::string &goData) {
   // Implement move calculation logic
-  std::vector<Move> moves = mg.generate_moves();
+  std::vector<Move> moves = generate_moves(p);
   int best_index;
   int best_score = -1000;
   for (int i = 0; i < moves.size(); i++) {

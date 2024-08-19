@@ -13,9 +13,7 @@ uint64_t Perft::run_fast(int depth) {
     return 1ULL;
   }
 
-  MoveGenerator movegen(p);
-
-  std::vector<Move> move_list = movegen.generate_moves();
+  std::vector<Move> move_list = generate_moves(p);
   if (depth == 1)
     return move_list.size();
 
@@ -31,8 +29,7 @@ uint64_t Perft::run_fast(int depth) {
 }
 
 uint64_t Perft::run_debug(int depth) {
-  MoveGenerator movegen(p);
-  std::vector<Move> move_list = movegen.generate_moves();
+  std::vector<Move> move_list = generate_moves(p);
 
   uint64_t nodes = 0;
   for (auto m : move_list) {
@@ -56,9 +53,7 @@ PerftResults Perft::run(int depth) {
 }
 
 uint64_t Perft::run_wrapped(int depth) {
-  MoveGenerator movegen(p);
-
-  std::vector<Move> move_list = movegen.generate_moves();
+  std::vector<Move> move_list = generate_moves(p);
 
   if (depth == 0) {
     if (p.is_check()) {
