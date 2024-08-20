@@ -15,7 +15,15 @@ Position p("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 // Mockup functions
 void handleSetOption(const std::string &optionName,
                      const std::string &optionValue) {
-  // Implement setting options
+  if (optionName == "Threads") {
+    std::cout << "info string Threads option is fixed to 1" << std::endl;
+  } else if (optionName == "Hash") {
+    std::cout << "info string Hash option is not supported and will be ignored"
+              << std::endl;
+  } else {
+    std::cout << "info string Option " << optionName << " not recognized."
+              << std::endl;
+  }
 }
 
 void applyMove(const std::string &move) {
@@ -104,13 +112,27 @@ void uciloop() {
     if (input == "uci") {
       std::cout << "id name TakeLess\n";
       std::cout << "id author MyName\n";
+      std::cout << "option name Threads type spin default 1 min 1 max 1\n";
+      std::cout << "option name Hash type spin default 16 min 1 max 2048\n";
       std::cout << "uciok\n";
     } else if (input == "isready") {
       std::cout << "readyok\n";
     } else if (input.rfind("setoption", 0) == 0) {
       // Parse setoption command
-      std::string optionName = "someOption"; // Extract from input
-      std::string optionValue = "someValue"; // Extract from input
+      std::istringstream iss(input);
+      std::string token;
+      std::string optionName;
+      std::string optionValue;
+
+      // Split the input into words
+      while (iss >> token) {
+        if (token == "name") {
+          iss >> optionName;
+        } else if (token == "value") {
+          iss >> optionValue;
+        }
+      }
+
       handleSetOption(optionName, optionValue);
     } else if (input.rfind("position", 0) == 0) {
       // Parse position command
