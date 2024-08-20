@@ -82,7 +82,7 @@ void handlePosition(const std::string &positionData) {
 
 void handleGo(const std::string &goData) {
   // Implement move calculation logic
-  Move m = search(p, 4);
+  Move m = search(p, 5);
 
   std::cout << "bestmove " << get_coords_from_index(m.from)
             << get_coords_from_index(m.to);
@@ -110,7 +110,7 @@ void uciloop() {
   while (true) {
     std::getline(std::cin, input);
     if (input == "uci") {
-      std::cout << "id name TakeLess\n";
+      std::cout << "id name Chesster\n";
       std::cout << "id author MyName\n";
       std::cout << "option name Threads type spin default 1 min 1 max 1\n";
       std::cout << "option name Hash type spin default 16 min 1 max 2048\n";
