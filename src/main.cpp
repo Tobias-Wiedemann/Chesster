@@ -1,18 +1,104 @@
+#include <chrono>
+#include <cstdlib>
+#include <ctime>
+#include <fstream>
 #include <iostream>
+#include <random>
 #include <search.h>
 #include <sstream>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "board.h"
 #include "evaluate.h"
-#include "movegen.h"
 #include "perft.h"
 #include "utils.h"
 
+std::mt19937 gen(static_cast<unsigned int>(
+    std::chrono::system_clock::now().time_since_epoch().count()));
+std::uniform_int_distribution<> dis(1, 1000);
+
+class TrieNode {
+public:
+  std::unordered_map<std::string, TrieNode *> children;
+  std::vector<std::string> moves;
+
+  TrieNode() {}
+
+  ~TrieNode() {
+    for (auto &child : children) {
+      delete child.second;
+    }
+  }
+};
+class Trie {
+private:
+  TrieNode *root;
+
+public:
+  Trie() { root = new TrieNode(); }
+  void insert(std::vector<std::string> insert_moves) {
+    TrieNode *node = root;
+    for (std::string move : insert_moves) {
+      if (!node->children[move]) {
+        node->children[move] = new TrieNode();
+        node->moves.push_back(move);
+      }
+      node = node->children[move];
+    }
+  }
+
+  std::string get_random_next_move(std::vector<Move> history) {
+    TrieNode *node = root;
+    for (Move move : history) {
+      std::string move_string =
+          get_coords_from_index(move.from) + get_coords_from_index(move.to);
+      std::cout << move_string << "\n";
+      if (!node->children[move_string]) {
+        return "";
+      }
+      node = node->children[move_string];
+    }
+    if (node->moves.size() == 0)
+      return "";
+
+    return node->moves[dis(gen) % node->moves.size()];
+  }
+};
+
+Trie my_book;
 Position p("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 // Position p("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - ");
-// Mockup functions
+
+bool load_book(std::string filename) {
+  std::ifstream file(filename);
+
+  if (!file.is_open()) {
+    std::cerr << "Failed to open file: " << filename << std::endl;
+    return false;
+  }
+
+  std::string line;
+  while (std::getline(file, line)) {
+    std::istringstream iss(line);
+    std::vector<std::string> moveSequence;
+    std::string move;
+
+    // Assuming the line format is "move1 move2 move3 ... moveN"
+    while (iss >> move) {
+      moveSequence.push_back(move);
+    }
+
+    my_book.insert(moveSequence);
+
+    // std::cout << "IN" << std::endl;
+  }
+  // std::cout << "CHECK" << std::endl;
+
+  file.close();
+  return true;
+}
 void handleSetOption(const std::string &optionName,
                      const std::string &optionValue) {
   if (optionName == "Threads") {
@@ -20,6 +106,9 @@ void handleSetOption(const std::string &optionName,
   } else if (optionName == "Hash") {
     std::cout << "info string Hash option is not supported and will be ignored"
               << std::endl;
+  } else if (optionName == "BookFile") {
+    std::string book_file_path = optionValue;
+    load_book(book_file_path);
   } else {
     std::cout << "info string Option " << optionName << " not recognized."
               << std::endl;
@@ -82,6 +171,14 @@ void handlePosition(const std::string &positionData) {
 
 void handleGo(const std::string &goData) {
   // Implement move calculation logic
+  if (p.move_history.size() < 16) {
+    // std::cout << "should be bookmove\n";
+    std::string res = my_book.get_random_next_move(p.move_history);
+    if (res != "") {
+      std::cout << "bestmove " << res << std::endl;
+      return;
+    }
+  }
   Move m = search(p, 5);
 
   std::cout << "bestmove " << get_coords_from_index(m.from)
@@ -114,6 +211,8 @@ void uciloop() {
       std::cout << "id author MyName\n";
       std::cout << "option name Threads type spin default 1 min 1 max 1\n";
       std::cout << "option name Hash type spin default 16 min 1 max 2048\n";
+      std::cout << "option name BookFile type string default" << std::endl;
+      load_book("../8move_balanced.txt");
       std::cout << "uciok\n";
     } else if (input == "isready") {
       std::cout << "readyok\n";
