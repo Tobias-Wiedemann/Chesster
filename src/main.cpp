@@ -212,7 +212,7 @@ void uciloop() {
       std::cout << "option name Threads type spin default 1 min 1 max 1\n";
       std::cout << "option name Hash type spin default 16 min 1 max 2048\n";
       std::cout << "option name BookFile type string default" << std::endl;
-      load_book("../8move_balanced.txt");
+      load_book("../books/8move_balanced.txt");
       std::cout << "uciok\n";
     } else if (input == "isready") {
       std::cout << "readyok\n";
