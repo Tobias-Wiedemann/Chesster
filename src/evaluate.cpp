@@ -38,6 +38,9 @@ int evaluate_material(Position &p) {
 }
 
 int evaluate(Position &p) {
+  if (transposition_table[p.hash] == 3)
+    return 0;
+
   int res = 0;
 
   if (p.side_to_move == Color::White)

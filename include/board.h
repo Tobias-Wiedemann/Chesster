@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+#include <unordered_map>
 #include <vector>
 
 #include "utils.h"
@@ -44,6 +46,8 @@ struct Position {
 
   int en_passent_square = -1;
 
+  uint64_t hash = 0ULL;
+
   bool is_check();
 
   bool position_is_legal();
@@ -55,9 +59,11 @@ struct Position {
   void unmake_move();
 };
 
+extern uint64_t zobrist_table[12][64];
+extern std::unordered_map<uint64_t, int> transposition_table;
+
 void print_full_board(Position &p);
 bool is_consistant(Position &p);
-
 
 bool is_capture(Position &p, Move &m);
 bool is_en_passent(Position &p, Move &m);

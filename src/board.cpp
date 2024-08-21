@@ -6,6 +6,9 @@
 #include "perft.h"
 #include "utils.h"
 
+uint64_t zobrist_table[12][64];
+std::unordered_map<uint64_t, int> transposition_table(1 << 20);
+
 Position::Position() {
   piece_table.assign(64, Piece::Empty);
   color_table.assign(64, Color::Empty);
@@ -344,26 +347,32 @@ void Position::set_piece(Piece piece, int index, Color col) {
       case Piece::Pawn:
         white_pawns ^= bit;
         empty_squares |= bit;
+        hash ^= zobrist_table[0][index];
         break;
       case Piece::Rook:
         white_rooks ^= bit;
         empty_squares |= bit;
+        hash ^= zobrist_table[1][index];
         break;
       case Piece::Knight:
         white_knights ^= bit;
         empty_squares |= bit;
+        hash ^= zobrist_table[2][index];
         break;
       case Piece::Bishop:
         white_bishops ^= bit;
         empty_squares |= bit;
+        hash ^= zobrist_table[3][index];
         break;
       case Piece::Queen:
         white_queens ^= bit;
         empty_squares |= bit;
+        hash ^= zobrist_table[4][index];
         break;
       case Piece::King:
         white_kings ^= bit;
         empty_squares |= bit;
+        hash ^= zobrist_table[5][index];
         break;
       default:
         std::cout << "PIECE NOT FOUND 2 1 index : " << index;
@@ -374,26 +383,32 @@ void Position::set_piece(Piece piece, int index, Color col) {
       case Piece::Pawn:
         black_pawns ^= bit;
         empty_squares |= bit;
+        hash ^= zobrist_table[6][index];
         break;
       case Piece::Rook:
         black_rooks ^= bit;
         empty_squares |= bit;
+        hash ^= zobrist_table[7][index];
         break;
       case Piece::Knight:
         black_knights ^= bit;
         empty_squares |= bit;
+        hash ^= zobrist_table[8][index];
         break;
       case Piece::Bishop:
         black_bishops ^= bit;
         empty_squares |= bit;
+        hash ^= zobrist_table[9][index];
         break;
       case Piece::Queen:
         black_queens ^= bit;
         empty_squares |= bit;
+        hash ^= zobrist_table[10][index];
         break;
       case Piece::King:
         black_kings ^= bit;
         empty_squares |= bit;
+        hash ^= zobrist_table[11][index];
         break;
       default:
         std::cout << "PIECE NOT FOUND 3 1 index:" << index;
@@ -412,26 +427,32 @@ void Position::set_piece(Piece piece, int index, Color col) {
     case Piece::Pawn:
       white_pawns |= bit;
       empty_squares ^= bit;
+      hash ^= zobrist_table[0][index];
       break;
     case Piece::Rook:
       white_rooks |= bit;
       empty_squares ^= bit;
+      hash ^= zobrist_table[1][index];
       break;
     case Piece::Knight:
       white_knights |= bit;
       empty_squares ^= bit;
+      hash ^= zobrist_table[2][index];
       break;
     case Piece::Bishop:
       white_bishops |= bit;
       empty_squares ^= bit;
+      hash ^= zobrist_table[3][index];
       break;
     case Piece::Queen:
       white_queens |= bit;
       empty_squares ^= bit;
+      hash ^= zobrist_table[4][index];
       break;
     case Piece::King:
       white_kings |= bit;
       empty_squares ^= bit;
+      hash ^= zobrist_table[5][index];
       break;
     case Piece::Empty:
       break;
@@ -444,26 +465,32 @@ void Position::set_piece(Piece piece, int index, Color col) {
     case Piece::Pawn:
       black_pawns |= bit;
       empty_squares ^= bit;
+      hash ^= zobrist_table[6][index];
       break;
     case Piece::Rook:
       black_rooks |= bit;
       empty_squares ^= bit;
+      hash ^= zobrist_table[7][index];
       break;
     case Piece::Knight:
       black_knights |= bit;
       empty_squares ^= bit;
+      hash ^= zobrist_table[8][index];
       break;
     case Piece::Bishop:
       black_bishops |= bit;
       empty_squares ^= bit;
+      hash ^= zobrist_table[9][index];
       break;
     case Piece::Queen:
       black_queens |= bit;
       empty_squares ^= bit;
+      hash ^= zobrist_table[10][index];
       break;
     case Piece::King:
       black_kings |= bit;
       empty_squares ^= bit;
+      hash ^= zobrist_table[11][index];
       break;
     case Piece::Empty:
       break;
@@ -597,6 +624,7 @@ void Position::make_move(Move m) {
     side_to_move = Color::White;
   }
   move_history.push_back(m);
+  transposition_table[hash]++;
 }
 
 void Position::unmake_move() {
@@ -694,6 +722,7 @@ void Position::unmake_move() {
       break;
     }
   }
+  transposition_table[hash]--;
 }
 
 bool is_consistant(Position &p) {
@@ -956,11 +985,13 @@ bool is_capture(Position &p, Move &m) {
     return true;
   return is_en_passent(p, m);
 }
+
 bool is_en_passent(Position &p, Move &m) {
   if (p.piece_table[m.from] != Piece::Pawn)
     return false;
   return p.en_passent_square == m.to;
 }
+
 bool is_castle(Position &p, Move &m) {
   if (m.from == 4 && p.piece_table[m.from] == Piece::King)
     return m.to == 6 || m.to == 2;
