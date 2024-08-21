@@ -14,7 +14,7 @@ int minimax(Position &p, int depth, Move &best_move, int starting_depth, int alp
   if (moves.size() == 0) {
     // basicly checks for mate
     if (p.position_is_legal())
-      return -1000000;
+      return -2000000000;
     return 0;
   }
   for (auto &m : moves) {
@@ -38,6 +38,6 @@ int minimax(Position &p, int depth, Move &best_move, int starting_depth, int alp
 
 Move search(Position &p, int depth) {
   Move best_move(0, 0);
-  minimax(p, depth, best_move, depth, -1000000, 1000000);
+  minimax(p, depth, best_move, depth, -2000000001, 2000000001);
   return best_move;
 }
