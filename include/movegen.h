@@ -19,4 +19,6 @@ std::vector<Move> &generate_king_moves(std::vector<Move> &res, Position &p);
 
 std::vector<Move> generate_moves(Position &p);
 
+std::vector<Move> generate_captures(Position &p);
+
 bool is_move_valid(Move &m, Position &p);

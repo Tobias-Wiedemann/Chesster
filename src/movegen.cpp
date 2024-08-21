@@ -589,3 +589,14 @@ std::vector<Move> generate_moves(Position &p) {
 
   return res;
 }
+
+std::vector<Move> generate_captures(Position &p) {
+  std::vector<Move> moves = generate_moves(p);
+  std::vector<Move> res;
+
+  for (auto &m : moves)
+    if (p.piece_table[m.to] != Piece::Empty)
+      res.push_back(m);
+
+  return res;
+}
