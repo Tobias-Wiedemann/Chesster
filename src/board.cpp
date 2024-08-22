@@ -7,7 +7,7 @@
 #include "utils.h"
 
 uint64_t zobrist_table[12][64];
-std::unordered_map<uint64_t, int> transposition_table(1 << 20);
+// std::unordered_map<uint64_t, int> transposition_table(1 << 20);
 
 Position::Position() {
   piece_table.assign(64, Piece::Empty);
@@ -624,12 +624,13 @@ void Position::make_move(Move m) {
     side_to_move = Color::White;
   }
   move_history.push_back(m);
-  transposition_table[hash]++;
+  hash_history.push_back(hash);
 }
 
 void Position::unmake_move() {
   Move m = move_history.back();
   move_history.pop_back();
+  hash_history.pop_back();
 
   // Important to note this happening here
   if (side_to_move == Color::White) {
@@ -722,7 +723,6 @@ void Position::unmake_move() {
       break;
     }
   }
-  transposition_table[hash]--;
 }
 
 bool is_consistant(Position &p) {

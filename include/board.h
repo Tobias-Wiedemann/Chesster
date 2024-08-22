@@ -43,6 +43,7 @@ struct Position {
   std::vector<Color> color_table;
 
   std::vector<Move> move_history;
+  std::vector<uint64_t> hash_history;
 
   int en_passent_square = -1;
 
@@ -60,7 +61,7 @@ struct Position {
 };
 
 extern uint64_t zobrist_table[12][64];
-extern std::unordered_map<uint64_t, int> transposition_table;
+// extern std::unordered_map<uint64_t, int> transposition_table;
 
 void print_full_board(Position &p);
 bool is_consistant(Position &p);

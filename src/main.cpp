@@ -298,12 +298,12 @@ int main() {
   // std::cout << "\n" << transposition_table[0] << "\n";
   //
 
-p = Position("K7/8/k7/8/1Q6/8/8/8 w - - ");
-  std::cout << evaluate(p) << "\n";
-  std::cout << transposition_table[p.hash] << "\n";
-  std::cout << evaluate(p) << "\n";
-  transposition_table[p.hash] = 3;
-  std::cout << evaluate(p) << "\n";
+// p = Position("K7/8/k7/8/1Q6/8/8/8 w - - ");
+//   std::cout << evaluate(p) << "\n";
+//   std::cout << transposition_table[p.hash] << "\n";
+//   std::cout << evaluate(p) << "\n";
+//   transposition_table[p.hash] = 3;
+//   std::cout << evaluate(p) << "\n";
 
 
   return 0;
