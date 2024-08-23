@@ -5,6 +5,14 @@
 #include "utils.h"
 #include <algorithm>
 
+void order_moves(Position &p, std::vector<Move> moves) {
+  sort(moves.begin(), moves.end(), [&](Move &m1, Move &m2) {
+    bool isCapture1 = p.piece_table[m1.to] != Piece::Empty;
+    bool isCapture2 = p.piece_table[m2.to] != Piece::Empty;
+    return isCapture1 > isCapture2;
+  });
+}
+
 int search_captures(Position &p, int alpha, int beta) {
   int evaluation = evaluate(p);
   if (evaluation >= beta)
@@ -40,6 +48,7 @@ int minimax(Position &p, int depth, Move &best_move, int starting_depth,
   int max = alpha;
 
   std::vector<Move> moves = generate_moves(p);
+  order_moves(p, moves);
   if (moves.size() == 0) {
     // basicly checks for mate
     if (p.position_is_legal())
