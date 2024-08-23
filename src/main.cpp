@@ -250,14 +250,61 @@ void uciloop() {
   }
 }
 
+void initialize_zobrist() {
+  std::uniform_int_distribution<uint64_t> uniform_dist;
+
+  // Populate the Zobrist table with random 64-bit values
+  for (int piece = 0; piece < 12; ++piece) {
+    for (int square = 0; square < 64; ++square) {
+      zobrist_table[piece][square] = uniform_dist(gen);
+    }
+  }
+}
+
 int main() {
+  initialize_zobrist();
   uciloop();
-  // auto moves = mg.generate_moves();
-  // for (auto m : moves) {
-  //   print_move_compact(m);
-  //   p.make_move(m);
-  //   std::cout << " " << evaluate(p) << "\n";
-  //   p.unmake_move();
-  // }
+
+  // Move m(1, 16);
+  // std::cout << transposition_table[0] << "\n";
+  // m = Move(1, 16);
+  // std::cout << p.hash << "\n";
+  // p.make_move(m);
+  // std::cout << p.hash << "\n";
+  // m = Move(62, 45);
+  // p.make_move(m);
+  // std::cout << p.hash << "\n";
+  // m = Move(16, 1);
+  // p.make_move(m);
+  // std::cout << p.hash << "\n";
+  // m = Move(45, 62);
+  // p.make_move(m);
+  // std::cout << p.hash << "\n";
+  // std::cout << "\n" << transposition_table[0] << "\n";
+  //
+  // m = Move(1, 16);
+  // std::cout << p.hash << "\n";
+  // p.make_move(m);
+  // std::cout << p.hash << "\n";
+  // m = Move(62, 45);
+  // p.make_move(m);
+  // std::cout << p.hash << "\n";
+  // m = Move(16, 1);
+  // p.make_move(m);
+  // std::cout << p.hash << "\n";
+  // m = Move(45, 62);
+  // p.make_move(m);
+  // std::cout << p.hash << "\n";
+  // std::cout << "\n" << transposition_table[0] << "\n";
+  //
+
+// p = Position("K7/8/k7/8/1Q6/8/8/8 w - - ");
+//   std::cout << evaluate(p) << "\n";
+//   std::cout << transposition_table[p.hash] << "\n";
+//   std::cout << evaluate(p) << "\n";
+//   transposition_table[p.hash] = 3;
+//   std::cout << evaluate(p) << "\n";
+
+
   return 0;
 }

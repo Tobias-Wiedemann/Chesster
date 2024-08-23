@@ -5,15 +5,15 @@
 int piece_value(Piece p) {
   switch (p) {
   case Piece::Pawn:
-    return 1;
+    return 100;
   case Piece::Knight:
-    return 3;
+    return 300;
   case Piece::Bishop:
-    return 3;
+    return 300;
   case Piece::Rook:
-    return 5;
+    return 500;
   case Piece::Queen:
-    return 9;
+    return 900;
   default:
     return 0;
   }
@@ -38,6 +38,14 @@ int evaluate_material(Position &p) {
 }
 
 int evaluate(Position &p) {
+  int repetitions = 0;
+  for (auto current_hash : p.hash_history) {
+    if (current_hash == p.hash_history.back())
+      repetitions++;
+    if (repetitions >= 3)
+      return -1;
+  }
+
   int res = 0;
 
   if (p.side_to_move == Color::White)
