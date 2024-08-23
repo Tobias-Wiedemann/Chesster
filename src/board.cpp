@@ -582,7 +582,12 @@ void Position::make_move(Move m) {
   // delete from initial square
   set_piece(Piece::Empty, m.from, Color::Empty);
 
+  m.previous_moves_since_pawnmove_or_capture = moves_since_panwmove_or_capture;
+
   m.captured_piece = piece_table[m.to];
+  moves_since_panwmove_or_capture = m.captured_piece == Piece::Empty
+                                        ? moves_since_panwmove_or_capture + 1
+                                        : 0;
   // insert to new square
   if (m.promotion != Piece::Empty)
     moving_piece = m.promotion;
@@ -631,6 +636,8 @@ void Position::unmake_move() {
   Move m = move_history.back();
   move_history.pop_back();
   hash_history.pop_back();
+
+  moves_since_panwmove_or_capture = m.previous_moves_since_pawnmove_or_capture;
 
   // Important to note this happening here
   if (side_to_move == Color::White) {

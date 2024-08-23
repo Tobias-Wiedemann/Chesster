@@ -46,6 +46,9 @@ int evaluate(Position &p) {
       return -1;
   }
 
+  if (p.moves_since_panwmove_or_capture >= 100)
+    return 0;
+
   int res = 0;
 
   if (p.side_to_move == Color::White)

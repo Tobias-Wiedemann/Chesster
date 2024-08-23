@@ -45,6 +45,7 @@ struct Position {
   std::vector<Move> move_history;
   std::vector<uint64_t> hash_history;
 
+  int moves_since_panwmove_or_capture = 0;
   int en_passent_square = -1;
 
   uint64_t hash = 0ULL;
