@@ -12,6 +12,7 @@
 
 #include "board.h"
 #include "evaluate.h"
+#include "movegen.h"
 #include "perft.h"
 #include "utils.h"
 
@@ -264,47 +265,23 @@ void initialize_zobrist() {
 int main() {
   initialize_zobrist();
   uciloop();
+  /*
 
-  // Move m(1, 16);
-  // std::cout << transposition_table[0] << "\n";
-  // m = Move(1, 16);
-  // std::cout << p.hash << "\n";
-  // p.make_move(m);
-  // std::cout << p.hash << "\n";
-  // m = Move(62, 45);
-  // p.make_move(m);
-  // std::cout << p.hash << "\n";
-  // m = Move(16, 1);
-  // p.make_move(m);
-  // std::cout << p.hash << "\n";
-  // m = Move(45, 62);
-  // p.make_move(m);
-  // std::cout << p.hash << "\n";
-  // std::cout << "\n" << transposition_table[0] << "\n";
-  //
-  // m = Move(1, 16);
-  // std::cout << p.hash << "\n";
-  // p.make_move(m);
-  // std::cout << p.hash << "\n";
-  // m = Move(62, 45);
-  // p.make_move(m);
-  // std::cout << p.hash << "\n";
-  // m = Move(16, 1);
-  // p.make_move(m);
-  // std::cout << p.hash << "\n";
-  // m = Move(45, 62);
-  // p.make_move(m);
-  // std::cout << p.hash << "\n";
-  // std::cout << "\n" << transposition_table[0] << "\n";
-  //
+  // p = Position("K7/8/k7/8/1Q6/8/8/8 w - - ");
+  p = Position("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - ");
+  auto moves = generate_moves(p);
+  for (auto m : moves)
+    print_move(m);
 
-// p = Position("K7/8/k7/8/1Q6/8/8/8 w - - ");
-//   std::cout << evaluate(p) << "\n";
-//   std::cout << transposition_table[p.hash] << "\n";
-//   std::cout << evaluate(p) << "\n";
-//   transposition_table[p.hash] = 3;
-//   std::cout << evaluate(p) << "\n";
+  std::cout << moves.size() << "\n";
+  order_moves(p, moves);
 
+  for (auto m : moves)
+    print_move(m);
 
+  std::cout << moves.size() << "\n";
+
+  std::cout << "\n";
+  */
   return 0;
 }
