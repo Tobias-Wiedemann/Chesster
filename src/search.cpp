@@ -6,9 +6,17 @@
 #include <algorithm>
 
 std::vector<Move> order_moves(Position &p, std::vector<Move> moves) {
+  std::vector<Move> checks;
   std::vector<Move> captures;
   std::vector<Move> no_captures;
   for (auto &m : moves) {
+    p.make_move(m);
+    if (p.is_check()) {
+      checks.push_back(m);
+      p.unmake_move();
+      continue;
+    }
+    p.unmake_move();
     if (p.piece_table[m.to] != Piece::Empty)
       captures.push_back(m);
     else
@@ -16,7 +24,8 @@ std::vector<Move> order_moves(Position &p, std::vector<Move> moves) {
   }
 
   captures.insert(captures.end(), no_captures.begin(), no_captures.end());
-  return captures;
+  checks.insert(checks.end(), captures.begin(), captures.end());
+  return checks;
 }
 
 int search_captures(Position &p, int alpha, int beta) {
