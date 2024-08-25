@@ -116,11 +116,6 @@ void handleSetOption(const std::string &optionName,
   }
 }
 
-void applyMove(const std::string &move) {
-  // Convert the move string to your Move structure and apply it
-  // For example, e2e4 -> Move(from=12, to=28)
-}
-
 void handlePosition(const std::string &positionData) {
   std::istringstream iss(positionData);
   std::string token;
