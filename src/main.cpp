@@ -211,19 +211,15 @@ void handleGo(const std::string &goData) {
     time_limit += std::chrono::milliseconds(*tc.movetime / 2);
 
   Move m(0, 0);
-  time_limit = std::chrono::milliseconds(1000000);
   auto deadline = std::chrono::high_resolution_clock::now() + time_limit;
 
-  // for (int i = 1;; i++) {
-  //   auto search_res = search(p, i, deadline);
-  //   if (!search_res)
-  //     break;
-  //
-  //   m = *search_res;
-  // }
+  for (int i = 1;; i++) {
+    auto search_res = search(p, i, deadline);
+    if (!search_res)
+      break;
 
-  auto search_res = search(p, 5, deadline);
-  m = *search_res;
+    m = *search_res;
+  }
 
   std::cout << "bestmove " << get_coords_from_index(m.from)
             << get_coords_from_index(m.to);

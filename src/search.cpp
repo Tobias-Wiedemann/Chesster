@@ -117,6 +117,11 @@ std::optional<Move>
 search(Position &p, int depth,
        std::chrono::time_point<std::chrono::high_resolution_clock> deadline) {
   Move best_move(0, 0);
-  minimax(p, depth, best_move, depth, -2000000001, 2000000001, deadline);
+  auto minimax_res =
+      minimax(p, depth, best_move, depth, -2000000001, 2000000001, deadline);
+  if (!minimax_res)
+    return std::nullopt;
+
+  std::cout << "info depth " << depth << " score " << *minimax_res << std::endl;
   return best_move;
 }
