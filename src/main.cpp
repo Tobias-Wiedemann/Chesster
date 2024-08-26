@@ -175,7 +175,55 @@ void handleGo(const std::string &goData) {
       return;
     }
   }
-  Move m = search(p, 5);
+
+  std::istringstream iss(goData);
+  std::string token;
+  TimeControl tc;
+
+  while (iss >> token) {
+    if (token == "wtime") {
+      int value;
+      iss >> value;
+      tc.wtime = value;
+    } else if (token == "btime") {
+      int value;
+      iss >> value;
+      tc.btime = value;
+    } else if (token == "movestogo") {
+      int value;
+      iss >> value;
+      tc.movestogo = value;
+    } else if (token == "movetime") {
+      int value;
+      iss >> value;
+      tc.movetime = value;
+    }
+  }
+  std::chrono::milliseconds time_limit;
+  if (p.side_to_move == Color::White) {
+    if (tc.wtime)
+      time_limit = std::chrono::milliseconds(*tc.wtime / 20);
+  } else {
+    if (tc.btime)
+      time_limit = std::chrono::milliseconds(*tc.btime / 20);
+  }
+  if (tc.movetime)
+    time_limit += std::chrono::milliseconds(*tc.movetime / 2);
+
+  Move m(0, 0);
+  time_limit = std::chrono::milliseconds(1000000);
+  auto deadline = std::chrono::high_resolution_clock::now() + time_limit;
+
+  // for (int i = 1;; i++) {
+  //   auto search_res = search(p, i, deadline);
+  //   if (!search_res)
+  //     break;
+  //
+  //   m = *search_res;
+  // }
+
+  auto search_res = search(p, 5, deadline);
+  m = *search_res;
 
   std::cout << "bestmove " << get_coords_from_index(m.from)
             << get_coords_from_index(m.to);
