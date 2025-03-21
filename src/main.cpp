@@ -166,6 +166,7 @@ void handlePosition(const std::string &positionData) {
 }
 
 void handleGo(const std::string &goData) {
+  std::cerr << "why we here" << std::endl;
   // Implement move calculation logic
   if (p.move_history.size() < 16) {
     // std::cout << "should be bookmove\n";
@@ -277,6 +278,11 @@ void uciloop() {
       // Parse position command
       std::string positionData = input.substr(9); // Extract position data
       handlePosition(positionData);
+    } else if (input.rfind("go perft", 0) == 0) {
+      std::string depth = input.substr(9);
+      Perft myp(p);
+      uint64_t res = myp.run_fast(std::stoi(depth));
+      std::cout << "Nodes: " << res << std::endl;
     } else if (input.rfind("go", 0) == 0) {
       // Parse go command
       std::string goData =
@@ -304,23 +310,5 @@ void initialize_zobrist() {
 int main() {
   initialize_zobrist();
   uciloop();
-  /*
-
-  // p = Position("K7/8/k7/8/1Q6/8/8/8 w - - ");
-  p = Position("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - ");
-  auto moves = generate_moves(p);
-  for (auto m : moves)
-    print_move(m);
-
-  std::cout << moves.size() << "\n";
-  order_moves(p, moves);
-
-  for (auto m : moves)
-    print_move(m);
-
-  std::cout << moves.size() << "\n";
-
-  std::cout << "\n";
-  */
   return 0;
 }
